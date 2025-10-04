@@ -290,14 +290,21 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
           elevation: 0,
           automaticallyImplyLeading: !_isChecking,
         ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-                // Payment icon with animation
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
+                ),
+                child: IntrinsicHeight(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 60),
+                        // Payment icon with animation
                 AnimatedBuilder(
                   animation: _pulseAnimation,
                   builder: (context, child) {
@@ -401,9 +408,13 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
                   ),
                 ],
                 SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-              ],
-            ),
-          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
         ),
       ),
     );
