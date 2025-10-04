@@ -10,7 +10,7 @@ class AdminApiService {
   static Future<String> uploadImage(File imageFile) async {
     try {
       final formData = FormData.fromMap({
-        'image': await MultipartFile.fromFile(imageFile.path),
+        'file': await MultipartFile.fromFile(imageFile.path),
       });
 
       final response = await ApiService.post(

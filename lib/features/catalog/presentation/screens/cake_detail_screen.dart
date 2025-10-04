@@ -284,7 +284,7 @@ class _CakeDetailScreenState extends ConsumerState<CakeDetailScreen> {
       backgroundColor: AppTheme.backgroundColor,
       body: CustomScrollView(
         slivers: [
-          // App Bar with Image
+          // App Bar with Image Carousel
           SliverAppBar(
             expandedHeight: 300,
             pinned: true,
@@ -295,18 +295,59 @@ class _CakeDetailScreenState extends ConsumerState<CakeDetailScreen> {
               background: Container(
                 color: AppTheme.primaryColor,
                 child: cake.images.isNotEmpty
-                    ? Image.network(
-                        cake.images.first,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Center(
-                            child: Icon(
-                              Icons.cake,
-                              size: 120,
-                              color: Colors.white,
+                    ? Stack(
+                        children: [
+                          PageView.builder(
+                            itemCount: cake.images.length,
+                            itemBuilder: (context, index) {
+                              return Image.network(
+                                cake.images[index],
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Center(
+                                    child: Icon(
+                                      Icons.broken_image,
+                                      size: 120,
+                                      color: Colors.white,
+                                    ),
+                                  );
+                                },
+                                loadingBuilder: (context, child, progress) {
+                                  if (progress == null) return child;
+                                  return const Center(
+                                    child: CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                          // Image counter indicator (bottom center)
+                          if (cake.images.length > 1)
+                            Positioned(
+                              bottom: 16,
+                              left: 0,
+                              right: 0,
+                              child: Center(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.6),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    '${cake.images.length} photos',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
-                          );
-                        },
+                        ],
                       )
                     : const Center(
                         child: Icon(

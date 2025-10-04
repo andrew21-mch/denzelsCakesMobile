@@ -415,7 +415,7 @@ class _CakeManagementScreenState extends State<CakeManagementScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image and basic info
+          // Image carousel and basic info
           Container(
             height: 200,
             decoration: BoxDecoration(
@@ -425,33 +425,87 @@ class _CakeManagementScreenState extends State<CakeManagementScreen> {
             ),
             child: Stack(
               children: [
-                // Image
+                // Image carousel
                 if (images.isNotEmpty)
-                  ClipRRect(
-                    borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(12)),
-                    child: Image.network(
-                      images.first,
-                      width: double.infinity,
-                      height: 200,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
+                  PageView.builder(
+                    itemCount: images.length,
+                    itemBuilder: (context, index) {
+                      return ClipRRect(
+                        borderRadius:
+                            const BorderRadius.vertical(top: Radius.circular(12)),
+                        child: Image.network(
+                          images[index],
                           width: double.infinity,
                           height: 200,
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.cake,
-                              size: 60, color: Colors.grey),
-                        );
-                      },
-                    ),
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              width: double.infinity,
+                              height: 200,
+                              color: Colors.grey[300],
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.broken_image, size: 40, color: Colors.grey),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Image ${index + 1} failed to load',
+                                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                          loadingBuilder: (context, child, progress) {
+                            if (progress == null) return child;
+                            return Container(
+                              width: double.infinity,
+                              height: 200,
+                              color: Colors.grey[300],
+                              child: const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
                   )
                 else
                   Container(
                     width: double.infinity,
                     height: 200,
                     color: Colors.grey[300],
-                    child: const Icon(Icons.cake, size: 60, color: Colors.grey),
+                    child: const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.cake, size: 60, color: Colors.grey),
+                        SizedBox(height: 8),
+                        Text('No images', style: TextStyle(color: Colors.grey)),
+                      ],
+                    ),
+                  ),
+
+                // Image counter badge (only show if multiple images)
+                if (images.length > 1)
+                  Positioned(
+                    top: 12,
+                    left: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.7),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '${images.length} images',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
                   ),
 
                 // Availability badge

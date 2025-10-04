@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../shared/theme/app_theme.dart';
-import '../../../../core/services/admin_api_service.dart';
+import '../../../../core/services/admin_api_service_new.dart';
 
 class AddCakeScreen extends StatefulWidget {
   const AddCakeScreen({super.key});
@@ -811,15 +811,44 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
     try {
       // Upload images first and get URLs
       List<String> imageUrls = [];
+      List<String> failedUploads = [];
 
-      for (File imageFile in _selectedImages) {
+      for (int i = 0; i < _selectedImages.length; i++) {
+        File imageFile = _selectedImages[i];
         try {
           final imageUrl = await AdminApiService.uploadImage(imageFile);
           imageUrls.add(imageUrl);
         } catch (e) {
-// print('Failed to upload image: $e');
+          print('Failed to upload image ${i + 1}: $e');
+          failedUploads.add('Image ${i + 1}');
           // Continue with other images, don't fail the entire operation
         }
+      }
+
+      // Check if any images were uploaded successfully
+      if (imageUrls.isEmpty) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to upload any images. Please check your connection and try again.'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 4),
+          ),
+        );
+        return;
+      }
+
+      // Show warning if some images failed
+      if (failedUploads.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Warning: Failed to upload ${failedUploads.join(", ")}. Continuing with ${imageUrls.length} uploaded images.'),
+            backgroundColor: Colors.orange,
+            duration: const Duration(seconds: 4),
+          ),
+        );
       }
 
       // Validate and parse numeric fields
