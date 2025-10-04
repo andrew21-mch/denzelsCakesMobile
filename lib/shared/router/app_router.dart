@@ -12,6 +12,7 @@ import '../../features/search/presentation/screens/search_screen.dart';
 import '../../features/cart/presentation/screens/cart_screen.dart';
 import '../../features/checkout/presentation/screens/checkout_screen.dart';
 import '../../features/orders/presentation/screens/orders_screen.dart';
+import '../../features/training/presentation/screens/training_screen.dart';
 import '../../core/services/storage_service.dart';
 
 // Route names
@@ -27,6 +28,7 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String orders = '/orders';
   static const String orderDetail = '/orders/:id';
+  static const String training = '/training';
 }
 
 // Router provider
@@ -46,6 +48,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         AppRoutes.register,
         AppRoutes.home,
         AppRoutes.search,
+        AppRoutes.training,
       ];
 
       // Check if current route is public
@@ -134,6 +137,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'orders',
         builder: (context, state) => const OrdersScreen(),
       ),
+
+      // Training routes
+      GoRoute(
+        path: AppRoutes.training,
+        name: 'training',
+        builder: (context, state) => const TrainingScreen(),
+      ),
     ],
     errorBuilder: (context, state) => Scaffold(
       body: Center(
@@ -186,4 +196,5 @@ extension AppRouterExtension on GoRouter {
   void pushProfile() => push(AppRoutes.profile);
   void pushOrders() => push(AppRoutes.orders);
   void pushOrderDetail(String orderId) => push('/orders/$orderId');
+  void pushTraining() => push(AppRoutes.training);
 }

@@ -290,12 +290,13 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
           elevation: 0,
           automaticallyImplyLeading: !_isChecking,
         ),
-        body: Center(
+        body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(32),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                SizedBox(height: MediaQuery.of(context).size.height * 0.1),
                 // Payment icon with animation
                 AnimatedBuilder(
                   animation: _pulseAnimation,
@@ -329,26 +330,34 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
                 const SizedBox(height: 32),
 
                 // Status message
-                Text(
-                  _statusMessage,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.textPrimary,
+                Flexible(
+                  child: Text(
+                    _statusMessage,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textPrimary,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  textAlign: TextAlign.center,
                 ),
 
                 const SizedBox(height: 16),
 
                 // Additional info
-                Text(
-                  _getAdditionalInfo(),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: AppTheme.textSecondary,
+                Flexible(
+                  child: Text(
+                    _getAdditionalInfo(),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppTheme.textSecondary,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  textAlign: TextAlign.center,
                 ),
 
                 const SizedBox(height: 32),
@@ -391,6 +400,7 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
                         AlwaysStoppedAnimation<Color>(AppTheme.accentColor),
                   ),
                 ],
+                SizedBox(height: MediaQuery.of(context).size.height * 0.1),
               ],
             ),
           ),

@@ -10,7 +10,7 @@ class AboutScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text('About CakeShop'),
+        title: const Text('About DenzelsCakes'),
         backgroundColor: AppTheme.surfaceColor,
         elevation: 0,
       ),
@@ -35,6 +35,11 @@ class AboutScreen extends StatelessWidget {
 
             // Team
             _buildTeamSection(context),
+
+            const SizedBox(height: 24),
+
+            // Contact Information
+            _buildContactSection(context),
 
             const SizedBox(height: 24),
 
@@ -95,7 +100,7 @@ class AboutScreen extends StatelessWidget {
 
           // App Name
           Text(
-            'CakeShop',
+            'DenzelsCakes',
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: AppTheme.textPrimary,
@@ -154,7 +159,7 @@ class AboutScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Founded in 2024, CakeShop began as a passion project to bring the finest, freshest cakes to the people of Cameroon. Our journey started in a small kitchen in Yaoundé with a simple mission: to create memorable moments through exceptional cakes.\n\n'
+            'Founded in 2020, Denzel\'s Cakes began as a passion project to bring the finest, freshest cakes to the people of Cameroon. Our journey started in a small kitchen in Douala with a simple mission: to create memorable moments through exceptional cakes.\n\n'
             'Today, we\'re proud to serve customers across Cameroon with our handcrafted cakes, made with love and the finest local ingredients. Every cake tells a story, and we\'re honored to be part of your special moments.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppTheme.textSecondary,
@@ -372,6 +377,117 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildContactSection(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            color: AppTheme.cardShadowColor,
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Contact Us',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimary,
+                ),
+          ),
+          const SizedBox(height: 16),
+          
+          // Location
+          _buildContactItem(
+            icon: Icons.location_on,
+            title: 'Location',
+            subtitle: 'Makepe, Douala\nCameroon\nOpposite Tradex Rhone Poulenc',
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Phone
+          _buildContactItem(
+            icon: Icons.phone,
+            title: 'Call Us',
+            subtitle: '683 252 520',
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // WhatsApp
+          _buildContactItem(
+            icon: Icons.message,
+            title: 'WhatsApp',
+            subtitle: '683 252 520',
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Email
+          _buildContactItem(
+            icon: Icons.email,
+            title: 'Email',
+            subtitle: 'hello@denzelscakes.com',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContactItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
+    return Row(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: AppTheme.accentColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(
+            icon,
+            color: AppTheme.accentColor,
+            size: 20,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  color: AppTheme.textSecondary,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildLegalSection(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -427,7 +543,7 @@ class AboutScreen extends StatelessWidget {
           // Copyright
           Center(
             child: Text(
-              '© 2024 CakeShop Cameroon\nAll rights reserved',
+              '© 2020 DenzelsCakes Cameroon\nAll rights reserved',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: AppTheme.textTertiary,
                   ),
@@ -480,7 +596,7 @@ class AboutScreen extends StatelessWidget {
         title: const Text('Privacy Policy'),
         content: const SingleChildScrollView(
           child: Text(
-            'At CakeShop, we respect your privacy and are committed to protecting your personal information.\n\n'
+            'At DenzelsCakes, we respect your privacy and are committed to protecting your personal information.\n\n'
             'Information We Collect:\n'
             '• Contact information (name, email, phone)\n'
             '• Delivery addresses\n'
@@ -512,7 +628,7 @@ class AboutScreen extends StatelessWidget {
         title: const Text('Terms of Service'),
         content: const SingleChildScrollView(
           child: Text(
-            'Welcome to CakeShop! By using our service, you agree to these terms.\n\n'
+            'Welcome to DenzelsCakes! By using our service, you agree to these terms.\n\n'
             'Orders:\n'
             '• All orders are subject to availability\n'
             '• Custom cakes require 24-48 hours notice\n'
@@ -543,9 +659,9 @@ class AboutScreen extends StatelessWidget {
   void _showLicenses(BuildContext context) {
     showLicensePage(
       context: context,
-      applicationName: 'CakeShop',
+      applicationName: 'DenzelsCakes',
       applicationVersion: '1.0.0',
-      applicationLegalese: '© 2024 CakeShop Cameroon',
+      applicationLegalese: '© 2020 DenzelsCakes Cameroon',
     );
   }
 }

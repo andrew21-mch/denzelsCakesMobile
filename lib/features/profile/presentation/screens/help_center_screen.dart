@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../shared/theme/app_theme.dart';
 
 class HelpCenterScreen extends StatefulWidget {
@@ -170,8 +171,8 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                       Expanded(
                         child: _buildQuickActionCard(
                           icon: Icons.chat_outlined,
-                          title: 'Live Chat',
-                          subtitle: 'Chat with support',
+                          title: 'Contact Support',
+                          subtitle: 'WhatsApp or Call',
                           onTap: () => _startLiveChat(),
                         ),
                       ),
@@ -180,7 +181,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                         child: _buildQuickActionCard(
                           icon: Icons.phone_outlined,
                           title: 'Call Us',
-                          subtitle: '+1 234 567 8900',
+                          subtitle: '683 252 520',
                           onTap: () => _callSupport(),
                         ),
                       ),
@@ -375,34 +376,113 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Live Chat'),
+        title: const Text('Contact Support'),
         content: const Text(
-          'Live chat feature is coming soon! For immediate assistance, please call our support team.',
+          'Choose how you\'d like to contact our support team:',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _openWhatsApp();
+            },
+            child: const Text('WhatsApp'),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
               _callSupport();
             },
-            child: const Text('Call Now'),
+            child: const Text('Call'),
           ),
         ],
       ),
     );
   }
 
-  void _callSupport() {
+  void _callSupport() async {
     HapticFeedback.lightImpact();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Calling +1 234 567 8900... (Demo mode)'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+    _makePhoneCall('683252520');
+  }
+
+  void _makePhoneCall(String phoneNumber) async {
+    // Try different phone URI formats
+    final List<String> phoneFormats = [
+      'tel:683252520',
+      'tel:+237683252520', 
+      'tel://683252520',
+      'tel://+237683252520'
+    ];
+    
+    bool callMade = false;
+    
+    for (String phoneFormat in phoneFormats) {
+      try {
+        final Uri phoneUri = Uri.parse(phoneFormat);
+        
+        if (await canLaunchUrl(phoneUri)) {
+          await launchUrl(phoneUri);
+          callMade = true;
+          break;
+        }
+      } catch (e) {
+        continue;
+      }
+    }
+    
+    if (!callMade) {
+      // Last resort - try without checking canLaunchUrl
+      try {
+        final Uri directUri = Uri.parse('tel:683252520');
+        await launchUrl(directUri);
+        callMade = true;
+      } catch (e) {
+        _showErrorMessage('Phone app not available. Please dial 683 252 520 manually.');
+      }
+    }
+  }
+
+  void _openWhatsApp() async {
+    HapticFeedback.lightImpact();
+    const phoneNumber = '237683252520'; // Country code + number
+    final List<Uri> whatsappUris = [
+      Uri.parse('whatsapp://send?phone=$phoneNumber'), // WhatsApp app
+      Uri.parse('https://wa.me/$phoneNumber'), // WhatsApp web
+      Uri.parse('https://api.whatsapp.com/send?phone=$phoneNumber'), // Alternative web
+    ];
+    
+    bool opened = false;
+    for (final uri in whatsappUris) {
+      try {
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+          opened = true;
+          break;
+        }
+      } catch (e) {
+        // Try next option
+        continue;
+      }
+    }
+    
+    if (!opened) {
+      _showErrorMessage('WhatsApp not available. Please message us at +237 683 252 520');
+    }
+  }
+
+  void _showErrorMessage(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: AppTheme.errorColor,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    }
   }
 }

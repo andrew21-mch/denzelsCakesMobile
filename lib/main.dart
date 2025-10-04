@@ -27,6 +27,7 @@ import 'features/profile/presentation/screens/language_screen.dart';
 import 'features/admin/presentation/screens/admin_dashboard_screen.dart';
 import 'features/admin/presentation/screens/add_cake_screen.dart';
 import 'features/admin/presentation/screens/manage_orders_screen.dart';
+import 'features/training/presentation/screens/training_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -61,6 +62,7 @@ class CakeShopApp extends StatelessWidget {
         '/checkout': (context) => const CheckoutScreen(),
         '/orders': (context) => const OrdersScreen(),
         '/search': (context) => const SearchScreen(),
+        '/training': (context) => const TrainingScreen(),
         '/profile': (context) => const ProfileScreen(),
         '/edit-profile': (context) => const EditProfileScreen(),
         '/addresses': (context) => const AddressesScreen(),

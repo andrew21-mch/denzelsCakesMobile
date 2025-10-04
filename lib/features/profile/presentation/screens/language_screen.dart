@@ -27,34 +27,6 @@ class _LanguageScreenState extends State<LanguageScreen> {
       'flag': '🇫🇷',
       'isDefault': false,
     },
-    {
-      'name': 'Fulfulde',
-      'nativeName': 'Fulfulde',
-      'code': 'ff',
-      'flag': '🇨🇲',
-      'isDefault': false,
-    },
-    {
-      'name': 'Ewondo',
-      'nativeName': 'Ewondo',
-      'code': 'ewo',
-      'flag': '🇨🇲',
-      'isDefault': false,
-    },
-    {
-      'name': 'Duala',
-      'nativeName': 'Duálá',
-      'code': 'dua',
-      'flag': '🇨🇲',
-      'isDefault': false,
-    },
-    {
-      'name': 'Bamileke',
-      'nativeName': 'Bamiléké',
-      'code': 'bax',
-      'flag': '🇨🇲',
-      'isDefault': false,
-    },
   ];
 
   @override
@@ -90,10 +62,10 @@ class _LanguageScreenState extends State<LanguageScreen> {
             // Language Selection
             _buildLanguageSelectionSection(),
 
-            const SizedBox(height: 24),
+            // const SizedBox(height: 24),
 
             // Additional Settings
-            _buildAdditionalSettingsSection(),
+            // _buildAdditionalSettingsSection(),
           ],
         ),
       ),
@@ -358,158 +330,37 @@ class _LanguageScreenState extends State<LanguageScreen> {
     );
   }
 
-  Widget _buildAdditionalSettingsSection() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppTheme.surfaceColor,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(
-            color: AppTheme.cardShadowColor,
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Additional Settings',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
-                ),
-          ),
-          const SizedBox(height: 16),
-
-          // Auto-detect Language
-          _buildSettingOption(
-            icon: Icons.auto_awesome,
-            title: 'Auto-detect Language',
-            subtitle: 'Detect language based on device settings',
-            onTap: () {
-              HapticFeedback.lightImpact();
-              _showAutoDetectDialog();
-            },
-          ),
-
-          const SizedBox(height: 12),
-
-          // Download Languages
-          _buildSettingOption(
-            icon: Icons.download,
-            title: 'Download Languages',
-            subtitle: 'Download languages for offline use',
-            onTap: () {
-              HapticFeedback.lightImpact();
-              _showDownloadLanguagesDialog();
-            },
-          ),
-
-          const SizedBox(height: 12),
-
-          // Translation Quality
-          _buildSettingOption(
-            icon: Icons.translate,
-            title: 'Translation Quality',
-            subtitle: 'Help improve translations',
-            onTap: () {
-              HapticFeedback.lightImpact();
-              _showTranslationQualityDialog();
-            },
-          ),
-
-          const SizedBox(height: 20),
-
-          // Info Box
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppTheme.accentColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.info_outline,
-                  color: AppTheme.accentColor,
-                  size: 20,
-                ),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Language changes will take effect after restarting the app. Some local languages may have limited translations.',
-                    style: TextStyle(
-                      color: AppTheme.textSecondary,
-                      fontSize: 13,
-                      height: 1.4,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSettingOption({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppTheme.backgroundColor,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: AppTheme.accentColor,
-              size: 20,
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textPrimary,
-                    ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      color: AppTheme.textSecondary,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(
-              Icons.arrow_forward_ios,
-              size: 16,
-              color: AppTheme.textTertiary,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildAdditionalSettingsSection() {
+  //   return Container(
+  //     padding: const EdgeInsets.all(20),
+  //     decoration: BoxDecoration(
+  //       color: AppTheme.surfaceColor,
+  //       borderRadius: BorderRadius.circular(16),
+  //       boxShadow: const [
+  //         BoxShadow(
+  //           color: AppTheme.cardShadowColor,
+  //           blurRadius: 8,
+  //           offset: Offset(0, 2),
+  //         ),
+  //       ],
+  //     ),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Text(
+  //           'Additional Settings',
+  //           style: const TextStyle(
+  //             fontSize: 18,
+  //             fontWeight: FontWeight.bold,
+  //             color: AppTheme.textPrimary,
+  //           ),
+  //         ),
+  //         const SizedBox(height: 16),
+  //         // Additional settings content...
+  //       ],
+  //     ),
+  //   );
+  // }
 
   void _saveLanguageSettings() {
     HapticFeedback.mediumImpact();

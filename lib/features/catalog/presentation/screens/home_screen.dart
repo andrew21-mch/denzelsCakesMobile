@@ -987,7 +987,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.transparent,
           selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.white.withValues(alpha: 0.7),
+          unselectedItemColor: Colors.white.withAlpha(179),
           currentIndex: 0,
           elevation: 0,
           items: const [
@@ -1000,6 +1000,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               label: 'Search',
             ),
             BottomNavigationBarItem(
+              icon: Icon(Icons.school),
+              label: 'Training',
+            ),
+            BottomNavigationBarItem(
               icon: Icon(Icons.shopping_cart),
               label: 'Cart',
             ),
@@ -1007,23 +1011,25 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               icon: Icon(Icons.person),
               label: 'Profile',
             ),
-          ],
-          onTap: (index) {
-            switch (index) {
-              case 0:
-                // Already on home
-                break;
-              case 1:
-                Navigator.of(context).pushNamed('/search');
-                break;
-              case 2:
-                Navigator.of(context).pushNamed('/cart');
-                break;
-              case 3:
-                Navigator.of(context).pushNamed('/profile');
-                break;
-            }
-          },
+          ],        onTap: (index) {
+          switch (index) {
+            case 0:
+              // Already on home
+              break;
+            case 1:
+              Navigator.of(context).pushNamed('/search');
+              break;
+            case 2:
+              Navigator.of(context).pushNamed('/training');
+              break;
+            case 3:
+              Navigator.of(context).pushNamed('/cart');
+              break;
+            case 4:
+              Navigator.of(context).pushNamed('/profile');
+              break;
+          }
+        },
         ),
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../shared/theme/app_theme.dart';
 
 class ContactUsScreen extends StatefulWidget {
@@ -114,10 +115,10 @@ class _ContactUsScreenState extends State<ContactUsScreen>
           _buildContactOption(
             icon: Icons.phone,
             title: 'Call Us',
-            subtitle: '+237 6XX XXX XXX',
+            subtitle: '683 252 520',
             onTap: () {
               HapticFeedback.lightImpact();
-              _makePhoneCall('+237 6XX XXX XXX');
+              _makePhoneCall('683252520');
             },
           ),
 
@@ -127,7 +128,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
           _buildContactOption(
             icon: Icons.chat,
             title: 'WhatsApp',
-            subtitle: '+237 6XX XXX XXX',
+            subtitle: '683 252 520',
             color: const Color(0xFF25D366),
             onTap: () {
               HapticFeedback.lightImpact();
@@ -141,7 +142,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
           _buildContactOption(
             icon: Icons.email,
             title: 'Email',
-            subtitle: 'info@cakeshop.cm',
+            subtitle: 'hello@denzelscakes.com',
             onTap: () {
               HapticFeedback.lightImpact();
               _sendEmail();
@@ -423,13 +424,13 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                 _buildLocationDetail(
                   icon: Icons.location_on,
                   title: 'Address',
-                  subtitle: 'Quartier Bastos, Yaoundé\nCameroon',
+                  subtitle: 'Makepe, Douala\nCameroon',
                 ),
                 const SizedBox(height: 16),
                 _buildLocationDetail(
                   icon: Icons.directions,
                   title: 'Directions',
-                  subtitle: 'Near Total Station Bastos',
+                  subtitle: 'Opposite Tradex Rhone Poulenc',
                 ),
                 const SizedBox(height: 20),
                 SizedBox(
@@ -611,63 +612,231 @@ class _ContactUsScreenState extends State<ContactUsScreen>
 
     HapticFeedback.mediumImpact();
 
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 2));
+    // Compose email with form data
+    final String subject = _subjectController.text.trim();
+    final String body = '''
+Name: ${_nameController.text.trim()}
+Email: ${_emailController.text.trim()}
+
+Message:
+${_messageController.text.trim()}
+
+---
+Sent from DenzelsCakes Mobile App
+''';
+
+    final success = await _sendEmailWithContent(subject, body);
 
     setState(() {
       _isLoading = false;
     });
 
-    // Clear form
-    _nameController.clear();
-    _emailController.clear();
-    _subjectController.clear();
-    _messageController.clear();
+    if (success) {
+      // Clear form only if email was sent successfully
+      _nameController.clear();
+      _emailController.clear();
+      _subjectController.clear();
+      _messageController.clear();
 
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Email client opened with your message. Please send the email to complete your inquiry.'),
+            backgroundColor: AppTheme.successColor,
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not open email client. Please try the direct email option above.'),
+            backgroundColor: AppTheme.errorColor,
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+    }
+  }
+
+  void _makePhoneCall(String phoneNumber) async {
+    // Try different phone URI formats
+    final List<String> phoneFormats = [
+      'tel:683252520',
+      'tel:+237683252520', 
+      'tel://683252520',
+      'tel://+237683252520'
+    ];
+    
+    bool callMade = false;
+    
+    for (String phoneFormat in phoneFormats) {
+      try {
+        final Uri phoneUri = Uri.parse(phoneFormat);
+        print('Trying to launch: $phoneFormat'); // Debug log
+        
+        if (await canLaunchUrl(phoneUri)) {
+          print('Can launch: $phoneFormat'); // Debug log
+          await launchUrl(phoneUri);
+          callMade = true;
+          break;
+        } else {
+          print('Cannot launch: $phoneFormat'); // Debug log
+        }
+      } catch (e) {
+        print('Error with $phoneFormat: $e'); // Debug log
+        continue;
+      }
+    }
+    
+    if (!callMade) {
+      // Last resort - try without checking canLaunchUrl
+      try {
+        final Uri directUri = Uri.parse('tel:683252520');
+        await launchUrl(directUri);
+        callMade = true;
+      } catch (e) {
+        print('Direct launch failed: $e'); // Debug log
+        _showErrorMessage('Phone app not available. Please dial 683 252 520 manually.');
+      }
+    }
+  }
+
+  void _showErrorMessage(String message) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content:
-              Text('Message sent successfully! We\'ll get back to you soon.'),
-          backgroundColor: AppTheme.successColor,
+        SnackBar(
+          content: Text(message),
+          backgroundColor: AppTheme.errorColor,
+          duration: const Duration(seconds: 4),
         ),
       );
     }
   }
 
-  void _makePhoneCall(String phoneNumber) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Calling $phoneNumber... (Demo mode)'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+  void _openWhatsApp() async {
+    const phoneNumber = '237683252520'; // Country code + number
+    final List<Uri> whatsappUris = [
+      Uri.parse('whatsapp://send?phone=$phoneNumber'), // WhatsApp app
+      Uri.parse('https://wa.me/$phoneNumber'), // WhatsApp web
+      Uri.parse('https://api.whatsapp.com/send?phone=$phoneNumber'), // Alternative web
+    ];
+    
+    bool opened = false;
+    for (final uri in whatsappUris) {
+      try {
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+          opened = true;
+          break;
+        }
+      } catch (e) {
+        // Try next option
+        continue;
+      }
+    }
+    
+    if (!opened) {
+      _showErrorMessage('WhatsApp not available. Please message us at +237 683 252 520');
+    }
   }
 
-  void _openWhatsApp() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Opening WhatsApp... (Demo mode)'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+  void _sendEmail() async {
+    const subject = 'Inquiry from DenzelsCakes App';
+    await _sendEmailWithContent(subject, '');
   }
 
-  void _sendEmail() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Opening email app... (Demo mode)'),
-        duration: Duration(seconds: 2),
+  Future<bool> _sendEmailWithContent(String subject, String body) async {
+    const email = 'hello@denzelscakes.com';
+    
+    // Create multiple URI formats for better compatibility
+    final List<Uri> emailUris = [
+      // Standard mailto with subject and body
+      Uri(
+        scheme: 'mailto',
+        path: email,
+        query: _buildEmailQuery(subject, body),
       ),
-    );
+      // Alternative format
+      Uri.parse('mailto:$email?${_buildEmailQuery(subject, body)}'),
+    ];
+    
+    bool opened = false;
+    for (final uri in emailUris) {
+      try {
+        print('Trying email URI: $uri'); // Debug log
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+          opened = true;
+          break;
+        }
+      } catch (e) {
+        print('Email URI failed: $e'); // Debug log
+        continue;
+      }
+    }
+    
+    if (!opened) {
+      // Fallback: try simpler mailto without query parameters
+      try {
+        final simpleUri = Uri.parse('mailto:$email');
+        if (await canLaunchUrl(simpleUri)) {
+          await launchUrl(simpleUri, mode: LaunchMode.externalApplication);
+          opened = true;
+        }
+      } catch (e) {
+        print('Simple mailto failed: $e'); // Debug log
+      }
+    }
+    
+    if (!opened) {
+      _showErrorMessage('No email app available. Please email us at $email');
+    }
+    
+    return opened;
   }
 
-  void _openMaps() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Opening maps... (Demo mode)'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+  String _buildEmailQuery(String subject, String body) {
+    final Map<String, String> params = {};
+    
+    if (subject.isNotEmpty) {
+      params['subject'] = subject;
+    }
+    
+    if (body.isNotEmpty) {
+      params['body'] = body;
+    }
+    
+    return params.entries
+        .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
+        .join('&');
+  }
+
+  void _openMaps() async {
+    const location = 'Makepe, Douala, Cameroon';
+    final List<Uri> mapUris = [
+      Uri.parse('geo:0,0?q=${Uri.encodeComponent(location)}'), // Android Maps
+      Uri.parse('https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(location)}'), // Google Maps web
+      Uri.parse('https://maps.apple.com/?q=${Uri.encodeComponent(location)}'), // Apple Maps
+    ];
+    
+    bool opened = false;
+    for (final uri in mapUris) {
+      try {
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+          opened = true;
+          break;
+        }
+      } catch (e) {
+        // Try next option
+        continue;
+      }
+    }
+    
+    if (!opened) {
+      _showErrorMessage('No maps app available. Please search for: $location');
+    }
   }
 }
