@@ -95,10 +95,14 @@ class _LoginScreenState extends State<LoginScreen> {
         child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 20), // Reduced from 40
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                const SizedBox(height: 16), // Reduced from 20
 
                 // Logo and Title Section
                 Column(
@@ -188,19 +192,19 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
 
-                const SizedBox(height: 32), // Reduced from 48
+                const SizedBox(height: 20), // Reduced from 32
 
                 // Login Form with Card Design
                 Container(
-                  padding: const EdgeInsets.all(24), // Reduced from 32
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: const [
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
                       BoxShadow(
-                        color: AppTheme.shadowColor,
-                        blurRadius: 25,
-                        offset: Offset(0, 15),
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
                       ),
                     ],
                   ),
@@ -222,106 +226,85 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                         ),
 
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 20),
 
                         // Email Field
-                        TextFormField(
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            labelText: 'Email Address',
-                            hintText: 'Enter your email',
-                            prefixIcon: Icon(Icons.email_outlined,
-                                color: AppTheme.accentColor),
+                        SizedBox(
+                          height: 48,
+                          child: TextFormField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: const InputDecoration(
+                              labelText: 'Email Address',
+                              prefixIcon: Icon(Icons.email, size: 20),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your email';
+                              }
+                              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                  .hasMatch(value)) {
+                                return 'Please enter a valid email';
+                              }
+                              return null;
+                            },
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your email';
-                            }
-                            if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                .hasMatch(value)) {
-                              return 'Please enter a valid email';
-                            }
-                            return null;
-                          },
                         ),
 
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 12),
 
                         // Password Field
-                        TextFormField(
-                          controller: _passwordController,
-                          obscureText: !_isPasswordVisible,
-                          decoration: InputDecoration(
-                            labelText: 'Password',
-                            hintText: 'Enter your password',
-                            prefixIcon: const Icon(Icons.lock_outlined,
-                                color: AppTheme.accentColor),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _isPasswordVisible
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                                color: AppTheme.textTertiary,
+                        SizedBox(
+                          height: 48,
+                          child: TextFormField(
+                            controller: _passwordController,
+                            obscureText: !_isPasswordVisible,
+                            decoration: InputDecoration(
+                              labelText: 'Password',
+                              prefixIcon: const Icon(Icons.lock, size: 20),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                                  size: 20,
+                                ),
+                                onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  _isPasswordVisible = !_isPasswordVisible;
-                                });
-                              },
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              border: const OutlineInputBorder(),
                             ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your password';
+                              }
+                              return null;
+                            },
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your password';
-                            }
-                            if (value.length < 6) {
-                              return 'Password must be at least 6 characters';
-                            }
-                            return null;
-                          },
                         ),
 
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 20),
 
-                        // Login Button with Gradient
-                        Container(
+                        // Login Button
+                        SizedBox(
+                          width: double.infinity,
                           height: 56,
-                          decoration: BoxDecoration(
-                            gradient:
-                                _isLoading ? null : AppTheme.primaryGradient,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: _isLoading
-                                ? null
-                                : [
-                                    BoxShadow(
-                                      color: AppTheme.primaryColor
-                                          .withValues(alpha: 0.3),
-                                      blurRadius: 12,
-                                      offset: const Offset(0, 6),
-                                    ),
-                                  ],
-                          ),
                           child: ElevatedButton(
                             onPressed: _isLoading ? null : _handleLogin,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: _isLoading
-                                  ? AppTheme.borderColor
-                                  : Colors.transparent,
+                              backgroundColor: AppTheme.primaryColor,
                               foregroundColor: Colors.white,
-                              shadowColor: Colors.transparent,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
                             child: _isLoading
                                 ? const SizedBox(
-                                    width: 24,
-                                    height: 24,
+                                    width: 20,
+                                    height: 20,
                                     child: CircularProgressIndicator(
-                                      strokeWidth: 2.5,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          AppTheme.textTertiary),
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                     ),
                                   )
                                 : const Text(
@@ -329,8 +312,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
-                                      letterSpacing: 0.5,
                                     ),
+                                    textAlign: TextAlign.center,
                                   ),
                           ),
                         ),
@@ -339,7 +322,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
 
                 // Register Link with better styling
                 Container(
@@ -380,9 +363,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 16), // Reduced from 24
               ],
             ),
+          ),
           ),
         ),
       ),
