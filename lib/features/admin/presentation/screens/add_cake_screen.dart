@@ -34,6 +34,7 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
   final List<String> _flavors = ['Vanilla', 'Chocolate', 'Strawberry'];
   final List<String> _tags = [];
   bool _isAvailable = true;
+  String? _targetGender; // New field for gender specification
 
   @override
   void dispose() {
@@ -259,53 +260,45 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
               },
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _basePriceController,
-                    decoration: const InputDecoration(
-                      labelText: 'Base Price *',
-                      hintText: '0.00',
-                      prefixIcon:
-                          Icon(Icons.attach_money, color: AppTheme.accentColor),
-                      prefixText: 'XAF ',
-                    ),
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Required';
-                      }
-                      if (double.tryParse(value) == null) {
-                        return 'Invalid price';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: TextFormField(
-                    controller: _prepTimeController,
-                    decoration: const InputDecoration(
-                      labelText: 'Prep Time (min) *',
-                      hintText: '60',
-                      prefixIcon:
-                          Icon(Icons.timer, color: AppTheme.accentColor),
-                    ),
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Required';
-                      }
-                      if (int.tryParse(value) == null) {
-                        return 'Invalid time';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-              ],
+            TextFormField(
+              controller: _basePriceController,
+              decoration: const InputDecoration(
+                labelText: 'Base Price *',
+                hintText: '0.00',
+                prefixIcon:
+                    Icon(Icons.attach_money, color: AppTheme.accentColor),
+                prefixText: 'XAF ',
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Required';
+                }
+                if (double.tryParse(value) == null) {
+                  return 'Invalid price';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _prepTimeController,
+              decoration: const InputDecoration(
+                labelText: 'Prep Time (min) *',
+                hintText: '60',
+                prefixIcon:
+                    Icon(Icons.timer, color: AppTheme.accentColor),
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Required';
+                }
+                if (int.tryParse(value) == null) {
+                  return 'Invalid time';
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -324,6 +317,25 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
                   return 'Invalid number';
                 }
                 return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              value: _targetGender,
+              decoration: const InputDecoration(
+                labelText: 'Target Gender (Optional)',
+                hintText: 'Select target gender',
+                prefixIcon: Icon(Icons.person, color: AppTheme.accentColor),
+              ),
+              items: const [
+                DropdownMenuItem(value: null, child: Text('Not specified')),
+                DropdownMenuItem(value: 'male', child: Text('Male')),
+                DropdownMenuItem(value: 'female', child: Text('Female')),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  _targetGender = value;
+                });
               },
             ),
           ],
@@ -912,6 +924,7 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
         'prepTimeMinutes': prepTime,
         'servingsEstimate': servings,
         'isAvailable': _isAvailable,
+        'targetGender': _targetGender,
       };
 
       await AdminApiService.createCake(cakeData);

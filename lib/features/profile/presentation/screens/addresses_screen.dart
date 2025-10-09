@@ -4,6 +4,7 @@ import '../../../../shared/theme/app_theme.dart';
 import '../../../../core/models/user_model.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/storage_service.dart';
+import '../../../../core/services/cache_service.dart';
 import 'add_address_with_map_screen.dart';
 
 class AddressesScreen extends StatefulWidget {
@@ -39,8 +40,20 @@ class _AddressesScreenState extends State<AddressesScreen> {
     });
 
     try {
-      // First try to fetch from backend
-      await _fetchAddressesFromBackend();
+      // Try to load from cache first
+      final cachedAddresses = await CacheService.getUserAddresses();
+      final cachedProfile = await CacheService.getUserProfile();
+
+      if (cachedAddresses != null && cachedProfile != null) {
+        // Use cached data
+        setState(() {
+          _currentUser = User.fromJson(cachedProfile);
+          _addresses = cachedAddresses.map((json) => Address.fromJson(json)).toList();
+        });
+      } else {
+        // Load from backend and cache
+        await _fetchAddressesFromBackend();
+      }
     } catch (e) {
 // print('DEBUG: Failed to fetch from backend, trying local storage: $e');
       // Fallback to local storage
@@ -89,6 +102,10 @@ class _AddressesScreenState extends State<AddressesScreen> {
 
         // Update local storage with fresh data
         await StorageService.setUserData(user.toJson());
+
+        // Cache the data
+        await CacheService.setUserProfile(user.toJson());
+        await CacheService.setUserAddresses(user.addresses.map((addr) => addr.toJson()).toList());
 
         setState(() {
           _currentUser = user;

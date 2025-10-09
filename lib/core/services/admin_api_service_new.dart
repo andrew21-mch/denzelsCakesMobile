@@ -339,11 +339,19 @@ class AdminApiService {
     String? search,
   }) async {
     try {
-      // TODO: Implement backend endpoint: /admin/users
+      final response = await ApiService.get(AppConstants.usersEndpoint);
 
-      // For now, return empty list
-// print('Get users error: Backend endpoint not implemented');
-      return [];
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data['success'] == true) {
+          return List<Map<String, dynamic>>.from(data['data'] ?? []);
+        } else {
+          throw Exception(data['message'] ?? 'Failed to fetch users');
+        }
+      } else {
+        final data = response.data;
+        throw Exception(data['message'] ?? 'Failed to fetch users');
+      }
     } catch (e) {
 // print('Get users error: $e');
       throw Exception('Failed to fetch users: $e');
@@ -353,10 +361,15 @@ class AdminApiService {
   /// Update user role
   static Future<void> updateUserRole(String userId, String role) async {
     try {
-      // TODO: Implement backend endpoint: /admin/users/:id/role
+      final response = await ApiService.put(
+        '${AppConstants.usersEndpoint}/$userId/role',
+        data: {'role': role},
+      );
 
-// print('Update user role error: Backend endpoint not implemented');
-      throw Exception('Backend endpoint not implemented');
+      if (response.statusCode != 200) {
+        final data = response.data;
+        throw Exception(data['message'] ?? 'Failed to update user role');
+      }
     } catch (e) {
 // print('Update user role error: $e');
       throw Exception('Failed to update user role: $e');
@@ -558,23 +571,59 @@ class AdminApiService {
     }
   }
 
-  /// Update notification settings
-  static Future<void> updateNotificationSettings(
-      Map<String, dynamic> notificationData) async {
+  /// Get notification history
+  static Future<List<Map<String, dynamic>>> getNotificationHistory({
+    int limit = 50,
+    int offset = 0,
+    String? type,
+  }) async {
     try {
-      final response = await ApiService.put(
-        AppConstants.notificationSettingsEndpoint,
-        data: notificationData,
+      final queryParams = <String, dynamic>{
+        'limit': limit,
+        'offset': offset,
+      };
+      
+      if (type != null) {
+        queryParams['type'] = type;
+      }
+      
+      final response = await ApiService.get(
+        '${AppConstants.notificationSettingsEndpoint}/history',
+        queryParameters: queryParams,
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data['success'] == true) {
+          return List<Map<String, dynamic>>.from(data['data'] ?? []);
+        } else {
+          throw Exception(data['message'] ?? 'Failed to fetch notification history');
+        }
+      } else {
+        final data = response.data;
+        throw Exception(data['message'] ?? 'Failed to fetch notification history');
+      }
+    } catch (e) {
+// print('Get notification history error: $e');
+      throw Exception('Failed to fetch notification history: $e');
+    }
+  }
+
+  /// Send test notification
+  static Future<void> sendTestNotification({String type = 'systemAlert'}) async {
+    try {
+      final response = await ApiService.post(
+        '${AppConstants.notificationSettingsEndpoint}/test',
+        data: {'type': type},
       );
 
       if (response.statusCode != 200) {
         final data = response.data;
-        throw Exception(
-            data['message'] ?? 'Failed to update notification settings');
+        throw Exception(data['message'] ?? 'Failed to send test notification');
       }
     } catch (e) {
-// print('Update notification settings error: $e');
-      throw Exception('Failed to update notification settings: $e');
+// print('Send test notification error: $e');
+      throw Exception('Failed to send test notification: $e');
     }
   }
 

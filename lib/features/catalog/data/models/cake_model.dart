@@ -36,6 +36,7 @@ class CakeStyle {
   final int prepTimeMinutes;
   final int servingsEstimate;
   final bool isAvailable;
+  final String? targetGender;
   final Map<String, dynamic>? metadata;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -52,6 +53,7 @@ class CakeStyle {
     required this.prepTimeMinutes,
     required this.servingsEstimate,
     required this.isAvailable,
+    this.targetGender,
     this.metadata,
     this.createdAt,
     this.updatedAt,
@@ -76,6 +78,7 @@ class CakeStyle {
         prepTimeMinutes: (json['prepTimeMinutes'] as num?)?.toInt() ?? 0,
         servingsEstimate: (json['servingsEstimate'] as num?)?.toInt() ?? 1,
         isAvailable: json['isAvailable'] == true,
+        targetGender: json['targetGender']?.toString(),
         metadata: json['metadata'] as Map<String, dynamic>?,
         createdAt: json['createdAt'] != null
             ? DateTime.tryParse(json['createdAt'].toString())
@@ -103,6 +106,7 @@ class CakeStyle {
         'prepTimeMinutes': prepTimeMinutes,
         'servingsEstimate': servingsEstimate,
         'isAvailable': isAvailable,
+        'targetGender': targetGender,
         'metadata': metadata,
         'createdAt': createdAt?.toIso8601String(),
         'updatedAt': updatedAt?.toIso8601String(),

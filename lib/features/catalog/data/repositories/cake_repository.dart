@@ -1,6 +1,8 @@
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/storage_service.dart';
+import '../../../../core/services/cache_service.dart';
 import '../models/cake_model.dart';
+import '../../../search/data/models/filter_options.dart';
 
 class CakeRepository {
   // Get all cakes with optional search and filters
@@ -98,6 +100,66 @@ class CakeRepository {
     }
   }
 
+  // Advanced search with filters
+  static Future<CakeListResponse> searchCakesWithFilters({
+    required String query,
+    FilterOptions? filters,
+    int limit = 20,
+  }) async {
+    try {
+      final queryParams = <String, dynamic>{
+        'search': query,
+        'limit': limit,
+        'isAvailable': true,
+      };
+
+      // Add filter parameters
+      if (filters != null) {
+        queryParams.addAll(filters.toQueryParams());
+      }
+
+      final response = await ApiService.get(
+        '/cakes',
+        queryParameters: queryParams,
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = response.data;
+        if (responseData['success'] == true && responseData['data'] != null) {
+          return CakeListResponse.fromJson({
+            'data': responseData['data'],
+            'pagination': responseData['pagination'],
+          });
+        } else {
+          throw Exception('Invalid response format');
+        }
+      } else {
+        throw Exception('Failed to search cakes: ${response.statusCode}');
+      }
+    } catch (e) {
+// print('DEBUG: Repository error searching cakes with filters: $e');
+      rethrow;
+    }
+  }
+
+  // Get available flavors from all cakes
+  static Future<List<String>> getAvailableFlavors() async {
+    try {
+      final cakes = await getCakes(limit: 100);
+      final Set<String> flavors = {};
+
+      for (final cake in cakes.data) {
+        flavors.addAll(cake.flavors);
+      }
+
+      return flavors.toList()..sort();
+    } catch (e) {
+// print('DEBUG: Repository error loading flavors: $e');
+      // Return common flavors as fallback
+      return ['Vanilla', 'Chocolate', 'Strawberry', 'Red Velvet', 'Lemon'];
+    }
+  }
+
   // Get trending cakes
   static Future<CakeListResponse> getTrendingCakes({
     int limit = 10,
@@ -142,8 +204,32 @@ class CakeRepository {
 
   // Get available categories (tags)
   static Future<List<String>> getAvailableCategories() async {
-    // Return the fixed categories that the business wants
-    return ['Birthday', 'Wedding', 'Anniversary', 'Baby Shower', 'Faith Celebrations'];
+    try {
+      // Try to load from cache first
+      final cachedCategories = await CacheService.getCategories();
+      if (cachedCategories != null) {
+        return cachedCategories;
+      }
+
+      // Load from API and cache
+      final cakes = await getCakes(limit: 100);
+      final Set<String> categories = {};
+
+      for (final cake in cakes.data) {
+        categories.addAll(cake.tags);
+      }
+
+      final categoryList = categories.toList()..sort();
+      
+      // Cache the data
+      await CacheService.setCategories(categoryList);
+      
+      return categoryList;
+    } catch (e) {
+// print('DEBUG: Repository error loading categories: $e');
+      // Return the fixed categories that the business wants as fallback
+      return ['Birthday', 'Wedding', 'Anniversary', 'Baby Shower', 'Faith Celebrations'];
+    }
   }
 
   // Get price range

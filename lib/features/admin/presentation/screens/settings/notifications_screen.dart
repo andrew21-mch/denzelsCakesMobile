@@ -31,16 +31,40 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         _isLoading = false;
       });
     } catch (e) {
-// print('Error loading notification settings: $e');
+      // Set default notification settings if API fails
       setState(() {
+        _notificationSettings = {
+          'emailNotifications': {
+            'newOrders': true,
+            'orderStatus': true,
+            'lowStock': true,
+            'dailyReports': false,
+            'weeklyReports': false,
+            'urgentOrders': true,
+            'paymentReceived': true,
+            'paymentFailed': true,
+            'systemAlerts': true,
+          },
+          'pushNotifications': {
+            'newOrders': true,
+            'orderStatus': true,
+            'lowStock': true,
+            'dailyReports': false,
+            'weeklyReports': false,
+            'urgentOrders': true,
+            'paymentReceived': true,
+            'paymentFailed': true,
+            'systemAlerts': true,
+          },
+        };
         _isLoading = false;
       });
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to load notification settings: $e'),
-            backgroundColor: Colors.red,
+            content: Text('Using default notification settings'),
+            backgroundColor: Colors.orange,
           ),
         );
       }
@@ -95,8 +119,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   _buildEmailNotificationsCard(),
                   const SizedBox(height: 16),
                   _buildPushNotificationsCard(),
-                  const SizedBox(height: 16),
-                  _buildSMSNotificationsCard(),
                   const SizedBox(height: 16),
                   _buildNotificationHistoryCard(),
                   const SizedBox(height: 80), // Space for FAB
@@ -173,15 +195,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  Widget _buildSMSNotificationsCard() {
-    return _buildNotificationCard(
-      'SMS Notifications',
-      Icons.sms,
-      'smsNotifications',
-      Colors.orange,
-      'Text message alerts (charges may apply)',
-    );
-  }
 
   Widget _buildNotificationCard(
     String title,
@@ -190,7 +203,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     Color color,
     String description,
   ) {
-    final settings = _notificationSettings[settingsKey] as Map<String, bool>;
+    final settingsData = _notificationSettings[settingsKey];
+    final settings = settingsData is Map<String, dynamic> 
+        ? Map<String, bool>.from(settingsData)
+        : <String, bool>{};
 
     return Card(
       elevation: 2,
@@ -297,34 +313,91 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
+  // Mock notification history - TODO: Connect to backend
+  final List<Map<String, dynamic>> _mockNotificationHistory = [
+    {
+      'type': 'new_order',
+      'title': 'New Order Received',
+      'message': 'Order #CS-2024-001 placed by John Doe',
+      'time': '2 hours ago',
+      'icon': Icons.shopping_bag,
+      'color': Colors.green,
+    },
+    {
+      'type': 'payment',
+      'title': 'Payment Confirmed',
+      'message': 'Payment of 25,000 XAF received for order #CS-2024-002',
+      'time': '4 hours ago',
+      'icon': Icons.payment,
+      'color': Colors.blue,
+    },
+    {
+      'type': 'low_stock',
+      'title': 'Low Stock Alert',
+      'message': 'Chocolate Cake ingredients running low',
+      'time': '1 day ago',
+      'icon': Icons.warning,
+      'color': Colors.orange,
+    },
+    {
+      'type': 'order_status',
+      'title': 'Order Status Update',
+      'message': 'Order #CS-2024-003 is ready for pickup',
+      'time': '6 hours ago',
+      'icon': Icons.check_circle,
+      'color': Colors.green,
+    },
+    {
+      'type': 'payment_failed',
+      'title': 'Payment Failed',
+      'message': 'Payment failed for order #CS-2024-004',
+      'time': '8 hours ago',
+      'icon': Icons.error,
+      'color': Colors.red,
+    },
+    {
+      'type': 'urgent_order',
+      'title': 'Urgent Order Alert',
+      'message': 'Express order #CS-2024-005 requires immediate attention',
+      'time': '12 hours ago',
+      'icon': Icons.priority_high,
+      'color': Colors.red,
+    },
+    {
+      'type': 'system_alert',
+      'title': 'System Update',
+      'message': 'App updated to version 1.2.0 with new features',
+      'time': '2 days ago',
+      'icon': Icons.system_update,
+      'color': Colors.blue,
+    },
+    {
+      'type': 'daily_report',
+      'title': 'Daily Sales Report',
+      'message': 'Yesterday\'s sales: 15 orders, 45,000 XAF revenue',
+      'time': '3 days ago',
+      'icon': Icons.analytics,
+      'color': Colors.purple,
+    },
+    {
+      'type': 'weekly_report',
+      'title': 'Weekly Summary',
+      'message': 'This week: 89 orders, 234,000 XAF total revenue',
+      'time': '1 week ago',
+      'icon': Icons.trending_up,
+      'color': Colors.green,
+    },
+    {
+      'type': 'low_stock',
+      'title': 'Stock Alert',
+      'message': 'Vanilla extract running low - reorder needed',
+      'time': '1 week ago',
+      'icon': Icons.inventory,
+      'color': Colors.orange,
+    },
+  ];
+
   Widget _buildNotificationHistoryCard() {
-    // Mock notification history - TODO: Connect to backend
-    final mockHistory = [
-      {
-        'type': 'new_order',
-        'title': 'New Order Received',
-        'message': 'Order #CS-2024-001 placed by John Doe',
-        'time': '2 hours ago',
-        'icon': Icons.shopping_bag,
-        'color': Colors.green,
-      },
-      {
-        'type': 'payment',
-        'title': 'Payment Confirmed',
-        'message': 'Payment of 25,000 XAF received for order #CS-2024-002',
-        'time': '4 hours ago',
-        'icon': Icons.payment,
-        'color': Colors.blue,
-      },
-      {
-        'type': 'low_stock',
-        'title': 'Low Stock Alert',
-        'message': 'Chocolate Cake ingredients running low',
-        'time': '1 day ago',
-        'icon': Icons.warning,
-        'color': Colors.orange,
-      },
-    ];
 
     return Card(
       elevation: 2,
@@ -355,7 +428,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            ...mockHistory
+            ..._mockNotificationHistory.take(3)
                 .map((notification) => _buildHistoryItem(notification)),
           ],
         ),
@@ -414,8 +487,168 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
+  Widget _buildRealHistoryItem(Map<String, dynamic> notification) {
+    final type = notification['type'] as String;
+    final title = notification['title'] as String;
+    final message = notification['message'] as String;
+    final sentAt = DateTime.parse(notification['sentAt'] as String);
+    final channels = notification['channels'] as Map<String, dynamic>;
+    
+    // Get icon and color based on type
+    IconData icon;
+    Color color;
+    
+    switch (type) {
+      case 'newOrder':
+        icon = Icons.shopping_bag;
+        color = Colors.green;
+        break;
+      case 'paymentReceived':
+        icon = Icons.payment;
+        color = Colors.blue;
+        break;
+      case 'paymentFailed':
+        icon = Icons.error;
+        color = Colors.red;
+        break;
+      case 'orderStatus':
+        icon = Icons.check_circle;
+        color = Colors.green;
+        break;
+      case 'urgentOrder':
+        icon = Icons.priority_high;
+        color = Colors.red;
+        break;
+      case 'systemAlert':
+        icon = Icons.system_update;
+        color = Colors.blue;
+        break;
+      case 'lowStock':
+        icon = Icons.warning;
+        color = Colors.orange;
+        break;
+      case 'dailyReport':
+        icon = Icons.analytics;
+        color = Colors.purple;
+        break;
+      case 'weeklyReport':
+        icon = Icons.trending_up;
+        color = Colors.green;
+        break;
+      default:
+        icon = Icons.notifications;
+        color = Colors.grey;
+    }
+    
+    // Format time
+    final now = DateTime.now();
+    final difference = now.difference(sentAt);
+    String timeAgo;
+    
+    if (difference.inDays > 0) {
+      timeAgo = '${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago';
+    } else if (difference.inHours > 0) {
+      timeAgo = '${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} ago';
+    } else if (difference.inMinutes > 0) {
+      timeAgo = '${difference.inMinutes} minute${difference.inMinutes == 1 ? '' : 's'} ago';
+    } else {
+      timeAgo = 'Just now';
+    }
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
+              color: color,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  message,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    if (channels['email'] == true)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          'Email',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.green,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    if (channels['email'] == true && channels['push'] == true)
+                      const SizedBox(width: 4),
+                    if (channels['push'] == true)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          'Push',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.blue,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Text(
+            timeAgo,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[500],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _updateNotificationSetting(String category, String key, bool value) {
     setState(() {
+      if (_notificationSettings[category] == null) {
+        _notificationSettings[category] = <String, bool>{};
+      }
       _notificationSettings[category][key] = value;
     });
   }
@@ -440,11 +673,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               title: const Text('Push Notification'),
               onTap: () => _sendTestNotification('push'),
             ),
-            ListTile(
-              leading: const Icon(Icons.sms, color: Colors.orange),
-              title: const Text('SMS'),
-              onTap: () => _sendTestNotification('sms'),
-            ),
           ],
         ),
         actions: [
@@ -457,46 +685,77 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  void _sendTestNotification(String type) {
+  void _sendTestNotification(String type) async {
     Navigator.of(context).pop();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Test $type notification sent!'),
-        backgroundColor: Colors.blue,
-      ),
-    );
-
-    // TODO: Implement actual test notification sending
+    try {
+      await AdminApiService.sendTestNotification(type: type);
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Test $type notification sent successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to send test notification: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
-  void _viewAllNotifications() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('All Notifications'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('View complete notification history'),
-            const SizedBox(height: 16),
-            Text(
-              'TODO: Implement notification history screen',
-              style: TextStyle(
-                color: Colors.orange[700],
-                fontStyle: FontStyle.italic,
+  void _viewAllNotifications() async {
+    try {
+      final notifications = await AdminApiService.getNotificationHistory(limit: 100);
+      
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('All Notifications'),
+            content: SizedBox(
+              width: double.maxFinite,
+              height: 400,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: notifications.isEmpty
+                        ? const Center(
+                            child: Text('No notifications found'),
+                          )
+                        : ListView.builder(
+                            itemCount: notifications.length,
+                            itemBuilder: (context, index) {
+                              final notification = notifications[index];
+                              return _buildRealHistoryItem(notification);
+                            },
+                          ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Close'),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load notifications: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   void _saveSettings() async {
@@ -504,20 +763,34 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       _isLoading = true;
     });
 
-    // TODO: Connect to backend API when available
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      await AdminApiService.updateNotificationSettings(_notificationSettings);
+      
+      setState(() {
+        _isLoading = false;
+      });
 
-    setState(() {
-      _isLoading = false;
-    });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Notification settings saved successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Notification settings saved successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save settings: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }

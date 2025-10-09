@@ -1,14 +1,27 @@
 import '../services/api_service.dart';
 import '../models/country_model.dart';
+import 'cache_service.dart';
 
 class CountryService {
   static Future<List<Country>> getCountries() async {
     try {
+      // Try to load from cache first
+      final cachedCountries = await CacheService.getCountries();
+      if (cachedCountries != null) {
+        return cachedCountries.map((json) => Country.fromJson(json)).toList();
+      }
+
+      // Load from API and cache
       final response = await ApiService.get('/countries');
       
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data['data'];
-        return data.map((json) => Country.fromJson(json)).toList();
+        final countries = data.map((json) => Country.fromJson(json)).toList();
+        
+        // Cache the data
+        await CacheService.setCountries(data);
+        
+        return countries;
       } else {
         throw Exception('Failed to load countries');
       }

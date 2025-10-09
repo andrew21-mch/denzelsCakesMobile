@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../../shared/theme/app_theme.dart';
+import '../../../../../core/services/admin_api_service_new.dart';
 
 class UserRolesScreen extends StatefulWidget {
   const UserRolesScreen({super.key});
@@ -9,47 +10,8 @@ class UserRolesScreen extends StatefulWidget {
 }
 
 class _UserRolesScreenState extends State<UserRolesScreen> {
-  final bool _isLoading = false;
-
-  // Mock data - TODO: Connect to backend when user roles API is available
-  final List<Map<String, dynamic>> _users = [
-    {
-      'id': '1',
-      'name': 'Admin User',
-      'email': 'admin@denzelscakes.com',
-      'role': 'admin',
-      'status': 'active',
-      'lastActive': '2 hours ago',
-      'avatar': null,
-    },
-    {
-      'id': '2',
-      'name': 'Jane Manager',
-      'email': 'jane@denzelscakes.com',
-      'role': 'manager',
-      'status': 'active',
-      'lastActive': '5 minutes ago',
-      'avatar': null,
-    },
-    {
-      'id': '3',
-      'name': 'John Baker',
-      'email': 'john@denzelscakes.com',
-      'role': 'baker',
-      'status': 'active',
-      'lastActive': '1 day ago',
-      'avatar': null,
-    },
-    {
-      'id': '4',
-      'name': 'Mike Support',
-      'email': 'mike@denzelscakes.com',
-      'role': 'support',
-      'status': 'inactive',
-      'lastActive': '1 week ago',
-      'avatar': null,
-    },
-  ];
+  bool _isLoading = true;
+  List<Map<String, dynamic>> _users = [];
 
   final Map<String, Map<String, dynamic>> _roleDefinitions = {
     'admin': {
@@ -95,7 +57,107 @@ class _UserRolesScreenState extends State<UserRolesScreen> {
         'Basic analytics',
       ],
     },
+    'customer': {
+      'name': 'Customer',
+      'description': 'Regular customer',
+      'color': Colors.grey,
+      'permissions': [
+        'Place orders',
+        'View own orders',
+        'Manage profile',
+      ],
+    },
   };
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUsers();
+  }
+
+  Future<void> _loadUsers() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final users = await AdminApiService.getAllUsers();
+      setState(() {
+        _users = users.map((user) {
+          return {
+            'id': user['_id'] ?? user['id'],
+            'name': user['name'] ?? 'Unknown User',
+            'email': user['email'] ?? '',
+            'phone': user['phone'] ?? '',
+            'role': user['role'] ?? 'customer',
+            'status': 'active', // Backend doesn't have status field yet
+            'lastActive': user['lastLoginAt'] != null 
+                ? _formatLastActive(user['lastLoginAt'])
+                : 'Never',
+            'avatar': null,
+            'createdAt': user['createdAt'],
+          };
+        }).toList()
+        // Sort users: staff first (admin, manager, baker, support), then customers last
+        ..sort((a, b) {
+          final staffRoles = ['admin', 'manager', 'baker', 'support'];
+          final aIsStaff = staffRoles.contains(a['role']);
+          final bIsStaff = staffRoles.contains(b['role']);
+          
+          // Staff users first
+          if (aIsStaff && !bIsStaff) return -1;
+          if (!aIsStaff && bIsStaff) return 1;
+          
+          // If both are staff, sort by role priority
+          if (aIsStaff && bIsStaff) {
+            final rolePriority = {'admin': 1, 'manager': 2, 'baker': 3, 'support': 4};
+            final aPriority = rolePriority[a['role']] ?? 5;
+            final bPriority = rolePriority[b['role']] ?? 5;
+            return aPriority.compareTo(bPriority);
+          }
+          
+          // If both are customers, sort by name
+          return (a['name'] as String).compareTo(b['name'] as String);
+        });
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load users: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  String _formatLastActive(dynamic lastLoginAt) {
+    if (lastLoginAt == null) return 'Never';
+    
+    try {
+      final date = DateTime.parse(lastLoginAt.toString());
+      final now = DateTime.now();
+      final difference = now.difference(date);
+      
+      if (difference.inDays > 0) {
+        return '${difference.inDays} day${difference.inDays > 1 ? 's' : ''} ago';
+      } else if (difference.inHours > 0) {
+        return '${difference.inHours} hour${difference.inHours > 1 ? 's' : ''} ago';
+      } else if (difference.inMinutes > 0) {
+        return '${difference.inMinutes} minute${difference.inMinutes > 1 ? 's' : ''} ago';
+      } else {
+        return 'Just now';
+      }
+    } catch (e) {
+      return 'Unknown';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -286,15 +348,17 @@ class _UserRolesScreenState extends State<UserRolesScreen> {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () => _changeUserRole(user),
-                    icon: const Icon(Icons.edit, size: 18),
-                    label: const Text('Change Role'),
+                    icon: const Icon(Icons.edit, size: 12),
+                    label: const Text('Change Role', style: TextStyle(fontSize: 10)),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppTheme.primaryColor,
                       side: const BorderSide(color: AppTheme.primaryColor),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      minimumSize: const Size(0, 28),
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 6),
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () => _toggleUserStatus(user),
@@ -302,10 +366,11 @@ class _UserRolesScreenState extends State<UserRolesScreen> {
                       user['status'] == 'active'
                           ? Icons.block
                           : Icons.check_circle,
-                      size: 18,
+                      size: 12,
                     ),
                     label: Text(
-                        user['status'] == 'active' ? 'Deactivate' : 'Activate'),
+                        user['status'] == 'active' ? 'Deactivate' : 'Activate',
+                        style: const TextStyle(fontSize: 10)),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: user['status'] == 'active'
                           ? Colors.red[700]
@@ -315,6 +380,8 @@ class _UserRolesScreenState extends State<UserRolesScreen> {
                             ? Colors.red[300]!
                             : Colors.green[300]!,
                       ),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      minimumSize: const Size(0, 28),
                     ),
                   ),
                 ),
@@ -362,20 +429,34 @@ class _UserRolesScreenState extends State<UserRolesScreen> {
     );
   }
 
-  void _updateUserRole(String userId, String newRole) {
-    // TODO: Connect to backend API when available
-    setState(() {
-      final user = _users.firstWhere((u) => u['id'] == userId);
-      user['role'] = newRole;
-    });
+  void _updateUserRole(String userId, String newRole) async {
+    try {
+      await AdminApiService.updateUserRole(userId, newRole);
+      
+      setState(() {
+        final user = _users.firstWhere((u) => u['id'] == userId);
+        user['role'] = newRole;
+      });
 
-    final roleInfo = _roleDefinitions[newRole]!;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('User role updated to ${roleInfo['name']}'),
-        backgroundColor: Colors.green,
-      ),
-    );
+      final roleInfo = _roleDefinitions[newRole]!;
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('User role updated to ${roleInfo['name']}'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update user role: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   void _toggleUserStatus(Map<String, dynamic> user) {

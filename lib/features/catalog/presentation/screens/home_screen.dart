@@ -5,6 +5,7 @@ import '../../data/models/cake_model.dart';
 import '../../data/repositories/cake_repository.dart';
 import '../../../../core/services/favorites_service.dart';
 import '../../../../core/services/cart_service.dart';
+import '../../../../core/services/cache_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -69,56 +70,66 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         _errorMessage = null;
       });
 
-      // Load cakes first
-      try {
-        final cakeResponse = await CakeRepository.getFeaturedCakes(limit: 10);
-// print('DEBUG: Loaded ${cakeResponse.data.length} cakes');
+      // Clear any old categories cache to ensure we use the fixed 5 categories
+      await CacheService.clearCache('categories');
+
+      // Try to load from cache first
+      final cachedCakes = await CacheService.getFeaturedCakes();
+      final cachedFavorites = await CacheService.getFavorites();
+
+      // Load cakes
+      if (cachedCakes != null) {
+        // Use cached data
         setState(() {
-          _featuredCakes = cakeResponse.data;
-          _filteredCakes = cakeResponse.data; // Initialize filtered cakes
+          _featuredCakes = cachedCakes.map((json) => CakeStyle.fromJson(json)).toList();
+          _filteredCakes = _featuredCakes;
         });
-      } catch (e) {
-// print('DEBUG: Error loading cakes: $e');
-        throw Exception('Failed to load cakes: $e');
+      } else {
+        // Load from API and cache
+        try {
+          final cakeResponse = await CakeRepository.getFeaturedCakes(limit: 10);
+          setState(() {
+            _featuredCakes = cakeResponse.data;
+            _filteredCakes = cakeResponse.data;
+          });
+          // Cache the data
+          await CacheService.setFeaturedCakes(cakeResponse.data.map((cake) => cake.toJson()).toList());
+        } catch (e) {
+          throw Exception('Failed to load cakes: $e');
+        }
       }
 
-      // Load categories separately
-      try {
-        final categories = await CakeRepository.getAvailableCategories();
-// print('DEBUG: Loaded ${categories.length} categories');
-        setState(() {
-          _categories = categories;
-        });
-      } catch (e) {
-// print('DEBUG: Error loading categories: $e');
-        // Use default categories if API fails
-        setState(() {
-          _categories = ['Birthday', 'Wedding', 'Anniversary', 'Baby Shower', 'Faith Celebrations'];
-        });
-      }
+      // ALWAYS use the exact same 5 categories - no API calls
+      setState(() {
+        _categories = ['Birthday', 'Wedding', 'Anniversary', 'Baby Shower', 'Faith Celebrations'];
+      });
 
       // Load favorites
-      try {
-        final favoriteIds = await FavoritesService.getFavoriteIds();
-// print('DEBUG: Loaded ${favoriteIds.length} favorites');
+      if (cachedFavorites != null) {
         setState(() {
-          _favoriteIds = favoriteIds;
+          _favoriteIds = cachedFavorites.toSet();
         });
-      } catch (e) {
-// print('DEBUG: Error loading favorites: $e');
-        // Continue without favorites if they fail to load
+      } else {
+        try {
+          final favoriteIds = await FavoritesService.getFavoriteIds();
+          setState(() {
+            _favoriteIds = favoriteIds;
+          });
+          // Cache the data
+          await CacheService.setFavorites(favoriteIds.toList());
+        } catch (e) {
+          // Continue without favorites if they fail to load
+        }
       }
 
-      // Load cart count
+      // Load cart count (always fresh)
       try {
         await CartService.loadCart();
         final cartCount = CartService.getItemCount();
-// print('DEBUG: Loaded cart with ${cartCount} items');
         setState(() {
           _cartItemCount = cartCount;
         });
       } catch (e) {
-// print('DEBUG: Error loading cart: $e');
         // Continue without cart count if it fails to load
       }
 
@@ -126,7 +137,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         _isLoading = false;
       });
     } catch (e) {
-// print('DEBUG: Error loading data: $e');
       setState(() {
         _errorMessage = e.toString();
         _isLoading = false;
@@ -164,6 +174,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         setState(() {
           _favoriteIds = favoriteIds;
         });
+
+        // Update cache with new favorites
+        await CacheService.setFavorites(favoriteIds.toList());
 
         // Show feedback to user
         if (mounted) {
@@ -371,19 +384,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               const TextStyle(color: AppTheme.textTertiary),
                           prefixIcon: const Icon(Icons.search,
                               color: AppTheme.accentColor, size: 24),
-                          suffixIcon: Container(
-                            margin: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              gradient: AppTheme.accentGradient,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: IconButton(
-                              icon: const Icon(Icons.filter_list,
-                                  color: Colors.white, size: 20),
-                              onPressed: () {
-                                // TODO: Implement filter
-                              },
-                            ),
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.search,
+                                color: AppTheme.accentColor, size: 24),
+                            onPressed: () {
+                              if (_searchController.text.isNotEmpty) {
+                                Navigator.of(context)
+                                    .pushNamed('/search', arguments: _searchController.text);
+                              }
+                            },
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(20),

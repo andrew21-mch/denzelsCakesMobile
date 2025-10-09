@@ -441,25 +441,33 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen>
 
               // Action Buttons
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildActionButton(
-                    'View',
-                    Icons.visibility,
-                    AppTheme.accentColor,
-                    () => _showOrderDetails(order),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _showOrderDetails(order),
+                      icon: const Icon(Icons.visibility, size: 14),
+                      label: const Text('View Details', style: TextStyle(fontSize: 12)),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTheme.accentColor,
+                        side: const BorderSide(color: AppTheme.accentColor),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                        minimumSize: const Size(0, 32),
+                      ),
+                    ),
                   ),
-                  _buildActionButton(
-                    'Update',
-                    Icons.edit,
-                    AppTheme.primaryColor,
-                    () => _showUpdateStatusDialog(order),
-                  ),
-                  _buildActionButton(
-                    'Call',
-                    Icons.phone,
-                    AppTheme.successColor,
-                    () => _callCustomer(order['customerPhone']),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _showUpdateStatusDialog(order),
+                      icon: const Icon(Icons.edit, size: 14),
+                      label: const Text('Update', style: TextStyle(fontSize: 12)),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTheme.primaryColor,
+                        side: const BorderSide(color: AppTheme.primaryColor),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                        minimumSize: const Size(0, 32),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -470,32 +478,6 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen>
     );
   }
 
-  Widget _buildActionButton(
-    String label,
-    IconData icon,
-    Color color,
-    VoidCallback onPressed,
-  ) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: ElevatedButton.icon(
-          onPressed: onPressed,
-          icon: Icon(icon, size: 16),
-          label: Text(label),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: color,
-            foregroundColor: AppTheme.onPrimaryColor,
-            elevation: 0,
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
   void _showOrderDetails(Map<String, dynamic> order) {
     showModalBottomSheet(

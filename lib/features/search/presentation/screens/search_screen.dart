@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../catalog/data/repositories/cake_repository.dart';
 import '../../../catalog/data/models/cake_model.dart';
+import '../../../../core/services/cache_service.dart';
+import '../../../../core/services/favorites_service.dart';
+import '../../data/models/filter_options.dart';
+import '../widgets/filter_dialog.dart';
 
 class SearchScreen extends StatefulWidget {
   final String? initialQuery;
@@ -22,25 +26,31 @@ class _SearchScreenState extends State<SearchScreen> {
     'Birthday cake',
     'Wedding cake'
   ];
-  final List<String> _categories = [
-    'Birthday',
-    'Wedding',
-    'Custom',
-    'Cupcakes',
-    'Anniversary',
-    'Special'
-  ];
+  List<String> _categories = [];
   String? _selectedCategory;
   bool _isSearching = false;
+  bool _isLoadingCategories = true;
+  
+  // Favorites state
+  Set<String> _favoriteIds = {};
+  
+  // Filter state
+  FilterOptions _currentFilters = const FilterOptions();
 
   @override
   void initState() {
     super.initState();
+    _loadData();
     if (widget.initialQuery != null) {
       _searchController.text = widget.initialQuery!;
       _performSearch(widget.initialQuery!);
     }
     _focusNode.requestFocus();
+    
+    // Add listener to update UI when search text changes
+    _searchController.addListener(() {
+      setState(() {});
+    });
   }
 
   @override
@@ -48,6 +58,32 @@ class _SearchScreenState extends State<SearchScreen> {
     _searchController.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadData() async {
+    try {
+      // Force use the exact same categories as home screen
+      setState(() {
+        _categories = ['Birthday', 'Wedding', 'Anniversary', 'Baby Shower', 'Faith Celebrations'];
+        _isLoadingCategories = false;
+      });
+
+      // Load favorites
+      try {
+        final favoriteIds = await FavoritesService.getFavoriteIds();
+        setState(() {
+          _favoriteIds = favoriteIds;
+        });
+      } catch (e) {
+        // Continue without favorites if they fail to load
+      }
+    } catch (e) {
+      // Use fallback categories if API fails - EXACTLY the same as home screen
+      setState(() {
+        _categories = ['Birthday', 'Wedding', 'Anniversary', 'Baby Shower', 'Faith Celebrations'];
+        _isLoadingCategories = false;
+      });
+    }
   }
 
   @override
@@ -90,7 +126,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ),
 
-              // Search Box - moved down
+              // Search Box
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8),
@@ -114,8 +150,34 @@ class _SearchScreenState extends State<SearchScreen> {
                       hintStyle: const TextStyle(color: AppTheme.textTertiary),
                       prefixIcon: const Icon(Icons.search,
                           color: AppTheme.accentColor, size: 24),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
+                      suffixIcon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Filter button
+                          Container(
+                            margin: const EdgeInsets.only(right: 8),
+                            decoration: BoxDecoration(
+                              gradient: _currentFilters.hasActiveFilters
+                                  ? AppTheme.accentGradient
+                                  : LinearGradient(
+                                      colors: [Colors.grey[300]!, Colors.grey[300]!],
+                                    ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.filter_list,
+                                color: _currentFilters.hasActiveFilters
+                                    ? Colors.white
+                                    : Colors.grey[600],
+                                size: 20,
+                              ),
+                              onPressed: _showFilterDialog,
+                            ),
+                          ),
+                          // Clear button (only when there's text)
+                          if (_searchController.text.isNotEmpty)
+                            IconButton(
                               icon: const Icon(Icons.clear,
                                   color: AppTheme.textSecondary),
                               onPressed: () {
@@ -125,8 +187,9 @@ class _SearchScreenState extends State<SearchScreen> {
                                   _isSearching = false;
                                 });
                               },
-                            )
-                          : null,
+                            ),
+                        ],
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
                         borderSide: BorderSide.none,
@@ -180,24 +243,30 @@ class _SearchScreenState extends State<SearchScreen> {
                     const SizedBox(height: 16),
                     SizedBox(
                       height: 100,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: _categories.length,
-                        itemBuilder: (context, index) {
-                          final category = _categories[index];
-                          return _buildCategoryCard(
-                            category,
-                            _getCategoryIcon(category),
-                            _getCategoryColor(category),
-                          );
-                        },
-                      ),
+                      child: _isLoadingCategories
+                          ? const Center(
+                              child: CircularProgressIndicator(
+                                color: AppTheme.accentColor,
+                              ),
+                            )
+                          : ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: _categories.length,
+                              itemBuilder: (context, index) {
+                                final category = _categories[index];
+                                return _buildCategoryCard(
+                                  category,
+                                  _getCategoryIcon(category),
+                                  _getCategoryColor(category),
+                                );
+                              },
+                            ),
                     ),
                   ],
                 ),
               ),
 
-              // Search Results
+              // Search Results - Flexible to prevent overflow
               Expanded(
                 child: _buildBody(),
               ),
@@ -447,6 +516,8 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildCakeCard(CakeStyle cake) {
+    final isFavorite = _favoriteIds.contains(cake.id);
+    
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pushNamed('/cake/${cake.id}');
@@ -469,37 +540,68 @@ class _SearchScreenState extends State<SearchScreen> {
             // Cake Image
             Expanded(
               flex: 3,
-              child: Container(
-                decoration: const BoxDecoration(
-                  gradient: AppTheme.primaryGradient,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                ),
-                child: cake.images.isNotEmpty
-                    ? ClipRRect(
-                        borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(16)),
-                        child: Image.network(
-                          cake.images.first,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Center(
-                              child: Icon(
-                                Icons.cake,
-                                size: 48,
-                                color: Colors.white,
-                              ),
-                            );
-                          },
+              child: Stack(
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                      gradient: AppTheme.primaryGradient,
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                    ),
+                    child: cake.images.isNotEmpty
+                        ? ClipRRect(
+                            borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(16)),
+                            child: Image.network(
+                              cake.images.first,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Center(
+                                  child: Icon(
+                                    Icons.cake,
+                                    size: 48,
+                                    color: Colors.white,
+                                  ),
+                                );
+                              },
+                            ),
+                          )
+                        : const Center(
+                            child: Icon(
+                              Icons.cake,
+                              size: 48,
+                              color: Colors.white,
+                            ),
+                          ),
+                  ),
+                  // Favorite button
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: GestureDetector(
+                      onTap: () => _toggleFavorite(cake.id),
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: AppTheme.shadowColor,
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
                         ),
-                      )
-                    : const Center(
                         child: Icon(
-                          Icons.cake,
-                          size: 48,
-                          color: Colors.white,
+                          isFavorite ? Icons.favorite : Icons.favorite_border,
+                          color: isFavorite ? Colors.red : AppTheme.textSecondary,
+                          size: 16,
                         ),
                       ),
+                    ),
+                  ),
+                ],
               ),
             ),
 
@@ -617,8 +719,11 @@ class _SearchScreenState extends State<SearchScreen> {
     }
 
     try {
-      final cakeResponse =
-          await CakeRepository.searchCakes(query: query, limit: 20);
+      final cakeResponse = await CakeRepository.searchCakesWithFilters(
+        query: query,
+        filters: _currentFilters.hasActiveFilters ? _currentFilters : null,
+        limit: 20,
+      );
       setState(() {
         _searchResults = cakeResponse.data;
         _isSearching = false;
@@ -656,20 +761,57 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
+  Future<void> _toggleFavorite(String cakeId) async {
+    try {
+      final success = await FavoritesService.toggleFavorite(cakeId);
+      if (success) {
+        final favoriteIds = await FavoritesService.getFavoriteIds();
+        setState(() {
+          _favoriteIds = favoriteIds;
+        });
+
+        // Update cache with new favorites
+        await CacheService.setFavorites(favoriteIds.toList());
+
+        // Show feedback to user
+        if (mounted) {
+          final isFavorite = _favoriteIds.contains(cakeId);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  isFavorite ? 'Added to favorites' : 'Removed from favorites'),
+              duration: const Duration(seconds: 2),
+              backgroundColor:
+                  isFavorite ? AppTheme.primaryColor : AppTheme.textSecondary,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+// print('DEBUG: Error toggling favorite: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to update favorites'),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+      }
+    }
+  }
+
   IconData _getCategoryIcon(String category) {
     switch (category.toLowerCase()) {
       case 'birthday':
         return Icons.cake;
       case 'wedding':
         return Icons.favorite;
-      case 'custom':
-        return Icons.brush;
-      case 'cupcakes':
-        return Icons.bakery_dining;
       case 'anniversary':
         return Icons.celebration;
-      case 'special':
-        return Icons.star;
+      case 'baby shower':
+        return Icons.child_care;
+      case 'faith celebrations':
+        return Icons.church;
       default:
         return Icons.cake;
     }
@@ -681,14 +823,12 @@ class _SearchScreenState extends State<SearchScreen> {
         return Colors.pink;
       case 'wedding':
         return Colors.red;
-      case 'custom':
-        return Colors.purple;
-      case 'cupcakes':
-        return Colors.orange;
       case 'anniversary':
         return Colors.blue;
-      case 'special':
-        return Colors.amber;
+      case 'baby shower':
+        return Colors.green;
+      case 'faith celebrations':
+        return Colors.purple;
       default:
         return AppTheme.accentColor;
     }
@@ -697,31 +837,19 @@ class _SearchScreenState extends State<SearchScreen> {
   void _showFilterDialog() {
     showModalBottomSheet(
       context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Filter Results',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 16),
-            const Text('Price Range'),
-            // TODO: Add filter options
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Apply Filters'),
-              ),
-            ),
-          ],
-        ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => FilterDialog(
+        initialFilters: _currentFilters,
+        onApplyFilters: (filters) {
+          setState(() {
+            _currentFilters = filters;
+          });
+          // Re-perform search with new filters if there's a current query
+          if (_searchController.text.isNotEmpty) {
+            _performSearch(_searchController.text);
+          }
+        },
       ),
     );
   }

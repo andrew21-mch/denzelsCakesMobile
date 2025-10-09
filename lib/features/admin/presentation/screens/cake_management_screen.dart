@@ -555,7 +555,7 @@ class _CakeManagementScreenState extends State<CakeManagementScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'From \$${(basePrice / 100).toStringAsFixed(2)}',
+                            'From ${basePrice.toInt()} XAF',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,

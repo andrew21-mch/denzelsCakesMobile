@@ -1,5 +1,6 @@
 import 'api_service.dart';
 import 'storage_service.dart';
+import 'cache_service.dart';
 
 class FavoritesService {
   static const String _baseUrl = '/favorites';
@@ -67,6 +68,10 @@ class FavoritesService {
       } else {
         await _removeFromLocalFavorites(cakeId);
       }
+      
+      // Invalidate cache to force refresh
+      await CacheService.invalidateCache('favorites');
+      
       return true;
     } catch (e) {
       // Fallback to local toggle
@@ -94,11 +99,23 @@ class FavoritesService {
   /// Get all favorite cake IDs (for backward compatibility)
   static Future<Set<String>> getFavoriteIds() async {
     try {
+      // Try to load from cache first
+      final cachedFavorites = await CacheService.getFavorites();
+      if (cachedFavorites != null) {
+        return cachedFavorites.toSet();
+      }
+
+      // Load from backend and cache
       final favorites = await getUserFavorites(limit: 1000);
-      return favorites
+      final favoriteIds = favorites
           .map((fav) => fav['cakeStyleId']?['_id']?.toString() ?? '')
           .where((id) => id.isNotEmpty)
           .toSet();
+      
+      // Cache the data
+      await CacheService.setFavorites(favoriteIds.toList());
+      
+      return favoriteIds;
     } catch (e) {
       return await _getLocalFavoriteIds();
     }

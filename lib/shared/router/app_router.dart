@@ -13,6 +13,7 @@ import '../../features/cart/presentation/screens/cart_screen.dart';
 import '../../features/checkout/presentation/screens/checkout_screen.dart';
 import '../../features/orders/presentation/screens/orders_screen.dart';
 import '../../features/training/presentation/screens/training_screen.dart';
+import '../../features/profile/presentation/screens/add_address_with_map_screen.dart';
 import '../../core/services/storage_service.dart';
 
 // Route names
@@ -29,6 +30,7 @@ class AppRoutes {
   static const String orders = '/orders';
   static const String orderDetail = '/orders/:id';
   static const String training = '/training';
+  static const String addAddress = '/add-address';
 }
 
 // Router provider
@@ -144,6 +146,17 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'training',
         builder: (context, state) => const TrainingScreen(),
       ),
+
+      // Add address route
+      GoRoute(
+        path: AppRoutes.addAddress,
+        name: 'addAddress',
+        builder: (context, state) => AddAddressWithMapScreen(
+          onSave: (address) {
+            Navigator.of(context).pop(address);
+          },
+        ),
+      ),
     ],
     errorBuilder: (context, state) => Scaffold(
       body: Center(
@@ -197,4 +210,5 @@ extension AppRouterExtension on GoRouter {
   void pushOrders() => push(AppRoutes.orders);
   void pushOrderDetail(String orderId) => push('/orders/$orderId');
   void pushTraining() => push(AppRoutes.training);
+  void pushAddAddress() => push(AppRoutes.addAddress);
 }

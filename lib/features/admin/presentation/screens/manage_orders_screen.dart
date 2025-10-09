@@ -387,22 +387,22 @@ class _ManageOrdersScreenState extends State<ManageOrdersScreen>
         onPressed = () => _showOrderDetails(order);
     }
 
-    return ElevatedButton(
+    return OutlinedButton(
       onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppTheme.accentColor,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        minimumSize: Size.zero,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppTheme.accentColor,
+        side: const BorderSide(color: AppTheme.accentColor),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        minimumSize: const Size(0, 28),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(6),
         ),
       ),
       child: Text(
         buttonText,
         style: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
