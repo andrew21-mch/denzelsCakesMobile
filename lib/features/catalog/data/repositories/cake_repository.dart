@@ -142,19 +142,8 @@ class CakeRepository {
 
   // Get available categories (tags)
   static Future<List<String>> getAvailableCategories() async {
-    try {
-      final cakes = await getCakes(limit: 100);
-      final Set<String> categories = {};
-
-      for (final cake in cakes.data) {
-        categories.addAll(cake.tags);
-      }
-
-      return categories.toList()..sort();
-    } catch (e) {
-// print('DEBUG: Repository error loading categories: $e');
-      return [];
-    }
+    // Return the fixed categories that the business wants
+    return ['Birthday', 'Wedding', 'Anniversary', 'Baby Shower', 'Faith Celebrations'];
   }
 
   // Get price range

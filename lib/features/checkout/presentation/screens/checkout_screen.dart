@@ -4,9 +4,11 @@ import '../../../../core/services/cart_service.dart';
 import '../../../../core/services/address_service.dart';
 import '../../../../core/services/payment_service.dart';
 import '../../../../core/services/payment_method_service.dart';
+import '../../../../core/services/country_service.dart';
 import '../../../../core/models/cart_model.dart';
 import '../../../../core/models/user_model.dart';
 import '../../../../core/models/payment_method_model.dart';
+import '../../../../core/models/country_model.dart';
 import '../../../profile/presentation/screens/payment_methods_screen.dart';
 import 'payment_waiting_screen.dart';
 
@@ -28,9 +30,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final _phoneController = TextEditingController();
   // Card details are handled securely by payment provider - not collected in app
 
+  // Quick location entry controllers
+  final _quickStreetController = TextEditingController();
+  final _quickCityController = TextEditingController();
+  final _quickStateController = TextEditingController();
+  String _quickCountry = 'CM'; // Default country code, will be made dynamic
+
   Cart _cart = const Cart();
   List<Address> _addresses = [];
   List<PaymentMethodModel> _savedPaymentMethods = [];
+  List<Country> _countries = [];
   bool _isLoading = true;
   bool _isPlacingOrder = false;
 
@@ -47,6 +56,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   void dispose() {
     _instructionsController.dispose();
     _phoneController.dispose();
+    _quickStreetController.dispose();
+    _quickCityController.dispose();
+    _quickStateController.dispose();
     // Card detail controllers removed for security - we don't collect card details in the app
     super.dispose();
   }
@@ -63,10 +75,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       // Load user's saved payment methods
       final paymentMethods = await PaymentMethodService.getUserPaymentMethods();
 
+      // Load countries
+      final countries = await CountryService.getCountries();
+
       setState(() {
         _cart = cart;
         _addresses = addresses;
         _savedPaymentMethods = paymentMethods;
+        _countries = countries;
         _isLoading = false;
 
         // Select default address if available
@@ -286,6 +302,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             isAddNew: true,
           ),
 
+          // Quick location entry option
+          const SizedBox(height: 8),
+          _buildAddressOption(
+            'enter_location',
+            'Enter Location Directly',
+            'Quickly enter your delivery location',
+            Icons.edit_location_outlined,
+            isQuickEntry: true,
+          ),
+
           const SizedBox(height: 24),
 
           // Delivery Instructions
@@ -319,7 +345,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Widget _buildAddressOption(
       String value, String title, String address, IconData icon,
-      {bool isDefault = false, bool isAddNew = false}) {
+      {bool isDefault = false, bool isAddNew = false, bool isQuickEntry = false}) {
     final isSelected = _selectedAddress == value;
 
     return GestureDetector(
@@ -332,6 +358,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               backgroundColor: AppTheme.accentColor,
             ),
           );
+        } else if (isQuickEntry) {
+          _showQuickLocationDialog();
         } else {
           setState(() {
             _selectedAddress = value;
@@ -821,7 +849,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           keyboardType: TextInputType.phone,
           decoration: InputDecoration(
             labelText: 'Phone Number',
-            hintText: '+237 6XX XXX XXX',
+            hintText: '+237 6XX XXX XXX or +1 XXX XXX XXXX',
             prefixIcon: const Icon(Icons.phone),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -1359,18 +1387,25 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
       setState(() => _isPlacingOrder = false);
 
-      // Navigate to payment waiting screen
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => PaymentWaitingScreen(
-              orderId: paymentResponse.orderId,
-              paymentMethod: paymentMethod,
-              amount: _cart.total,
-              paymentDetails: _getPaymentDetails(),
+      // For cash payments, go directly to success
+      if (paymentMethod == PaymentMethod.cash) {
+        if (mounted) {
+          _showOrderSuccessDialog(paymentResponse.orderId);
+        }
+      } else {
+        // Navigate to payment waiting screen for other payment methods
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => PaymentWaitingScreen(
+                orderId: paymentResponse.orderId,
+                paymentMethod: paymentMethod,
+                amount: _cart.total,
+                paymentDetails: _getPaymentDetails(),
+              ),
             ),
-          ),
-        );
+          );
+        }
       }
     } catch (e) {
       setState(() => _isPlacingOrder = false);
@@ -1426,5 +1461,328 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       default:
         return null;
     }
+  }
+
+  void _showQuickLocationDialog() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.75,
+        decoration: const BoxDecoration(
+          color: AppTheme.surfaceColor,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 20,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Handle bar
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppTheme.textTertiary,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // Title
+              Text(
+                'Enter Delivery Location',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+              
+              const SizedBox(height: 8),
+              
+              Text(
+                'Quickly enter your delivery address details',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppTheme.textSecondary,
+                ),
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // Form fields
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      // Street Address
+                      TextField(
+                        controller: _quickStreetController,
+                        decoration: InputDecoration(
+                          labelText: 'Street Address',
+                          hintText: 'Enter street name and number',
+                          prefixIcon: const Icon(Icons.home_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          filled: true,
+                          fillColor: AppTheme.backgroundColor,
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 16),
+                      
+                      // City
+                      TextField(
+                        controller: _quickCityController,
+                        decoration: InputDecoration(
+                          labelText: 'City',
+                          hintText: 'Enter city name',
+                          prefixIcon: const Icon(Icons.location_city_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          filled: true,
+                          fillColor: AppTheme.backgroundColor,
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 16),
+                      
+                      // State/Region
+                      TextField(
+                        controller: _quickStateController,
+                        decoration: InputDecoration(
+                          labelText: 'State/Region',
+                          hintText: 'Enter state or region',
+                          prefixIcon: const Icon(Icons.map_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          filled: true,
+                          fillColor: AppTheme.backgroundColor,
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 16),
+                      
+                      // Country Dropdown
+                      DropdownButtonFormField<String>(
+                        value: _countries.any((c) => c.code == _quickCountry) ? _quickCountry : null,
+                        decoration: InputDecoration(
+                          labelText: 'Country',
+                          prefixIcon: const Icon(Icons.public_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          filled: true,
+                          fillColor: AppTheme.backgroundColor,
+                        ),
+                        items: _countries.isEmpty 
+                            ? [const DropdownMenuItem(value: null, child: Text('Loading...'))]
+                            : _countries.map((country) => DropdownMenuItem(
+                                value: country.code,
+                                child: Row(
+                                  children: [
+                                    Text(country.flag),
+                                    const SizedBox(width: 8),
+                                    Expanded(child: Text(country.name)),
+                                  ],
+                                ),
+                              )).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _quickCountry = value ?? 'CM';
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 20),
+              
+              // Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(color: AppTheme.textTertiary.withValues(alpha: 0.3)),
+                        ),
+                      ),
+                      child: const Text('Cancel'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_quickStreetController.text.trim().isEmpty ||
+                            _quickCityController.text.trim().isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please enter at least street and city'),
+                              backgroundColor: AppTheme.errorColor,
+                            ),
+                          );
+                          return;
+                        }
+                        
+                        // Create a temporary address for this order
+                        final quickAddress = Address(
+                          type: 'temporary',
+                          street: _quickStreetController.text.trim(),
+                          city: _quickCityController.text.trim(),
+                          state: _quickStateController.text.trim().isEmpty 
+                              ? 'N/A' 
+                              : _quickStateController.text.trim(),
+                          zipCode: '00000', // Default for areas without zip codes
+                          country: _quickCountry,
+                          isDefault: false,
+                        );
+                        
+                        // Add to addresses list temporarily and select it
+                        setState(() {
+                          _addresses.add(quickAddress);
+                          _selectedAddress = 'temporary';
+                        });
+                        
+                        Navigator.of(context).pop();
+                        
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Location added successfully!'),
+                            backgroundColor: AppTheme.successColor,
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.accentColor,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Use This Location',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showOrderSuccessDialog(String orderId) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: AppTheme.successColor.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.check_circle,
+                color: AppTheme.successColor,
+                size: 48,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Order Placed Successfully!',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: AppTheme.successColor,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Your order #$orderId has been placed successfully. You will pay when your order is delivered.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppTheme.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close dialog
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        '/home',
+                        (route) => false,
+                      );
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: AppTheme.primaryColor),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      'Continue Shopping',
+                      style: TextStyle(color: AppTheme.primaryColor),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close dialog
+                      Navigator.of(context).pushNamed('/orders');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text('View Orders'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

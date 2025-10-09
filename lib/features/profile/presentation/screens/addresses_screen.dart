@@ -4,6 +4,7 @@ import '../../../../shared/theme/app_theme.dart';
 import '../../../../core/models/user_model.dart';
 import '../../../../core/services/api_service.dart';
 import '../../../../core/services/storage_service.dart';
+import 'add_address_with_map_screen.dart';
 
 class AddressesScreen extends StatefulWidget {
   const AddressesScreen({super.key});
@@ -358,7 +359,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
 
         setState(() {
           _currentUser = updatedUser;
-          _addresses = updatedUser.addresses ?? [];
+          _addresses = updatedUser.addresses;
         });
 
         if (mounted) {
@@ -394,7 +395,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () => _deleteAddress(index),
+            onPressed: () => _showDeleteDialog(index),
             child: const Text(
               'Delete',
               style: TextStyle(color: AppTheme.errorColor),
@@ -406,345 +407,37 @@ class _AddressesScreenState extends State<AddressesScreen> {
   }
 
   void _showAddAddressDialog({Address? address, int? index}) {
-    final isEditing = address != null;
-    final streetController = TextEditingController(text: address?.street ?? '');
-    final cityController = TextEditingController(text: address?.city ?? '');
-    final stateController = TextEditingController(text: address?.state ?? '');
-    final zipController = TextEditingController(text: address?.zipCode ?? '');
-    final countryController =
-        TextEditingController(text: address?.country ?? 'CM');
-
-    String selectedType = address?.type ?? 'home';
-
-    showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: Row(
-            children: [
-              Icon(
-                isEditing ? Icons.edit_location : Icons.add_location,
-                color: AppTheme.accentColor,
-              ),
-              const SizedBox(width: 8),
-              Text(isEditing ? 'Edit Address' : 'Add New Address'),
-            ],
-          ),
-          content: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.9,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Address Type Section
-                  const Text(
-                    'Address Type',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppTheme.borderColor),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: _buildTypeOption(
-                              'home', 'Home', Icons.home, selectedType,
-                              (newType) {
-                            setDialogState(() {
-                              selectedType = newType;
-                            });
-                          }),
-                        ),
-                        Expanded(
-                          child: _buildTypeOption(
-                              'work', 'Work', Icons.work, selectedType,
-                              (newType) {
-                            setDialogState(() {
-                              selectedType = newType;
-                            });
-                          }),
-                        ),
-                        Expanded(
-                          child: _buildTypeOption(
-                              'other', 'Other', Icons.location_on, selectedType,
-                              (newType) {
-                            setDialogState(() {
-                              selectedType = newType;
-                            });
-                          }),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Street Address
-                  const Text(
-                    'Street Address',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: streetController,
-                    decoration: InputDecoration(
-                      hintText: 'Enter your street address',
-                      prefixIcon: const Icon(Icons.location_on_outlined),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      filled: true,
-                      fillColor: AppTheme.surfaceColor,
-                    ),
-                    maxLines: 2,
-                  ),
-                  const SizedBox(height: 16),
-
-                  // City and State
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'City',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: AppTheme.textPrimary,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            TextField(
-                              controller: cityController,
-                              decoration: InputDecoration(
-                                hintText: 'City',
-                                prefixIcon: const Icon(Icons.location_city),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                filled: true,
-                                fillColor: AppTheme.surfaceColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'State/Region',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: AppTheme.textPrimary,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            TextField(
-                              controller: stateController,
-                              decoration: InputDecoration(
-                                hintText: 'State',
-                                prefixIcon: const Icon(Icons.map),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                filled: true,
-                                fillColor: AppTheme.surfaceColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // ZIP Code and Country
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'ZIP/Postal Code',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: AppTheme.textPrimary,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            TextField(
-                              controller: zipController,
-                              decoration: InputDecoration(
-                                hintText: '00237',
-                                prefixIcon:
-                                    const Icon(Icons.markunread_mailbox),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                filled: true,
-                                fillColor: AppTheme.surfaceColor,
-                              ),
-                              keyboardType: TextInputType.text,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Country',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: AppTheme.textPrimary,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            TextField(
-                              controller: countryController,
-                              decoration: InputDecoration(
-                                hintText: 'CM',
-                                prefixIcon: const Icon(Icons.flag),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                filled: true,
-                                fillColor: AppTheme.surfaceColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  if (_addresses.isEmpty)
-                    Container(
-                      margin: const EdgeInsets.only(top: 16),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppTheme.accentColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                            color: AppTheme.accentColor.withValues(alpha: 0.3)),
-                      ),
-                      child: const Row(
-                        children: [
-                          Icon(Icons.info_outline,
-                              color: AppTheme.accentColor, size: 20),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'This will be set as your default address',
-                              style: TextStyle(
-                                color: AppTheme.accentColor,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: AppTheme.textSecondary),
-              ),
-            ),
-            const SizedBox(width: 8),
-            ElevatedButton.icon(
-              onPressed: () => _saveAddress(
-                isEditing: isEditing,
-                address: address,
-                index: index,
-                type: selectedType,
-                street: streetController.text,
-                city: cityController.text,
-                state: stateController.text,
-                zipCode: zipController.text,
-                country: countryController.text,
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.accentColor,
-                foregroundColor: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              icon: Icon(isEditing ? Icons.update : Icons.add_location),
-              label: Text(isEditing ? 'Update Address' : 'Add Address'),
-            ),
-          ],
+    // Navigate to a full-screen add address page instead of a dialog
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => AddAddressWithMapScreen(
+          initialAddress: address,
+          onSave: (newAddress) async {
+            Navigator.of(context).pop();
+            if (address == null) {
+              // Adding new address
+              await _addAddress(newAddress);
+            } else {
+              // Editing existing address
+              await _updateAddress(index!, newAddress);
+            }
+          },
         ),
       ),
     );
   }
 
-  Future<void> _saveAddress({
-    required bool isEditing,
-    required Address? address,
-    required int? index,
-    required String type,
-    required String street,
-    required String city,
-    required String state,
-    required String zipCode,
-    required String country,
-  }) async {
-    if (street.isEmpty || city.isEmpty || state.isEmpty || zipCode.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill in all required fields'),
-          backgroundColor: AppTheme.errorColor,
-        ),
-      );
-      return;
-    }
-
+  Future<void> _addAddress(Address newAddress) async {
     try {
-      final addressData = {
-        'type': type,
-        'street': street,
-        'city': city,
-        'state': state,
-        'zipCode': zipCode,
-        'country': country,
-        'isDefault': _addresses.isEmpty, // First address is default
-      };
+      final addressData = newAddress.toJson();
+      addressData['isDefault'] = _addresses.isEmpty; // First address is default
 
-      final dynamic response;
-      if (isEditing && address?.id != null) {
-        response = await ApiService.put('/auth/addresses/${address!.id}',
-            data: addressData);
-      } else {
-        response = await ApiService.post('/auth/addresses', data: addressData);
-      }
+      print('DEBUG: Sending address data: $addressData');
+
+      final response = await ApiService.post('/auth/addresses', data: addressData);
+
+      print('DEBUG: Response status: ${response.statusCode}');
+      print('DEBUG: Response data: ${response.data}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         if (response.data['success'] == true) {
@@ -757,15 +450,54 @@ class _AddressesScreenState extends State<AddressesScreen> {
           });
 
           if (mounted) {
-            Navigator.of(context).pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Address added successfully!'),
+                backgroundColor: AppTheme.successColor,
+              ),
+            );
           }
+        } else {
+          print('DEBUG: Backend success=false: ${response.data}');
+        }
+      } else {
+        print('DEBUG: HTTP error ${response.statusCode}');
+      }
+    } catch (e) {
+      print('DEBUG: Exception caught: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error adding address: ${e.toString()}'),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _updateAddress(int index, Address updatedAddress) async {
+    try {
+      final address = _addresses[index];
+      if (address.id == null) return;
+
+      final response = await ApiService.put('/auth/addresses/${address.id}',
+          data: updatedAddress.toJson());
+
+      if (response.statusCode == 200) {
+        if (response.data['success'] == true) {
+          final updatedUser = User.fromJson(response.data['data']);
+          await StorageService.setUserData(updatedUser.toJson());
+
+          setState(() {
+            _currentUser = updatedUser;
+            _addresses = updatedUser.addresses;
+          });
 
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(isEditing
-                    ? 'Address updated successfully!'
-                    : 'Address added successfully!'),
+              const SnackBar(
+                content: Text('Address updated successfully!'),
                 backgroundColor: AppTheme.successColor,
               ),
             );
@@ -776,86 +508,11 @@ class _AddressesScreenState extends State<AddressesScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error saving address: ${e.toString()}'),
+            content: Text('Error updating address: ${e.toString()}'),
             backgroundColor: AppTheme.errorColor,
           ),
         );
       }
     }
-  }
-
-  Future<void> _deleteAddress(int index) async {
-    try {
-      final address = _addresses[index];
-      if (address.id == null) return;
-
-      final response = await ApiService.delete('/auth/addresses/${address.id}');
-
-      if (response.statusCode == 200 && response.data['success'] == true) {
-        final updatedUser = User.fromJson(response.data['data']);
-        await StorageService.setUserData(updatedUser.toJson());
-
-        setState(() {
-          _currentUser = updatedUser;
-          _addresses = updatedUser.addresses;
-        });
-
-        if (mounted) {
-          Navigator.of(context).pop();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Address deleted successfully'),
-              backgroundColor: AppTheme.successColor,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error deleting address: ${e.toString()}'),
-            backgroundColor: AppTheme.errorColor,
-          ),
-        );
-      }
-    }
-  }
-
-  Widget _buildTypeOption(String value, String label, IconData icon,
-      String selectedType, Function(String) onTypeChanged) {
-    final isSelected = selectedType == value;
-    return GestureDetector(
-      onTap: () {
-        onTypeChanged(value);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.accentColor : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? Colors.white : AppTheme.textSecondary,
-              size: 20,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? Colors.white : AppTheme.textSecondary,
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

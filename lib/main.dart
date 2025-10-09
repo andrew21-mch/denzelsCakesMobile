@@ -15,6 +15,7 @@ import 'features/search/presentation/screens/search_screen.dart';
 import 'features/auth/presentation/screens/profile_screen.dart';
 import 'features/profile/presentation/screens/edit_profile_screen.dart';
 import 'features/profile/presentation/screens/addresses_screen.dart';
+import 'features/profile/presentation/screens/add_address_with_map_screen.dart';
 import 'features/profile/presentation/screens/payment_methods_screen.dart';
 import 'features/profile/presentation/screens/help_center_screen.dart';
 import 'features/profile/presentation/screens/notifications_settings_screen.dart';
@@ -86,6 +87,16 @@ class CakeShopApp extends StatelessWidget {
           final cakeId = settings.name!.split('/').last;
           return MaterialPageRoute(
             builder: (context) => CakeDetailScreen(cakeId: cakeId),
+          );
+        }
+        // Handle add address route
+        if (settings.name == '/add-address') {
+          return MaterialPageRoute(
+            builder: (context) => AddAddressWithMapScreen(
+              onSave: (address) {
+                Navigator.of(context).pop(address);
+              },
+            ),
           );
         }
         return null;

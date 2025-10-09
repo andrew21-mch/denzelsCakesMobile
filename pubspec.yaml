@@ -1,7 +1,7 @@
 name: denzels_cakes
 description: Professional cake ordering app for Denzel's Cakes - Order custom cakes, browse designs, and track deliveries.
 publish_to: 'none'
-version: 1.0.0+2
+version: 1.0.0+1
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -28,7 +28,7 @@ dependencies:
 
   # Storage & Security
   shared_preferences: ^2.2.2
-  flutter_secure_storage: ^9.0.0
+
 
   # Payment
   flutter_stripe: ^9.5.0
@@ -40,6 +40,11 @@ dependencies:
   connectivity_plus: ^5.0.2
   url_launcher: ^6.2.2
   image_picker: ^1.0.4
+  
+  # Maps & Location
+  google_maps_flutter: ^2.5.0
+  geolocator: ^10.1.0
+  geocoding: ^2.1.1
 
 dev_dependencies:
   flutter_test:

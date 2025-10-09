@@ -309,9 +309,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter your phone number';
                                     }
-                                    // International phone validation (more flexible)
-                                    if (!RegExp(r'^(\+?[\d\s\-\(\)]{8,20})$').hasMatch(value.trim())) {
-                                      return 'Please enter a valid phone number';
+                                    // Cameroon phone validation
+                                    if (!RegExp(r'^(\+?237|6)\d{8}$').hasMatch(value.replaceAll(' ', ''))) {
+                                      return 'Please enter a valid Cameroon phone number';
                                     }
                                     return null;
                                   },

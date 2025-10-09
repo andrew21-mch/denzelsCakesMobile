@@ -4,16 +4,16 @@ import '../../../core/services/storage_service.dart';
 import '../../../core/models/user_model.dart';
 
 class AuthRepository {
-  // Login
+  // Login with email or phone
   static Future<AuthResponse> login({
-    required String email,
+    required String identifier, // Can be email or phone
     required String password,
   }) async {
     try {
       final response = await ApiService.post(
         '/auth/login',
         data: {
-          'email': email,
+          'identifier': identifier,
           'password': password,
         },
       );
@@ -35,22 +35,29 @@ class AuthRepository {
     }
   }
 
-  // Register
+  // Register with either email or phone (at least one required)
   static Future<AuthResponse> register({
     required String name,
-    required String email,
+    String? email,
     required String password,
     String? phone,
   }) async {
     try {
+      final data = <String, dynamic>{
+        'name': name,
+        'password': password,
+      };
+      
+      if (email != null && email.isNotEmpty) {
+        data['email'] = email;
+      }
+      if (phone != null && phone.isNotEmpty) {
+        data['phone'] = phone;
+      }
+
       final response = await ApiService.post(
         '/auth/register',
-        data: {
-          'name': name,
-          'email': email,
-          'password': password,
-          if (phone != null) 'phone': phone,
-        },
+        data: data,
       );
 
       if (response.statusCode == 201) {

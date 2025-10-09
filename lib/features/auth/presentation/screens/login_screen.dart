@@ -11,14 +11,14 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _identifierController = TextEditingController(); // For email or phone
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isLoading = false;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _identifierController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -31,9 +31,9 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      // Call real authentication API
+      // Call real authentication API with identifier (email or phone)
       final authResponse = await AuthRepository.login(
-        email: _emailController.text.trim(),
+        identifier: _identifierController.text.trim(),
         password: _passwordController.text,
       );
 
@@ -42,19 +42,12 @@ class _LoginScreenState extends State<LoginScreen> {
       });
 
       if (mounted) {
-        // Debug: Print user information
-// print('Login successful! User: ${authResponse.user.name}, Role: "${authResponse.user.role}"');
-// print('User role type: ${authResponse.user.role.runtimeType}');
-// print('Is admin? ${authResponse.user.role == 'admin'}');
-
         // Check user role and navigate accordingly
         if (authResponse.user.role == 'admin') {
           // Navigate to admin dashboard for admin users
-// print('Redirecting to admin dashboard');
           Navigator.of(context).pushReplacementNamed('/admin');
         } else {
           // Navigate to home for regular users
-// print('Redirecting to home screen for role: ${authResponse.user.role}');
           Navigator.of(context).pushReplacementNamed('/home');
         }
 
@@ -228,25 +221,29 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         const SizedBox(height: 20),
 
-                        // Email Field
+                        // Email/Phone Field
                         SizedBox(
                           height: 48,
                           child: TextFormField(
-                            controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
+                            controller: _identifierController,
+                            keyboardType: TextInputType.text,
                             decoration: const InputDecoration(
-                              labelText: 'Email Address',
-                              prefixIcon: Icon(Icons.email, size: 20),
+                              labelText: 'Email or Phone',
+                              prefixIcon: Icon(Icons.person, size: 20),
                               contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                               border: OutlineInputBorder(),
+                              hintText: 'Enter email or phone number',
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter your email';
+                                return 'Please enter your email or phone number';
                               }
-                              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                  .hasMatch(value)) {
-                                return 'Please enter a valid email';
+                              // Check if it's a valid email or phone format
+                              final isEmail = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value);
+                              final isPhone = RegExp(r'^(\+?[\d\s\-\(\)]{8,20})$').hasMatch(value.trim());
+                              
+                              if (!isEmail && !isPhone) {
+                                return 'Please enter a valid email or phone number';
                               }
                               return null;
                             },

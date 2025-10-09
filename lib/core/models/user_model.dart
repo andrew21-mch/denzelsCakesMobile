@@ -100,9 +100,9 @@ class Address {
   final String type;
   final String street;
   final String city;
-  final String state;
-  final String zipCode;
-  final String country;
+  final String? state;        // Made optional
+  final String? zipCode;      // Made optional 
+  final String? country;      // Made optional
   final bool isDefault;
 
   const Address({
@@ -110,9 +110,9 @@ class Address {
     required this.type,
     required this.street,
     required this.city,
-    required this.state,
-    required this.zipCode,
-    required this.country,
+    this.state,          // Made optional
+    this.zipCode,        // Made optional
+    this.country,        // Made optional
     required this.isDefault,
   });
 
@@ -131,13 +131,14 @@ class Address {
 
   Map<String, dynamic> toJson() {
     return {
-      if (id != null) '_id': id,
+      // Don't include _id for new addresses - let MongoDB generate it
+      if (id != null && id!.length == 24) '_id': id, // Only include if it's a valid ObjectId
       'type': type,
       'street': street,
       'city': city,
-      'state': state,
-      'zipCode': zipCode,
-      'country': country,
+      if (state != null && state!.isNotEmpty) 'state': state,
+      if (zipCode != null && zipCode!.isNotEmpty) 'zipCode': zipCode,
+      if (country != null && country!.isNotEmpty) 'country': country,
       'isDefault': isDefault,
     };
   }

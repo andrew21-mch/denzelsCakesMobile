@@ -1,0 +1,19 @@
+# Add this to your android/app/build.gradle in the android block:
+
+android {
+    ...
+    
+    buildTypes {
+        debug {
+            buildConfigField "String", "MAPS_API_KEY", "\"${project.findProperty('MAPS_API_KEY_DEBUG') ?: 'debug-key-here'}\""
+            resValue "string", "google_maps_key", "${project.findProperty('MAPS_API_KEY_DEBUG') ?: 'debug-key-here'}"
+        }
+        release {
+            buildConfigField "String", "MAPS_API_KEY", "\"${project.findProperty('MAPS_API_KEY_RELEASE') ?: 'release-key-here'}\""
+            resValue "string", "google_maps_key", "${project.findProperty('MAPS_API_KEY_RELEASE') ?: 'release-key-here'}"
+            
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}

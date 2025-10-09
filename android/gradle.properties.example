@@ -1,0 +1,3 @@
+# Create android/gradle.properties (add to .gitignore!)
+MAPS_API_KEY_DEBUG=your_debug_api_key_here
+MAPS_API_KEY_RELEASE=your_production_api_key_here

@@ -93,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 // print('DEBUG: Error loading categories: $e');
         // Use default categories if API fails
         setState(() {
-          _categories = ['Birthday', 'Wedding', 'Custom', 'Cupcakes'];
+          _categories = ['Birthday', 'Wedding', 'Anniversary', 'Baby Shower', 'Faith Celebrations'];
         });
       }
 
@@ -1044,6 +1044,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         return Icons.favorite;
       case 'anniversary':
         return Icons.celebration;
+      case 'baby shower':
+        return Icons.child_friendly;
+      case 'faith celebrations':
+        return Icons.church; // For Christian events like communion, baptism, etc.
+      case 'religious events':
+        return Icons.church; // For backward compatibility
+      case 'celebrations':
+        return Icons.church; // For backward compatibility
       case 'custom':
         return Icons.palette;
       case 'cupcakes':
@@ -1063,6 +1071,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         return AppTheme.goldenBrown; // Dark goldenrod
       case 'anniversary':
         return AppTheme.warmGray; // Slate gray
+      case 'baby shower':
+        return Colors.pink; // Soft pink for baby shower
+      case 'faith celebrations':
+        return Colors.deepPurple; // For Christian celebrations
+      case 'religious events':
+        return Colors.deepPurple; // For backward compatibility
+      case 'celebrations':
+        return Colors.deepPurple; // For backward compatibility
       case 'custom':
         return AppTheme.secondaryColor; // Chocolate orange
       case 'cupcakes':

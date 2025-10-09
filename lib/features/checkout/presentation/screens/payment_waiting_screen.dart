@@ -59,16 +59,20 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
 
   Future<void> _startPaymentProcessing() async {
     try {
+      print('DEBUG: Starting payment processing for method: ${widget.paymentMethod}');
       setState(() {
         _statusMessage = _getProcessingMessage();
       });
 
       // Simulate payment processing with backend calls
       if (widget.paymentMethod == PaymentMethod.momo) {
+        print('DEBUG: Processing MOMO payment');
         await _processMomoPayment();
       } else if (widget.paymentMethod == PaymentMethod.card) {
+        print('DEBUG: Processing card payment');
         await _processCardPayment();
       } else {
+        print('DEBUG: Processing cash payment');
         // Cash payment - instant success
         setState(() {
           _paymentStatus = PaymentStatus.completed;
@@ -78,6 +82,7 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
         _navigateToSuccess();
       }
     } catch (e) {
+      print('DEBUG: Payment processing error: $e');
       setState(() {
         _paymentStatus = PaymentStatus.failed;
         _statusMessage = 'Payment failed. Please try again.';
@@ -89,6 +94,7 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
   Future<void> _processMomoPayment() async {
     try {
       final phoneNumber = widget.paymentDetails?['phoneNumber'] ?? '';
+      print('DEBUG: Processing MOMO payment for phone: $phoneNumber');
 
       setState(() {
         _statusMessage = 'Sending MOMO payment request...';
@@ -100,6 +106,8 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
         phoneNumber: phoneNumber,
         amount: widget.amount,
       );
+
+      print('DEBUG: MOMO payment result: ${result.status}');
 
       if (result.status == PaymentStatus.processing) {
         setState(() {
@@ -115,6 +123,7 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
         _handlePaymentFailure(result.message ?? 'Payment failed');
       }
     } catch (e) {
+      print('DEBUG: MOMO payment error: $e');
       _handlePaymentFailure(e.toString());
     }
   }
@@ -290,13 +299,12 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
           elevation: 0,
           automaticallyImplyLeading: !_isChecking,
         ),
-        body: SingleChildScrollView(
-          child: Padding(
+        body: Center(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(32),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(height: MediaQuery.of(context).size.height * 0.1),
                 // Payment icon with animation
                 AnimatedBuilder(
                   animation: _pulseAnimation,
@@ -330,34 +338,24 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
                 const SizedBox(height: 32),
 
                 // Status message
-                Flexible(
-                  child: Text(
-                    _statusMessage,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textPrimary,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
+                Text(
+                  _statusMessage,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
                   ),
+                  textAlign: TextAlign.center,
                 ),
 
                 const SizedBox(height: 16),
 
                 // Additional info
-                Flexible(
-                  child: Text(
-                    _getAdditionalInfo(),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppTheme.textSecondary,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 4,
-                    overflow: TextOverflow.ellipsis,
+                Text(
+                  _getAdditionalInfo(),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.black54,
                   ),
+                  textAlign: TextAlign.center,
                 ),
 
                 const SizedBox(height: 32),
@@ -413,21 +411,17 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
     switch (_paymentStatus) {
       case PaymentStatus.completed:
       case PaymentStatus.paid:
-        return LinearGradient(
-          colors: [
-            AppTheme.successColor,
-            AppTheme.successColor.withValues(alpha: 0.8)
-          ],
+        return const LinearGradient(
+          colors: [Colors.green, Color(0xFF4CAF50)],
         );
       case PaymentStatus.failed:
-        return LinearGradient(
-          colors: [
-            AppTheme.errorColor,
-            AppTheme.errorColor.withValues(alpha: 0.8)
-          ],
+        return const LinearGradient(
+          colors: [Colors.red, Color(0xFFE53935)],
         );
       default:
-        return AppTheme.accentGradient;
+        return const LinearGradient(
+          colors: [Colors.blue, Color(0xFF2196F3)],
+        );
     }
   }
 
@@ -435,11 +429,11 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
     switch (_paymentStatus) {
       case PaymentStatus.completed:
       case PaymentStatus.paid:
-        return AppTheme.successColor;
+        return Colors.green;
       case PaymentStatus.failed:
-        return AppTheme.errorColor;
+        return Colors.red;
       default:
-        return AppTheme.accentColor;
+        return Colors.blue;
     }
   }
 
