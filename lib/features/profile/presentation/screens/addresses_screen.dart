@@ -449,12 +449,12 @@ class _AddressesScreenState extends State<AddressesScreen> {
       final addressData = newAddress.toJson();
       addressData['isDefault'] = _addresses.isEmpty; // First address is default
 
-      print('DEBUG: Sending address data: $addressData');
+// print('DEBUG: Sending address data: $addressData');
 
       final response = await ApiService.post('/auth/addresses', data: addressData);
 
-      print('DEBUG: Response status: ${response.statusCode}');
-      print('DEBUG: Response data: ${response.data}');
+// print('DEBUG: Response status: ${response.statusCode}');
+// print('DEBUG: Response data: ${response.data}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         if (response.data['success'] == true) {
@@ -475,13 +475,13 @@ class _AddressesScreenState extends State<AddressesScreen> {
             );
           }
         } else {
-          print('DEBUG: Backend success=false: ${response.data}');
+// print('DEBUG: Backend success=false: ${response.data}');
         }
       } else {
-        print('DEBUG: HTTP error ${response.statusCode}');
+// print('DEBUG: HTTP error ${response.statusCode}');
       }
     } catch (e) {
-      print('DEBUG: Exception caught: $e');
+// print('DEBUG: Exception caught: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

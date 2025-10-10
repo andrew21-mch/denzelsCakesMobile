@@ -59,20 +59,20 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
 
   Future<void> _startPaymentProcessing() async {
     try {
-      print('DEBUG: Starting payment processing for method: ${widget.paymentMethod}');
+// print('DEBUG: Starting payment processing for method: ${widget.paymentMethod}');
       setState(() {
         _statusMessage = _getProcessingMessage();
       });
 
       // Simulate payment processing with backend calls
       if (widget.paymentMethod == PaymentMethod.momo) {
-        print('DEBUG: Processing MOMO payment');
+// print('DEBUG: Processing MOMO payment');
         await _processMomoPayment();
       } else if (widget.paymentMethod == PaymentMethod.card) {
-        print('DEBUG: Processing card payment');
+// print('DEBUG: Processing card payment');
         await _processCardPayment();
       } else {
-        print('DEBUG: Processing cash payment');
+// print('DEBUG: Processing cash payment');
         // Cash payment - instant success
         setState(() {
           _paymentStatus = PaymentStatus.completed;
@@ -82,7 +82,7 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
         _navigateToSuccess();
       }
     } catch (e) {
-      print('DEBUG: Payment processing error: $e');
+// print('DEBUG: Payment processing error: $e');
       setState(() {
         _paymentStatus = PaymentStatus.failed;
         _statusMessage = 'Payment failed. Please try again.';
@@ -94,7 +94,7 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
   Future<void> _processMomoPayment() async {
     try {
       final phoneNumber = widget.paymentDetails?['phoneNumber'] ?? '';
-      print('DEBUG: Processing MOMO payment for phone: $phoneNumber');
+// print('DEBUG: Processing MOMO payment for phone: $phoneNumber');
 
       setState(() {
         _statusMessage = 'Sending MOMO payment request...';
@@ -107,7 +107,7 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
         amount: widget.amount,
       );
 
-      print('DEBUG: MOMO payment result: ${result.status}');
+// print('DEBUG: MOMO payment result: ${result.status}');
 
       if (result.status == PaymentStatus.processing) {
         setState(() {
@@ -123,7 +123,7 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
         _handlePaymentFailure(result.message ?? 'Payment failed');
       }
     } catch (e) {
-      print('DEBUG: MOMO payment error: $e');
+// print('DEBUG: MOMO payment error: $e');
       _handlePaymentFailure(e.toString());
     }
   }

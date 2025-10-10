@@ -3,6 +3,7 @@ plugins {
     id "kotlin-android"
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
+    id "com.google.gms.google-services"
 }
 
 // Load keystore properties
@@ -16,6 +17,13 @@ android {
     namespace = "com.denzelscakes.denzels_cakes"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
+    
+    // Load gradle.properties
+    def gradleProperties = new Properties()
+    def gradlePropertiesFile = rootProject.file('gradle.properties')
+    if (gradlePropertiesFile.exists()) {
+        gradleProperties.load(new FileInputStream(gradlePropertiesFile))
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -33,6 +41,11 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         multiDexEnabled true
+        
+        // Add manifest placeholders
+        manifestPlaceholders = [
+            googleMapsApiKey: gradleProperties['googleMapsApiKey'] ?: ''
+        ]
     }
 
     signingConfigs {
@@ -59,4 +72,9 @@ flutter {
 
 dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
+    implementation platform('com.google.firebase:firebase-bom:32.7.0')
+    implementation 'com.google.firebase:firebase-core:21.1.1'
+    implementation 'com.google.firebase:firebase-messaging:23.4.0'
 }
+
+apply plugin: 'com.google.gms.google-services'

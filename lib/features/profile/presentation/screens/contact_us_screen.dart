@@ -674,18 +674,18 @@ Sent from DenzelsCakes Mobile App
     for (String phoneFormat in phoneFormats) {
       try {
         final Uri phoneUri = Uri.parse(phoneFormat);
-        print('Trying to launch: $phoneFormat'); // Debug log
+// print('Trying to launch: $phoneFormat'); // Debug log
         
         if (await canLaunchUrl(phoneUri)) {
-          print('Can launch: $phoneFormat'); // Debug log
+// print('Can launch: $phoneFormat'); // Debug log
           await launchUrl(phoneUri);
           callMade = true;
           break;
         } else {
-          print('Cannot launch: $phoneFormat'); // Debug log
+// print('Cannot launch: $phoneFormat'); // Debug log
         }
       } catch (e) {
-        print('Error with $phoneFormat: $e'); // Debug log
+// print('Error with $phoneFormat: $e'); // Debug log
         continue;
       }
     }
@@ -697,7 +697,7 @@ Sent from DenzelsCakes Mobile App
         await launchUrl(directUri);
         callMade = true;
       } catch (e) {
-        print('Direct launch failed: $e'); // Debug log
+// print('Direct launch failed: $e'); // Debug log
         _showErrorMessage('Phone app not available. Please dial 683 252 520 manually.');
       }
     }
@@ -765,14 +765,14 @@ Sent from DenzelsCakes Mobile App
     bool opened = false;
     for (final uri in emailUris) {
       try {
-        print('Trying email URI: $uri'); // Debug log
+// print('Trying email URI: $uri'); // Debug log
         if (await canLaunchUrl(uri)) {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
           opened = true;
           break;
         }
       } catch (e) {
-        print('Email URI failed: $e'); // Debug log
+// print('Email URI failed: $e'); // Debug log
         continue;
       }
     }
@@ -786,7 +786,7 @@ Sent from DenzelsCakes Mobile App
           opened = true;
         }
       } catch (e) {
-        print('Simple mailto failed: $e'); // Debug log
+// print('Simple mailto failed: $e'); // Debug log
       }
     }
     

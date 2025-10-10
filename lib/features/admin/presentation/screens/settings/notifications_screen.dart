@@ -12,6 +12,7 @@ class NotificationsScreen extends StatefulWidget {
 class _NotificationsScreenState extends State<NotificationsScreen> {
   bool _isLoading = false;
   Map<String, dynamic> _notificationSettings = {};
+  List<Map<String, dynamic>> _notificationHistory = [];
 
   @override
   void initState() {
@@ -26,8 +27,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     try {
       final settings = await AdminApiService.getNotificationSettings();
+      final history = await AdminApiService.getNotificationHistory(limit: 3);
       setState(() {
         _notificationSettings = settings;
+        _notificationHistory = history;
         _isLoading = false;
       });
     } catch (e) {
@@ -57,6 +60,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             'systemAlerts': true,
           },
         };
+        _notificationHistory = [];
         _isLoading = false;
       });
 
@@ -428,8 +432,24 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            ..._mockNotificationHistory.take(3)
-                .map((notification) => _buildHistoryItem(notification)),
+            _notificationHistory.isEmpty
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(20),
+                      child: Text(
+                        'No notifications yet',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  )
+                : Column(
+                    children: _notificationHistory
+                        .map((notification) => _buildRealHistoryItem(notification))
+                        .toList(),
+                  ),
           ],
         ),
       ),
@@ -488,6 +508,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Widget _buildRealHistoryItem(Map<String, dynamic> notification) {
+    final notificationId = notification['_id'] as String;
     final type = notification['type'] as String;
     final title = notification['title'] as String;
     final message = notification['message'] as String;
@@ -632,12 +653,28 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               ],
             ),
           ),
-          Text(
-            timeAgo,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[500],
-            ),
+          Column(
+            children: [
+              Text(
+                timeAgo,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[500],
+                ),
+              ),
+              const SizedBox(height: 4),
+              IconButton(
+                onPressed: () => _deleteNotification(notificationId),
+                icon: const Icon(Icons.delete_outline, size: 16),
+                color: Colors.red[400],
+                tooltip: 'Delete notification',
+                constraints: const BoxConstraints(
+                  minWidth: 24,
+                  minHeight: 24,
+                ),
+                padding: EdgeInsets.zero,
+              ),
+            ],
           ),
         ],
       ),
@@ -653,6 +690,301 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     });
   }
 
+  Widget _buildDialogHistoryItem(Map<String, dynamic> notification) {
+    final notificationId = notification['_id'] as String;
+    final type = notification['type'] as String;
+    final title = notification['title'] as String;
+    final message = notification['message'] as String;
+    final sentAt = DateTime.parse(notification['sentAt'] as String);
+    final channels = notification['channels'] as Map<String, dynamic>;
+    
+    // Get icon and color based on type
+    IconData icon;
+    Color color;
+    
+    switch (type) {
+      case 'newOrder':
+        icon = Icons.shopping_bag;
+        color = Colors.green;
+        break;
+      case 'paymentReceived':
+        icon = Icons.payment;
+        color = Colors.blue;
+        break;
+      case 'paymentFailed':
+        icon = Icons.error;
+        color = Colors.red;
+        break;
+      case 'orderStatus':
+        icon = Icons.check_circle;
+        color = Colors.green;
+        break;
+      case 'urgentOrder':
+        icon = Icons.priority_high;
+        color = Colors.red;
+        break;
+      case 'systemAlert':
+        icon = Icons.system_update;
+        color = Colors.blue;
+        break;
+      case 'lowStock':
+        icon = Icons.warning;
+        color = Colors.orange;
+        break;
+      case 'dailyReport':
+        icon = Icons.analytics;
+        color = Colors.purple;
+        break;
+      case 'weeklyReport':
+        icon = Icons.trending_up;
+        color = Colors.green;
+        break;
+      default:
+        icon = Icons.notifications;
+        color = Colors.grey;
+    }
+    
+    // Format time
+    final now = DateTime.now();
+    final difference = now.difference(sentAt);
+    String timeAgo;
+    
+    if (difference.inDays > 0) {
+      timeAgo = '${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago';
+    } else if (difference.inHours > 0) {
+      timeAgo = '${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} ago';
+    } else if (difference.inMinutes > 0) {
+      timeAgo = '${difference.inMinutes} minute${difference.inMinutes == 1 ? '' : 's'} ago';
+    } else {
+      timeAgo = 'Just now';
+    }
+    
+    return Container(
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withValues(alpha: 0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header row
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      timeAgo,
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.grey[500],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                onPressed: () => _deleteNotification(notificationId),
+                icon: const Icon(Icons.delete_outline, size: 18),
+                color: Colors.red[400],
+                tooltip: 'Delete notification',
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.red[50],
+                  padding: const EdgeInsets.all(8),
+                ),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 12),
+          
+          // Message
+          Text(
+            message,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[700],
+              height: 1.4,
+            ),
+          ),
+          
+          const SizedBox(height: 12),
+          
+          // Channels
+          Row(
+            children: [
+              if (channels['email'] == true)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.email,
+                        size: 14,
+                        color: Colors.green[600],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Email',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.green[600],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              if (channels['email'] == true && channels['push'] == true)
+                const SizedBox(width: 8),
+              if (channels['push'] == true)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.notifications,
+                        size: 14,
+                        color: Colors.blue[600],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Push',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.blue[600],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _deleteNotification(String notificationId) async {
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Notification'),
+        content: const Text('Are you sure you want to delete this notification? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        // Remove from UI immediately
+        setState(() {
+          _notificationHistory.removeWhere((notification) => notification['_id'] == notificationId);
+        });
+        
+        await AdminApiService.deleteNotification(notificationId);
+        
+        if (mounted) {
+          // Show success toast at the top
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Notification deleted successfully'),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              margin: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top + 60,
+                left: 16,
+                right: 16,
+                bottom: MediaQuery.of(context).size.height - 100,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          );
+        }
+      } catch (e) {
+        // Re-add to UI if deletion failed
+        setState(() {
+          _loadNotificationSettings();
+        });
+        
+        if (mounted) {
+          // Show error toast at the top
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to delete notification: $e'),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              margin: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top + 60,
+                left: 16,
+                right: 16,
+                bottom: MediaQuery.of(context).size.height - 100,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          );
+        }
+      }
+    }
+  }
+
   void _testNotifications() {
     showDialog(
       context: context,
@@ -665,12 +997,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             const SizedBox(height: 16),
             ListTile(
               leading: const Icon(Icons.email, color: Colors.green),
-              title: const Text('Email'),
+              title: const Text('Email Test'),
               onTap: () => _sendTestNotification('email'),
             ),
             ListTile(
               leading: const Icon(Icons.notifications, color: Colors.blue),
-              title: const Text('Push Notification'),
+              title: const Text('Push Notification Test'),
               onTap: () => _sendTestNotification('push'),
             ),
           ],
@@ -712,37 +1044,139 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       final notifications = await AdminApiService.getNotificationHistory(limit: 100);
       
       if (mounted) {
-        showDialog(
+        showModalBottomSheet(
           context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('All Notifications'),
-            content: SizedBox(
-              width: double.maxFinite,
-              height: 400,
-              child: Column(
-                children: [
-                  Expanded(
-                    child: notifications.isEmpty
-                        ? const Center(
-                            child: Text('No notifications found'),
-                          )
-                        : ListView.builder(
-                            itemCount: notifications.length,
-                            itemBuilder: (context, index) {
-                              final notification = notifications[index];
-                              return _buildRealHistoryItem(notification);
-                            },
-                          ),
-                  ),
-                ],
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) => Container(
+            height: MediaQuery.of(context).size.height * 0.85,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
               ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Close'),
-              ),
-            ],
+            child: Column(
+              children: [
+                // Handle bar
+                Container(
+                  margin: const EdgeInsets.only(top: 12),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                
+                // Header
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.notifications_active,
+                        color: AppTheme.primaryColor,
+                        size: 24,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Notification History',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.primaryColor,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: const Icon(Icons.close),
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.grey[100],
+                          foregroundColor: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                // Content
+                Expanded(
+                  child: notifications.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.notifications_none,
+                                size: 48,
+                                color: Colors.grey[400],
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No notifications found',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Notifications will appear here when sent',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[500],
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : ListView.separated(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          itemCount: notifications.length,
+                          separatorBuilder: (context, index) => const SizedBox(height: 8),
+                          itemBuilder: (context, index) {
+                            final notification = notifications[index];
+                            return _buildDialogHistoryItem(notification);
+                          },
+                        ),
+                ),
+                
+                // Footer
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: Colors.blue[600],
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Total: ${notifications.length} notifications',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       }

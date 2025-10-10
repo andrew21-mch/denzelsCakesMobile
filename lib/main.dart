@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'core/services/api_service.dart';
 import 'core/services/storage_service.dart';
 import 'core/services/cart_service.dart';
+import 'core/services/firebase_messaging_service.dart';
 import 'shared/theme/app_theme.dart';
 import 'features/splash/presentation/screens/splash_screen.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
@@ -33,9 +36,25 @@ import 'features/training/presentation/screens/training_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize services
+  // Initialize services first
   await StorageService.init();
   await ApiService.init();
+
+  // Initialize Firebase with proper error handling
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+// print('✅ Firebase initialized successfully!');
+    
+    // Initialize messaging service
+    await FirebaseMessagingService.initialize();
+// print('✅ Firebase Messaging initialized!');
+  } catch (e) {
+// print('❌ Firebase initialization failed: $e');
+// print('📱 Your phone may not have Google Play Services');
+// print('🔄 App will continue without push notifications');
+  }
 
   // Load cart on startup
   await CartService.loadCart();

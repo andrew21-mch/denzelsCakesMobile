@@ -91,6 +91,11 @@ gradle-app.setting
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+# API Keys and sensitive configuration
+android/gradle.properties
+android/key.properties
+android/local.properties
+
 # CMake
 cmake-build-*/
 

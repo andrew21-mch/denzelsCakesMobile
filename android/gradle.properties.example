@@ -1,3 +1,9 @@
-# Create android/gradle.properties (add to .gitignore!)
-MAPS_API_KEY_DEBUG=your_debug_api_key_here
-MAPS_API_KEY_RELEASE=your_production_api_key_here
+# Google Maps API Configuration
+# Copy this file to gradle.properties and add your actual API keys
+# DO NOT COMMIT THE ACTUAL gradle.properties FILE TO GIT
+
+# Google Maps API Key
+googleMapsApiKey=your_google_maps_api_key_here
+
+# Example:
+# googleMapsApiKey=kasldakslfa;skdlfa

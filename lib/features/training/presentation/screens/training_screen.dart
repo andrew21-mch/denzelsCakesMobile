@@ -176,7 +176,7 @@ class _TrainingScreenState extends State<TrainingScreen>
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppTheme.textPrimary.withOpacity(0.05),
+              color: AppTheme.textPrimary.withValues(alpha: 0.05),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
@@ -262,7 +262,7 @@ class _TrainingScreenState extends State<TrainingScreen>
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primaryColor.withOpacity(0.3),
+                        color: AppTheme.primaryColor.withValues(alpha: 0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
@@ -410,12 +410,12 @@ class _TrainingScreenState extends State<TrainingScreen>
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: AppTheme.accentColor.withOpacity(0.3),
+                            color: AppTheme.accentColor.withValues(alpha: 0.3),
                             width: 1,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.shadowColor.withOpacity(0.1),
+                              color: AppTheme.shadowColor.withValues(alpha: 0.1),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),

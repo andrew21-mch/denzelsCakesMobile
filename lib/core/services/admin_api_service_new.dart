@@ -609,12 +609,39 @@ class AdminApiService {
     }
   }
 
+  static Future<void> updateNotificationSettings(Map<String, dynamic> settings) async {
+    try {
+      final response = await ApiService.put(
+        AppConstants.notificationSettingsEndpoint,
+        data: settings,
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data['success'] == true) {
+          return;
+        } else {
+          throw Exception(data['message'] ?? 'Failed to update notification settings');
+        }
+      } else {
+        final data = response.data;
+        throw Exception(data['message'] ?? 'Failed to update notification settings');
+      }
+    } catch (e) {
+// print('Update notification settings error: $e');
+      throw Exception('Failed to update notification settings: $e');
+    }
+  }
+
   /// Send test notification
   static Future<void> sendTestNotification({String type = 'systemAlert'}) async {
     try {
       final response = await ApiService.post(
         '${AppConstants.notificationSettingsEndpoint}/test',
-        data: {'type': type},
+        data: {
+          'type': type,
+          'channel': type, // Send the channel type
+        },
       );
 
       if (response.statusCode != 200) {
@@ -624,6 +651,23 @@ class AdminApiService {
     } catch (e) {
 // print('Send test notification error: $e');
       throw Exception('Failed to send test notification: $e');
+    }
+  }
+
+  /// Delete notification
+  static Future<void> deleteNotification(String notificationId) async {
+    try {
+      final response = await ApiService.delete(
+        '${AppConstants.notificationSettingsEndpoint}/$notificationId',
+      );
+
+      if (response.statusCode != 200) {
+        final data = response.data;
+        throw Exception(data['message'] ?? 'Failed to delete notification');
+      }
+    } catch (e) {
+// print('Delete notification error: $e');
+      throw Exception('Failed to delete notification: $e');
     }
   }
 

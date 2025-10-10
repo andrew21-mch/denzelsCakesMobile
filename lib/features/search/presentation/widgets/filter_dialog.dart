@@ -188,7 +188,7 @@ class _FilterDialogState extends State<FilterDialog> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 10,
                   offset: const Offset(0, -5),
                 ),
@@ -310,7 +310,7 @@ class _FilterDialogState extends State<FilterDialog> {
           _updateSorting(null, null);
         }
       },
-      selectedColor: AppTheme.accentColor.withOpacity(0.2),
+      selectedColor: AppTheme.accentColor.withValues(alpha: 0.2),
       checkmarkColor: AppTheme.accentColor,
     );
   }
@@ -337,7 +337,7 @@ class _FilterDialogState extends State<FilterDialog> {
               label: Text(tag),
               selected: isSelected,
               onSelected: (_) => _toggleTag(tag),
-              selectedColor: AppTheme.accentColor.withOpacity(0.2),
+              selectedColor: AppTheme.accentColor.withValues(alpha: 0.2),
               checkmarkColor: AppTheme.accentColor,
             );
           }).toList(),

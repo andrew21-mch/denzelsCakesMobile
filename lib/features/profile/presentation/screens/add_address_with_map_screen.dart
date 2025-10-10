@@ -142,7 +142,7 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
       // Get address from coordinates
       _getAddressFromCoordinates(_selectedLocation);
     } catch (e) {
-      print('Error getting location: $e');
+// print('Error getting location: $e');
     } finally {
       setState(() {
         _loadingLocation = false;
@@ -152,18 +152,18 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
 
   Future<void> _getAddressFromCoordinates(LatLng location) async {
     try {
-      print('Getting address for coordinates: ${location.latitude}, ${location.longitude}');
+// print('Getting address for coordinates: ${location.latitude}, ${location.longitude}');
       
       List<Placemark> placemarks = await placemarkFromCoordinates(
         location.latitude,
         location.longitude,
       );
 
-      print('Geocoding result: ${placemarks.length} placemarks found');
+// print('Geocoding result: ${placemarks.length} placemarks found');
 
       if (placemarks.isNotEmpty) {
         final placemark = placemarks.first;
-        print('First placemark: ${placemark.toString()}');
+// print('First placemark: ${placemark.toString()}');
         
         setState(() {
           _streetController.text = '${placemark.street ?? ''} ${placemark.subThoroughfare ?? ''}'.trim();
@@ -186,7 +186,7 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
           }
         });
       } else {
-        print('No placemarks found for the location');
+// print('No placemarks found for the location');
         // Show a message to user
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -198,8 +198,8 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
         }
       }
     } catch (e, stackTrace) {
-      print('Error getting address: $e');
-      print('Stack trace: $stackTrace');
+// print('Error getting address: $e');
+// print('Stack trace: $stackTrace');
       
       // Show error message to user
       if (mounted) {

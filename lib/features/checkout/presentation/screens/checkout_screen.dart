@@ -1797,7 +1797,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppTheme.successColor.withOpacity(0.1),
+                color: AppTheme.successColor.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(

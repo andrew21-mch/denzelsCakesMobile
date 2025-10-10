@@ -831,7 +831,7 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
           final imageUrl = await AdminApiService.uploadImage(imageFile);
           imageUrls.add(imageUrl);
         } catch (e) {
-          print('Failed to upload image ${i + 1}: $e');
+// print('Failed to upload image ${i + 1}: $e');
           failedUploads.add('Image ${i + 1}');
           // Continue with other images, don't fail the entire operation
         }
