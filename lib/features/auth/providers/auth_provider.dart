@@ -70,14 +70,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   // Login
   Future<void> login({
-    required String email,
+    required String identifier, // Can be email or phone
     required String password,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
       final authResponse = await AuthRepository.login(
-        email: email,
+        identifier: identifier,
         password: password,
       );
 
@@ -98,7 +98,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   // Register
   Future<void> register({
     required String name,
-    required String email,
+    String? email,
     required String password,
     String? phone,
   }) async {

@@ -27,6 +27,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   final _instructionsController = TextEditingController();
   String? _targetGender; // Gender specification for the order
+  DateTime? _expectedDeliveryDate; // Expected delivery date
 
   // Payment detail controllers
   final _phoneController = TextEditingController();
@@ -147,6 +148,38 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ),
         );
       }
+    }
+  }
+
+  Future<void> _selectDeliveryDate() async {
+    final DateTime now = DateTime.now();
+    final DateTime firstDate = now.add(const Duration(hours: 4)); // Minimum 4 hours from now
+    final DateTime lastDate = now.add(const Duration(days: 30)); // Maximum 30 days from now
+
+    final DateTime? selectedDate = await showDatePicker(
+      context: context,
+      initialDate: _expectedDeliveryDate ?? firstDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
+      helpText: 'Select expected delivery date',
+      cancelText: 'Cancel',
+      confirmText: 'Select',
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+              primary: AppTheme.accentColor,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (selectedDate != null) {
+      setState(() {
+        _expectedDeliveryDate = selectedDate;
+      });
     }
   }
 
@@ -346,6 +379,50 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
           const SizedBox(height: 24),
 
+          // Expected Delivery Date
+          Text(
+            'Expected Delivery Date',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimary,
+                ),
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: _selectDeliveryDate,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                border: Border.all(color: AppTheme.borderColor),
+                borderRadius: BorderRadius.circular(12),
+                color: AppTheme.surfaceColor,
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.calendar_today, color: AppTheme.accentColor),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _expectedDeliveryDate != null
+                          ? '${_expectedDeliveryDate!.day}/${_expectedDeliveryDate!.month}/${_expectedDeliveryDate!.year}'
+                          : 'Select delivery date',
+                      style: TextStyle(
+                        color: _expectedDeliveryDate != null
+                            ? AppTheme.textPrimary
+                            : AppTheme.textSecondary,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios, 
+                      color: AppTheme.textSecondary, size: 16),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
           // Delivery Instructions
           Text(
             'Delivery Instructions (Optional)',
@@ -383,7 +460,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<String>(
-            value: _targetGender,
+            initialValue: _targetGender,
             decoration: InputDecoration(
               hintText: 'Select target gender for this order',
               border: OutlineInputBorder(
@@ -411,7 +488,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Widget _buildAddressOption(
       String value, String title, String address, IconData icon,
-      {bool isDefault = false, bool isAddNew = false, bool isQuickEntry = false}) {
+      {bool isDefault = false,
+      bool isAddNew = false,
+      bool isQuickEntry = false}) {
     final isSelected = _selectedAddress == value;
 
     return GestureDetector(
@@ -1441,7 +1520,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         deliveryAddress: selectedAddress,
         paymentMethod: paymentMethod,
         deliveryInstructions: _instructionsController.text.trim(),
-        customerNotes: _targetGender != null ? 'Gender: ${_getGenderDisplayName(_targetGender!)}' : '',
+        expectedDeliveryDate: _expectedDeliveryDate,
+        customerNotes: _targetGender != null
+            ? 'Gender: ${_getGenderDisplayName(_targetGender!)}'
+            : '',
       );
 
 // print('DEBUG: Initiating payment with method: ${paymentMethod.name}');
@@ -1583,29 +1665,29 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Title
               Text(
                 'Enter Delivery Location',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               Text(
                 'Quickly enter your delivery address details',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[600],
-                ),
+                      color: Colors.grey[600],
+                    ),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Form fields
               Flexible(
                 child: SingleChildScrollView(
@@ -1625,9 +1707,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           fillColor: Colors.grey[50],
                         ),
                       ),
-                      
+
                       const SizedBox(height: 16),
-                      
+
                       // City
                       TextField(
                         controller: _quickCityController,
@@ -1642,9 +1724,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           fillColor: Colors.grey[50],
                         ),
                       ),
-                      
+
                       const SizedBox(height: 16),
-                      
+
                       // State/Region
                       TextField(
                         controller: _quickStateController,
@@ -1659,12 +1741,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           fillColor: Colors.grey[50],
                         ),
                       ),
-                      
+
                       const SizedBox(height: 16),
-                      
+
                       // Country Dropdown
                       DropdownButtonFormField<String>(
-                        value: _countries.any((c) => c.code == _quickCountry) ? _quickCountry : null,
+                        initialValue:
+                            _countries.any((c) => c.code == _quickCountry)
+                                ? _quickCountry
+                                : null,
                         decoration: InputDecoration(
                           labelText: 'Country',
                           prefixIcon: const Icon(Icons.public_outlined),
@@ -1674,12 +1759,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           filled: true,
                           fillColor: Colors.grey[50],
                         ),
-                        items: _countries.isEmpty 
-                            ? [const DropdownMenuItem(value: null, child: Text('Loading...'))]
-                            : _countries.map((country) => DropdownMenuItem(
-                                value: country.code,
-                                child: Text('${country.flag} ${country.name}'),
-                              )).toList(),
+                        items: _countries.isEmpty
+                            ? [
+                                const DropdownMenuItem(
+                                    value: null, child: Text('Loading...'))
+                              ]
+                            : _countries
+                                .map((country) => DropdownMenuItem(
+                                      value: country.code,
+                                      child: Text(
+                                          '${country.flag} ${country.name}'),
+                                    ))
+                                .toList(),
                         onChanged: (value) {
                           setState(() {
                             _quickCountry = value ?? 'CM';
@@ -1690,9 +1781,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 20),
-              
+
               // Buttons
               Row(
                 children: [
@@ -1703,7 +1794,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(color: AppTheme.textTertiary.withValues(alpha: 0.3)),
+                          side: BorderSide(
+                              color:
+                                  AppTheme.textTertiary.withValues(alpha: 0.3)),
                         ),
                       ),
                       child: const Text('Cancel'),
@@ -1718,34 +1811,36 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             _quickCityController.text.trim().isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Please enter at least street and city'),
+                              content:
+                                  Text('Please enter at least street and city'),
                               backgroundColor: AppTheme.errorColor,
                             ),
                           );
                           return;
                         }
-                        
+
                         // Create a temporary address for this order
                         final quickAddress = Address(
                           type: 'temporary',
                           street: _quickStreetController.text.trim(),
                           city: _quickCityController.text.trim(),
-                          state: _quickStateController.text.trim().isEmpty 
-                              ? 'N/A' 
+                          state: _quickStateController.text.trim().isEmpty
+                              ? 'N/A'
                               : _quickStateController.text.trim(),
-                          zipCode: '00000', // Default for areas without zip codes
+                          zipCode:
+                              '00000', // Default for areas without zip codes
                           country: _quickCountry,
                           isDefault: false,
                         );
-                        
+
                         // Add to addresses list temporarily and select it
                         setState(() {
                           _addresses.add(quickAddress);
                           _selectedAddress = 'temporary';
                         });
-                        
+
                         Navigator.of(context).pop();
-                        
+
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Location added successfully!'),
@@ -1793,98 +1888,98 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: AppTheme.successColor.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: AppTheme.successColor.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.check_circle,
+                  color: AppTheme.successColor,
+                  size: 48,
+                ),
               ),
-              child: const Icon(
-                Icons.check_circle,
-                color: AppTheme.successColor,
-                size: 48,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Order Placed Successfully!',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: AppTheme.successColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Your order #$orderId has been placed successfully. You will pay when your order is delivered.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppTheme.textSecondary,
-                fontSize: 14,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 24),
-            Column(
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Close dialog
-                      Navigator.of(context).pushNamed('/orders');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryColor,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+              const SizedBox(height: 24),
+              Text(
+                'Order Placed Successfully!',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: AppTheme.successColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
                     ),
-                    child: const Text(
-                      'View Orders',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Your order #$orderId has been placed successfully. You will pay when your order is delivered.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppTheme.textSecondary,
+                      fontSize: 14,
+                    ),
+                textAlign: TextAlign.center,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 24),
+              Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close dialog
+                        Navigator.of(context).pushNamed('/orders');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'View Orders',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Close dialog
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                        '/home',
-                        (route) => false,
-                      );
-                    },
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: AppTheme.primaryColor),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close dialog
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          '/home',
+                          (route) => false,
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppTheme.primaryColor),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                    ),
-                    child: const Text(
-                      'Continue Shopping',
-                      style: TextStyle(
-                        color: AppTheme.primaryColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                      child: const Text(
+                        'Continue Shopping',
+                        style: TextStyle(
+                          color: AppTheme.primaryColor,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
-        ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

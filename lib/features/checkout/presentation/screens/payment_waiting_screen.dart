@@ -341,9 +341,9 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
                 Text(
                   _statusMessage,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
                   textAlign: TextAlign.center,
                 ),
 
@@ -353,8 +353,8 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
                 Text(
                   _getAdditionalInfo(),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.black54,
-                  ),
+                        color: Colors.black54,
+                      ),
                   textAlign: TextAlign.center,
                 ),
 

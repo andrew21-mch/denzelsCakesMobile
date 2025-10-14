@@ -413,17 +413,17 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     // Try different phone URI formats
     final List<String> phoneFormats = [
       'tel:683252520',
-      'tel:+237683252520', 
+      'tel:+237683252520',
       'tel://683252520',
       'tel://+237683252520'
     ];
-    
+
     bool callMade = false;
-    
+
     for (String phoneFormat in phoneFormats) {
       try {
         final Uri phoneUri = Uri.parse(phoneFormat);
-        
+
         if (await canLaunchUrl(phoneUri)) {
           await launchUrl(phoneUri);
           callMade = true;
@@ -433,7 +433,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
         continue;
       }
     }
-    
+
     if (!callMade) {
       // Last resort - try without checking canLaunchUrl
       try {
@@ -441,7 +441,8 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
         await launchUrl(directUri);
         callMade = true;
       } catch (e) {
-        _showErrorMessage('Phone app not available. Please dial 683 252 520 manually.');
+        _showErrorMessage(
+            'Phone app not available. Please dial 683 252 520 manually.');
       }
     }
   }
@@ -452,9 +453,10 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     final List<Uri> whatsappUris = [
       Uri.parse('whatsapp://send?phone=$phoneNumber'), // WhatsApp app
       Uri.parse('https://wa.me/$phoneNumber'), // WhatsApp web
-      Uri.parse('https://api.whatsapp.com/send?phone=$phoneNumber'), // Alternative web
+      Uri.parse(
+          'https://api.whatsapp.com/send?phone=$phoneNumber'), // Alternative web
     ];
-    
+
     bool opened = false;
     for (final uri in whatsappUris) {
       try {
@@ -468,9 +470,10 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
         continue;
       }
     }
-    
+
     if (!opened) {
-      _showErrorMessage('WhatsApp not available. Please message us at +237 683 252 520');
+      _showErrorMessage(
+          'WhatsApp not available. Please message us at +237 683 252 520');
     }
   }
 

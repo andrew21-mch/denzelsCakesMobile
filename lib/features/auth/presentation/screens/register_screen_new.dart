@@ -144,14 +144,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           AppTheme.primaryGradient.createShader(bounds),
                       child: Text(
                         'Join Denzel\'s Cakes',
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineLarge
-                            ?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.2,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.2,
+                                ),
                       ),
                     ),
                   ],
@@ -202,7 +200,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             decoration: const InputDecoration(
                               labelText: 'Full Name',
                               prefixIcon: Icon(Icons.person, size: 20),
-                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
                               border: OutlineInputBorder(),
                             ),
                             validator: (value) {
@@ -228,16 +227,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 child: GestureDetector(
                                   onTap: () => setState(() => _useEmail = true),
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(vertical: 8),
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 8),
                                     decoration: BoxDecoration(
-                                      color: _useEmail ? AppTheme.accentColor : Colors.transparent,
+                                      color: _useEmail
+                                          ? AppTheme.accentColor
+                                          : Colors.transparent,
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
                                       'Email',
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
-                                        color: _useEmail ? Colors.white : AppTheme.textSecondary,
+                                        color: _useEmail
+                                            ? Colors.white
+                                            : AppTheme.textSecondary,
                                         fontWeight: FontWeight.w600,
                                         fontSize: 12,
                                       ),
@@ -247,18 +251,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                               Expanded(
                                 child: GestureDetector(
-                                  onTap: () => setState(() => _useEmail = false),
+                                  onTap: () =>
+                                      setState(() => _useEmail = false),
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(vertical: 8),
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 8),
                                     decoration: BoxDecoration(
-                                      color: !_useEmail ? AppTheme.accentColor : Colors.transparent,
+                                      color: !_useEmail
+                                          ? AppTheme.accentColor
+                                          : Colors.transparent,
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
                                       'Phone',
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
-                                        color: !_useEmail ? Colors.white : AppTheme.textSecondary,
+                                        color: !_useEmail
+                                            ? Colors.white
+                                            : AppTheme.textSecondary,
                                         fontWeight: FontWeight.w600,
                                         fontSize: 12,
                                       ),
@@ -282,14 +292,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   decoration: const InputDecoration(
                                     labelText: 'Email Address',
                                     prefixIcon: Icon(Icons.email, size: 20),
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 8),
                                     border: OutlineInputBorder(),
                                   ),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter your email';
                                     }
-                                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                                    if (!RegExp(
+                                            r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                        .hasMatch(value)) {
                                       return 'Please enter a valid email';
                                     }
                                     return null;
@@ -301,7 +314,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   decoration: const InputDecoration(
                                     labelText: 'Phone Number',
                                     prefixIcon: Icon(Icons.phone, size: 20),
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 8),
                                     border: OutlineInputBorder(),
                                     hintText: '+237 6XX XXX XXX',
                                   ),
@@ -310,7 +324,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       return 'Please enter your phone number';
                                     }
                                     // Cameroon phone validation
-                                    if (!RegExp(r'^(\+?237|6)\d{8}$').hasMatch(value.replaceAll(' ', ''))) {
+                                    if (!RegExp(r'^(\+?237|6)\d{8}$')
+                                        .hasMatch(value.replaceAll(' ', ''))) {
                                       return 'Please enter a valid Cameroon phone number';
                                     }
                                     return null;
@@ -331,7 +346,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               prefixIcon: const Icon(Icons.lock, size: 20),
                               suffixIcon: IconButton(
                                 icon: Icon(
-                                  _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                                  _isPasswordVisible
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
                                   size: 20,
                                 ),
                                 onPressed: () {
@@ -340,7 +357,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   });
                                 },
                               ),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
                               border: const OutlineInputBorder(),
                             ),
                             validator: (value) {
@@ -362,19 +380,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             obscureText: !_isConfirmPasswordVisible,
                             decoration: InputDecoration(
                               labelText: 'Confirm Password',
-                              prefixIcon: const Icon(Icons.lock_outline, size: 20),
+                              prefixIcon:
+                                  const Icon(Icons.lock_outline, size: 20),
                               suffixIcon: IconButton(
                                 icon: Icon(
-                                  _isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                                  _isConfirmPasswordVisible
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
                                   size: 20,
                                 ),
                                 onPressed: () {
                                   setState(() {
-                                    _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                                    _isConfirmPasswordVisible =
+                                        !_isConfirmPasswordVisible;
                                   });
                                 },
                               ),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
                               border: const OutlineInputBorder(),
                             ),
                             validator: (value) {
@@ -408,7 +431,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     height: 20,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
                                     ),
                                   )
                                 : const Text(
@@ -437,7 +461,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             GestureDetector(
                               onTap: () {
-                                Navigator.of(context).pushReplacementNamed('/login');
+                                Navigator.of(context)
+                                    .pushReplacementNamed('/login');
                               },
                               child: const Text(
                                 'Sign In',

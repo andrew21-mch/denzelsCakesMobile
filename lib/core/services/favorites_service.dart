@@ -68,10 +68,10 @@ class FavoritesService {
       } else {
         await _removeFromLocalFavorites(cakeId);
       }
-      
+
       // Invalidate cache to force refresh
       await CacheService.invalidateCache('favorites');
-      
+
       return true;
     } catch (e) {
       // Fallback to local toggle
@@ -111,10 +111,10 @@ class FavoritesService {
           .map((fav) => fav['cakeStyleId']?['_id']?.toString() ?? '')
           .where((id) => id.isNotEmpty)
           .toSet();
-      
+
       // Cache the data
       await CacheService.setFavorites(favoriteIds.toList());
-      
+
       return favoriteIds;
     } catch (e) {
       return await _getLocalFavoriteIds();

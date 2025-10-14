@@ -446,11 +446,13 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen>
                     child: OutlinedButton.icon(
                       onPressed: () => _showOrderDetails(order),
                       icon: const Icon(Icons.visibility, size: 14),
-                      label: const Text('View Details', style: TextStyle(fontSize: 12)),
+                      label: const Text('View Details',
+                          style: TextStyle(fontSize: 12)),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppTheme.accentColor,
                         side: const BorderSide(color: AppTheme.accentColor),
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 6),
                         minimumSize: const Size(0, 32),
                       ),
                     ),
@@ -460,11 +462,13 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen>
                     child: OutlinedButton.icon(
                       onPressed: () => _showUpdateStatusDialog(order),
                       icon: const Icon(Icons.edit, size: 14),
-                      label: const Text('Update', style: TextStyle(fontSize: 12)),
+                      label:
+                          const Text('Update', style: TextStyle(fontSize: 12)),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppTheme.primaryColor,
                         side: const BorderSide(color: AppTheme.primaryColor),
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 6),
                         minimumSize: const Size(0, 32),
                       ),
                     ),
@@ -477,7 +481,6 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen>
       ),
     );
   }
-
 
   void _showOrderDetails(Map<String, dynamic> order) {
     showModalBottomSheet(

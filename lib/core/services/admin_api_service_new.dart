@@ -582,11 +582,11 @@ class AdminApiService {
         'limit': limit,
         'offset': offset,
       };
-      
+
       if (type != null) {
         queryParams['type'] = type;
       }
-      
+
       final response = await ApiService.get(
         '${AppConstants.notificationSettingsEndpoint}/history',
         queryParameters: queryParams,
@@ -597,11 +597,13 @@ class AdminApiService {
         if (data['success'] == true) {
           return List<Map<String, dynamic>>.from(data['data'] ?? []);
         } else {
-          throw Exception(data['message'] ?? 'Failed to fetch notification history');
+          throw Exception(
+              data['message'] ?? 'Failed to fetch notification history');
         }
       } else {
         final data = response.data;
-        throw Exception(data['message'] ?? 'Failed to fetch notification history');
+        throw Exception(
+            data['message'] ?? 'Failed to fetch notification history');
       }
     } catch (e) {
 // print('Get notification history error: $e');
@@ -609,7 +611,8 @@ class AdminApiService {
     }
   }
 
-  static Future<void> updateNotificationSettings(Map<String, dynamic> settings) async {
+  static Future<void> updateNotificationSettings(
+      Map<String, dynamic> settings) async {
     try {
       final response = await ApiService.put(
         AppConstants.notificationSettingsEndpoint,
@@ -621,11 +624,13 @@ class AdminApiService {
         if (data['success'] == true) {
           return;
         } else {
-          throw Exception(data['message'] ?? 'Failed to update notification settings');
+          throw Exception(
+              data['message'] ?? 'Failed to update notification settings');
         }
       } else {
         final data = response.data;
-        throw Exception(data['message'] ?? 'Failed to update notification settings');
+        throw Exception(
+            data['message'] ?? 'Failed to update notification settings');
       }
     } catch (e) {
 // print('Update notification settings error: $e');
@@ -634,7 +639,8 @@ class AdminApiService {
   }
 
   /// Send test notification
-  static Future<void> sendTestNotification({String type = 'systemAlert'}) async {
+  static Future<void> sendTestNotification(
+      {String type = 'systemAlert'}) async {
     try {
       final response = await ApiService.post(
         '${AppConstants.notificationSettingsEndpoint}/test',

@@ -30,10 +30,10 @@ class _SearchScreenState extends State<SearchScreen> {
   String? _selectedCategory;
   bool _isSearching = false;
   bool _isLoadingCategories = true;
-  
+
   // Favorites state
   Set<String> _favoriteIds = {};
-  
+
   // Filter state
   FilterOptions _currentFilters = const FilterOptions();
 
@@ -46,7 +46,7 @@ class _SearchScreenState extends State<SearchScreen> {
       _performSearch(widget.initialQuery!);
     }
     _focusNode.requestFocus();
-    
+
     // Add listener to update UI when search text changes
     _searchController.addListener(() {
       setState(() {});
@@ -64,7 +64,13 @@ class _SearchScreenState extends State<SearchScreen> {
     try {
       // Force use the exact same categories as home screen
       setState(() {
-        _categories = ['Birthday', 'Wedding', 'Anniversary', 'Baby Shower', 'Faith Celebrations'];
+        _categories = [
+          'Birthday',
+          'Wedding',
+          'Anniversary',
+          'Baby Shower',
+          'Faith Celebrations'
+        ];
         _isLoadingCategories = false;
       });
 
@@ -80,7 +86,13 @@ class _SearchScreenState extends State<SearchScreen> {
     } catch (e) {
       // Use fallback categories if API fails - EXACTLY the same as home screen
       setState(() {
-        _categories = ['Birthday', 'Wedding', 'Anniversary', 'Baby Shower', 'Faith Celebrations'];
+        _categories = [
+          'Birthday',
+          'Wedding',
+          'Anniversary',
+          'Baby Shower',
+          'Faith Celebrations'
+        ];
         _isLoadingCategories = false;
       });
     }
@@ -117,11 +129,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.filter_list,
-                          color: AppTheme.accentColor),
-                      onPressed: _showFilterDialog,
-                    ),
+                    // Removed duplicate filter icon - kept only the one in search box
+                    const SizedBox(width: 48), // Maintain spacing
                   ],
                 ),
               ),
@@ -160,7 +169,10 @@ class _SearchScreenState extends State<SearchScreen> {
                               gradient: _currentFilters.hasActiveFilters
                                   ? AppTheme.accentGradient
                                   : LinearGradient(
-                                      colors: [Colors.grey[300]!, Colors.grey[300]!],
+                                      colors: [
+                                        Colors.grey[300]!,
+                                        Colors.grey[300]!
+                                      ],
                                     ),
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -517,7 +529,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _buildCakeCard(CakeStyle cake) {
     final isFavorite = _favoriteIds.contains(cake.id);
-    
+
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pushNamed('/cake/${cake.id}');
@@ -545,7 +557,8 @@ class _SearchScreenState extends State<SearchScreen> {
                   Container(
                     decoration: const BoxDecoration(
                       gradient: AppTheme.primaryGradient,
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(16)),
                     ),
                     child: cake.images.isNotEmpty
                         ? ClipRRect(
@@ -595,7 +608,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         ),
                         child: Icon(
                           isFavorite ? Icons.favorite : Icons.favorite_border,
-                          color: isFavorite ? Colors.red : AppTheme.textSecondary,
+                          color:
+                              isFavorite ? Colors.red : AppTheme.textSecondary,
                           size: 16,
                         ),
                       ),

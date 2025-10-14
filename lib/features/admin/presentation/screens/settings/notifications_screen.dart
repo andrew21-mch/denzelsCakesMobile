@@ -66,7 +66,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Using default notification settings'),
             backgroundColor: Colors.orange,
           ),
@@ -199,7 +199,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-
   Widget _buildNotificationCard(
     String title,
     IconData icon,
@@ -208,7 +207,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     String description,
   ) {
     final settingsData = _notificationSettings[settingsKey];
-    final settings = settingsData is Map<String, dynamic> 
+    final settings = settingsData is Map<String, dynamic>
         ? Map<String, bool>.from(settingsData)
         : <String, bool>{};
 
@@ -402,7 +401,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   ];
 
   Widget _buildNotificationHistoryCard() {
-
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -447,7 +445,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   )
                 : Column(
                     children: _notificationHistory
-                        .map((notification) => _buildRealHistoryItem(notification))
+                        .map((notification) =>
+                            _buildRealHistoryItem(notification))
                         .toList(),
                   ),
           ],
@@ -514,11 +513,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final message = notification['message'] as String;
     final sentAt = DateTime.parse(notification['sentAt'] as String);
     final channels = notification['channels'] as Map<String, dynamic>;
-    
+
     // Get icon and color based on type
     IconData icon;
     Color color;
-    
+
     switch (type) {
       case 'newOrder':
         icon = Icons.shopping_bag;
@@ -560,22 +559,25 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         icon = Icons.notifications;
         color = Colors.grey;
     }
-    
+
     // Format time
     final now = DateTime.now();
     final difference = now.difference(sentAt);
     String timeAgo;
-    
+
     if (difference.inDays > 0) {
-      timeAgo = '${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago';
+      timeAgo =
+          '${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago';
     } else if (difference.inHours > 0) {
-      timeAgo = '${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} ago';
+      timeAgo =
+          '${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} ago';
     } else if (difference.inMinutes > 0) {
-      timeAgo = '${difference.inMinutes} minute${difference.inMinutes == 1 ? '' : 's'} ago';
+      timeAgo =
+          '${difference.inMinutes} minute${difference.inMinutes == 1 ? '' : 's'} ago';
     } else {
       timeAgo = 'Just now';
     }
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -616,7 +618,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   children: [
                     if (channels['email'] == true)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: Colors.green.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
@@ -634,7 +637,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       const SizedBox(width: 4),
                     if (channels['push'] == true)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: Colors.blue.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
@@ -697,11 +701,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final message = notification['message'] as String;
     final sentAt = DateTime.parse(notification['sentAt'] as String);
     final channels = notification['channels'] as Map<String, dynamic>;
-    
+
     // Get icon and color based on type
     IconData icon;
     Color color;
-    
+
     switch (type) {
       case 'newOrder':
         icon = Icons.shopping_bag;
@@ -743,22 +747,25 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         icon = Icons.notifications;
         color = Colors.grey;
     }
-    
+
     // Format time
     final now = DateTime.now();
     final difference = now.difference(sentAt);
     String timeAgo;
-    
+
     if (difference.inDays > 0) {
-      timeAgo = '${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago';
+      timeAgo =
+          '${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago';
     } else if (difference.inHours > 0) {
-      timeAgo = '${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} ago';
+      timeAgo =
+          '${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} ago';
     } else if (difference.inMinutes > 0) {
-      timeAgo = '${difference.inMinutes} minute${difference.inMinutes == 1 ? '' : 's'} ago';
+      timeAgo =
+          '${difference.inMinutes} minute${difference.inMinutes == 1 ? '' : 's'} ago';
     } else {
       timeAgo = 'Just now';
     }
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.symmetric(vertical: 4),
@@ -826,9 +833,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // Message
           Text(
             message,
@@ -838,15 +845,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               height: 1.4,
             ),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // Channels
           Row(
             children: [
               if (channels['email'] == true)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.green.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(6),
@@ -875,7 +883,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 const SizedBox(width: 8),
               if (channels['push'] == true)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.blue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(6),
@@ -913,7 +922,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Notification'),
-        content: const Text('Are you sure you want to delete this notification? This action cannot be undone.'),
+        content: const Text(
+            'Are you sure you want to delete this notification? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -932,11 +942,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       try {
         // Remove from UI immediately
         setState(() {
-          _notificationHistory.removeWhere((notification) => notification['_id'] == notificationId);
+          _notificationHistory.removeWhere(
+              (notification) => notification['_id'] == notificationId);
         });
-        
+
         await AdminApiService.deleteNotification(notificationId);
-        
+
         if (mounted) {
           // Show success toast at the top
           ScaffoldMessenger.of(context).showSnackBar(
@@ -961,7 +972,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         setState(() {
           _loadNotificationSettings();
         });
-        
+
         if (mounted) {
           // Show error toast at the top
           ScaffoldMessenger.of(context).showSnackBar(
@@ -1022,7 +1033,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     try {
       await AdminApiService.sendTestNotification(type: type);
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Test $type notification sent successfully!'),
@@ -1041,8 +1052,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   void _viewAllNotifications() async {
     try {
-      final notifications = await AdminApiService.getNotificationHistory(limit: 100);
-      
+      final notifications =
+          await AdminApiService.getNotificationHistory(limit: 100);
+
       if (mounted) {
         showModalBottomSheet(
           context: context,
@@ -1069,19 +1081,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                
+
                 // Header
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.notifications_active,
                         color: AppTheme.primaryColor,
                         size: 24,
                       ),
                       const SizedBox(width: 12),
-                      Expanded(
+                      const Expanded(
                         child: Text(
                           'Notification History',
                           style: TextStyle(
@@ -1102,7 +1114,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     ],
                   ),
                 ),
-                
+
                 // Content
                 Expanded(
                   child: notifications.isEmpty
@@ -1137,14 +1149,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       : ListView.separated(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           itemCount: notifications.length,
-                          separatorBuilder: (context, index) => const SizedBox(height: 8),
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 8),
                           itemBuilder: (context, index) {
                             final notification = notifications[index];
                             return _buildDialogHistoryItem(notification);
                           },
                         ),
                 ),
-                
+
                 // Footer
                 Container(
                   padding: const EdgeInsets.all(16),
@@ -1199,7 +1212,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     try {
       await AdminApiService.updateNotificationSettings(_notificationSettings);
-      
+
       setState(() {
         _isLoading = false;
       });

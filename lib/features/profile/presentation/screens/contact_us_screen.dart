@@ -641,7 +641,8 @@ Sent from DenzelsCakes Mobile App
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Email client opened with your message. Please send the email to complete your inquiry.'),
+            content: Text(
+                'Email client opened with your message. Please send the email to complete your inquiry.'),
             backgroundColor: AppTheme.successColor,
             duration: Duration(seconds: 4),
           ),
@@ -651,7 +652,8 @@ Sent from DenzelsCakes Mobile App
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Could not open email client. Please try the direct email option above.'),
+            content: Text(
+                'Could not open email client. Please try the direct email option above.'),
             backgroundColor: AppTheme.errorColor,
             duration: Duration(seconds: 4),
           ),
@@ -664,18 +666,18 @@ Sent from DenzelsCakes Mobile App
     // Try different phone URI formats
     final List<String> phoneFormats = [
       'tel:683252520',
-      'tel:+237683252520', 
+      'tel:+237683252520',
       'tel://683252520',
       'tel://+237683252520'
     ];
-    
+
     bool callMade = false;
-    
+
     for (String phoneFormat in phoneFormats) {
       try {
         final Uri phoneUri = Uri.parse(phoneFormat);
 // print('Trying to launch: $phoneFormat'); // Debug log
-        
+
         if (await canLaunchUrl(phoneUri)) {
 // print('Can launch: $phoneFormat'); // Debug log
           await launchUrl(phoneUri);
@@ -689,7 +691,7 @@ Sent from DenzelsCakes Mobile App
         continue;
       }
     }
-    
+
     if (!callMade) {
       // Last resort - try without checking canLaunchUrl
       try {
@@ -698,7 +700,8 @@ Sent from DenzelsCakes Mobile App
         callMade = true;
       } catch (e) {
 // print('Direct launch failed: $e'); // Debug log
-        _showErrorMessage('Phone app not available. Please dial 683 252 520 manually.');
+        _showErrorMessage(
+            'Phone app not available. Please dial 683 252 520 manually.');
       }
     }
   }
@@ -720,9 +723,10 @@ Sent from DenzelsCakes Mobile App
     final List<Uri> whatsappUris = [
       Uri.parse('whatsapp://send?phone=$phoneNumber'), // WhatsApp app
       Uri.parse('https://wa.me/$phoneNumber'), // WhatsApp web
-      Uri.parse('https://api.whatsapp.com/send?phone=$phoneNumber'), // Alternative web
+      Uri.parse(
+          'https://api.whatsapp.com/send?phone=$phoneNumber'), // Alternative web
     ];
-    
+
     bool opened = false;
     for (final uri in whatsappUris) {
       try {
@@ -736,9 +740,10 @@ Sent from DenzelsCakes Mobile App
         continue;
       }
     }
-    
+
     if (!opened) {
-      _showErrorMessage('WhatsApp not available. Please message us at +237 683 252 520');
+      _showErrorMessage(
+          'WhatsApp not available. Please message us at +237 683 252 520');
     }
   }
 
@@ -749,7 +754,7 @@ Sent from DenzelsCakes Mobile App
 
   Future<bool> _sendEmailWithContent(String subject, String body) async {
     const email = 'hello@denzelscakes.com';
-    
+
     // Create multiple URI formats for better compatibility
     final List<Uri> emailUris = [
       // Standard mailto with subject and body
@@ -761,7 +766,7 @@ Sent from DenzelsCakes Mobile App
       // Alternative format
       Uri.parse('mailto:$email?${_buildEmailQuery(subject, body)}'),
     ];
-    
+
     bool opened = false;
     for (final uri in emailUris) {
       try {
@@ -776,7 +781,7 @@ Sent from DenzelsCakes Mobile App
         continue;
       }
     }
-    
+
     if (!opened) {
       // Fallback: try simpler mailto without query parameters
       try {
@@ -789,25 +794,25 @@ Sent from DenzelsCakes Mobile App
 // print('Simple mailto failed: $e'); // Debug log
       }
     }
-    
+
     if (!opened) {
       _showErrorMessage('No email app available. Please email us at $email');
     }
-    
+
     return opened;
   }
 
   String _buildEmailQuery(String subject, String body) {
     final Map<String, String> params = {};
-    
+
     if (subject.isNotEmpty) {
       params['subject'] = subject;
     }
-    
+
     if (body.isNotEmpty) {
       params['body'] = body;
     }
-    
+
     return params.entries
         .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
         .join('&');
@@ -817,10 +822,12 @@ Sent from DenzelsCakes Mobile App
     const location = 'Makepe, Douala, Cameroon';
     final List<Uri> mapUris = [
       Uri.parse('geo:0,0?q=${Uri.encodeComponent(location)}'), // Android Maps
-      Uri.parse('https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(location)}'), // Google Maps web
-      Uri.parse('https://maps.apple.com/?q=${Uri.encodeComponent(location)}'), // Apple Maps
+      Uri.parse(
+          'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(location)}'), // Google Maps web
+      Uri.parse(
+          'https://maps.apple.com/?q=${Uri.encodeComponent(location)}'), // Apple Maps
     ];
-    
+
     bool opened = false;
     for (final uri in mapUris) {
       try {
@@ -834,7 +841,7 @@ Sent from DenzelsCakes Mobile App
         continue;
       }
     }
-    
+
     if (!opened) {
       _showErrorMessage('No maps app available. Please search for: $location');
     }

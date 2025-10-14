@@ -1,8 +1,8 @@
 class AppConstants {
   // API Configuration
   // static const String baseUrl ='http://192.168.0.164:3000/api/v1';
-  static const String baseUrl ='https://dcapi.denzelscakes.com/api/v1';
-      // 'http://10.208.227.47:3000/api/v1'; // Updated IP address
+  static const String baseUrl = 'https://dcapi.denzelscakes.com/api/v1';
+  // 'http://10.208.227.47:3000/api/v1'; // Updated IP address
   // static const String baseUrl = 'http://192.168.0.164:3000/api/v1'; // Updated IP address
   static const String apiVersion = 'v1';
 

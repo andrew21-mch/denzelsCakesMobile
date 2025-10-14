@@ -17,7 +17,8 @@ class CacheService {
   static const String _countriesKey = 'countries';
 
   /// Set cached data with expiry
-  static Future<void> setCacheData(String key, dynamic data, {Duration? expiry}) async {
+  static Future<void> setCacheData(String key, dynamic data,
+      {Duration? expiry}) async {
     final cacheData = {
       'data': data,
       'timestamp': DateTime.now().millisecondsSinceEpoch,
@@ -29,7 +30,7 @@ class CacheService {
   /// Get cached data if not expired
   static Future<dynamic> getCacheData(String key) async {
     final cacheData = await StorageService.getJson('cache_$key');
-    
+
     if (cacheData != null) {
       final timestamp = cacheData['timestamp'] as int?;
       final expiry = cacheData['expiry'] as int?;
@@ -60,7 +61,7 @@ class CacheService {
   /// Check if cache exists and is valid
   static Future<bool> isCacheValid(String key) async {
     final cacheData = await StorageService.getJson('cache_$key');
-    
+
     if (cacheData != null) {
       final timestamp = cacheData['timestamp'] as int?;
       final expiry = cacheData['expiry'] as int?;
@@ -79,7 +80,7 @@ class CacheService {
   /// Get cache age in minutes
   static Future<int?> getCacheAge(String key) async {
     final cacheData = await StorageService.getJson('cache_$key');
-    
+
     if (cacheData != null) {
       final timestamp = cacheData['timestamp'] as int?;
       if (timestamp != null) {

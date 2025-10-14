@@ -286,8 +286,7 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
               decoration: const InputDecoration(
                 labelText: 'Prep Time (min) *',
                 hintText: '60',
-                prefixIcon:
-                    Icon(Icons.timer, color: AppTheme.accentColor),
+                prefixIcon: Icon(Icons.timer, color: AppTheme.accentColor),
               ),
               keyboardType: TextInputType.number,
               validator: (value) {
@@ -321,7 +320,7 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-              value: _targetGender,
+              initialValue: _targetGender,
               decoration: const InputDecoration(
                 labelText: 'Target Gender (Optional)',
                 hintText: 'Select target gender',
@@ -844,7 +843,8 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Failed to upload any images. Please check your connection and try again.'),
+            content: Text(
+                'Failed to upload any images. Please check your connection and try again.'),
             backgroundColor: Colors.red,
             duration: Duration(seconds: 4),
           ),
@@ -856,7 +856,8 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
       if (failedUploads.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Warning: Failed to upload ${failedUploads.join(", ")}. Continuing with ${imageUrls.length} uploaded images.'),
+            content: Text(
+                'Warning: Failed to upload ${failedUploads.join(", ")}. Continuing with ${imageUrls.length} uploaded images.'),
             backgroundColor: Colors.orange,
             duration: const Duration(seconds: 4),
           ),

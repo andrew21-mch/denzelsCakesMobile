@@ -402,34 +402,34 @@ class AboutScreen extends StatelessWidget {
                 ),
           ),
           const SizedBox(height: 16),
-          
+
           // Location
           _buildContactItem(
             icon: Icons.location_on,
             title: 'Location',
             subtitle: 'Makepe, Douala\nCameroon\nOpposite Tradex Rhone Poulenc',
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Phone
           _buildContactItem(
             icon: Icons.phone,
             title: 'Call Us',
             subtitle: '683 252 520',
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // WhatsApp
           _buildContactItem(
             icon: Icons.message,
             title: 'WhatsApp',
             subtitle: '683 252 520',
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Email
           _buildContactItem(
             icon: Icons.email,

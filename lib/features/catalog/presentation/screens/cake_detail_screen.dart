@@ -316,7 +316,8 @@ class _CakeDetailScreenState extends ConsumerState<CakeDetailScreen> {
                                   if (progress == null) return child;
                                   return const Center(
                                     child: CircularProgressIndicator(
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
                                     ),
                                   );
                                 },
@@ -331,7 +332,8 @@ class _CakeDetailScreenState extends ConsumerState<CakeDetailScreen> {
                               right: 0,
                               child: Center(
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 6),
                                   decoration: BoxDecoration(
                                     color: Colors.black.withValues(alpha: 0.6),
                                     borderRadius: BorderRadius.circular(20),

@@ -46,7 +46,7 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
 // print('✅ Firebase initialized successfully!');
-    
+
     // Initialize messaging service
     await FirebaseMessagingService.initialize();
 // print('✅ Firebase Messaging initialized!');

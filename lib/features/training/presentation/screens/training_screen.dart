@@ -20,7 +20,8 @@ class _TrainingScreenState extends State<TrainingScreen>
       id: 'q1',
       title: 'Cake Decoration Mastery',
       months: 'January - March (Q1 Intake)',
-      description: 'Complete cake decoration training program covering all essential skills from basics to advanced techniques.',
+      description:
+          'Complete cake decoration training program covering all essential skills from basics to advanced techniques.',
       topics: [
         'Baking Fundamentals & Techniques',
         'Cake Mixing & Preparation Methods',
@@ -40,7 +41,8 @@ class _TrainingScreenState extends State<TrainingScreen>
       id: 'q2',
       title: 'Cake Decoration Mastery',
       months: 'April - June (Q2 Intake)',
-      description: 'Complete cake decoration training program covering all essential skills from basics to advanced techniques.',
+      description:
+          'Complete cake decoration training program covering all essential skills from basics to advanced techniques.',
       topics: [
         'Baking Fundamentals & Techniques',
         'Cake Mixing & Preparation Methods',
@@ -60,7 +62,8 @@ class _TrainingScreenState extends State<TrainingScreen>
       id: 'q3',
       title: 'Cake Decoration Mastery',
       months: 'July - September (Q3 Intake)',
-      description: 'Complete cake decoration training program covering all essential skills from basics to advanced techniques.',
+      description:
+          'Complete cake decoration training program covering all essential skills from basics to advanced techniques.',
       topics: [
         'Baking Fundamentals & Techniques',
         'Cake Mixing & Preparation Methods',
@@ -93,7 +96,7 @@ class _TrainingScreenState extends State<TrainingScreen>
   static bool _isCurrentPeriod(String period) {
     final now = DateTime.now();
     final month = now.month;
-    
+
     switch (period) {
       case 'Jan-Mar':
         return month >= 1 && month <= 3;
@@ -109,7 +112,7 @@ class _TrainingScreenState extends State<TrainingScreen>
   static String _getPeriodStatus(String period) {
     final now = DateTime.now();
     final month = now.month;
-    
+
     switch (period) {
       case 'Jan-Mar':
         if (month >= 1 && month <= 3) return 'current';
@@ -391,7 +394,6 @@ class _TrainingScreenState extends State<TrainingScreen>
                       ),
                     ),
                     const SizedBox(height: 24),
-
                     const Text(
                       'Topics Covered',
                       style: TextStyle(
@@ -401,7 +403,6 @@ class _TrainingScreenState extends State<TrainingScreen>
                       ),
                     ),
                     const SizedBox(height: 16),
-
                     ...period.topics.asMap().entries.map((entry) {
                       return Container(
                         margin: const EdgeInsets.only(bottom: 12),
@@ -415,7 +416,8 @@ class _TrainingScreenState extends State<TrainingScreen>
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.shadowColor.withValues(alpha: 0.1),
+                              color:
+                                  AppTheme.shadowColor.withValues(alpha: 0.1),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -511,11 +513,11 @@ class _TrainingScreenState extends State<TrainingScreen>
                       ),
                     ),
                     const SizedBox(width: 16),
-                    Expanded(
+                    const Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Training Schedule',
                             style: TextStyle(
                               fontSize: 20,
@@ -523,7 +525,7 @@ class _TrainingScreenState extends State<TrainingScreen>
                               color: AppTheme.textPrimary,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4),
                           Text(
                             'Master the art of cake decoration',
                             style: TextStyle(

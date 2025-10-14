@@ -47,7 +47,7 @@ class AuthRepository {
         'name': name,
         'password': password,
       };
-      
+
       if (email != null && email.isNotEmpty) {
         data['email'] = email;
       }

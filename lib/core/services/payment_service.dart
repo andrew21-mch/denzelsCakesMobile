@@ -24,6 +24,7 @@ class PaymentRequest {
   final PaymentMethod paymentMethod;
   final String? customerNotes;
   final String? deliveryInstructions;
+  final DateTime? expectedDeliveryDate;
   final Map<String, dynamic>? paymentDetails;
 
   const PaymentRequest({
@@ -32,6 +33,7 @@ class PaymentRequest {
     required this.paymentMethod,
     this.customerNotes,
     this.deliveryInstructions,
+    this.expectedDeliveryDate,
     this.paymentDetails,
   });
 
@@ -52,6 +54,8 @@ class PaymentRequest {
         'type': 'delivery',
         'address': deliveryAddress.toJson(),
         'instructions': deliveryInstructions,
+        if (expectedDeliveryDate != null) 
+          'scheduledDate': expectedDeliveryDate!.toIso8601String(),
       },
       'customerNotes': customerNotes,
       if (paymentDetails != null) 'paymentDetails': paymentDetails,

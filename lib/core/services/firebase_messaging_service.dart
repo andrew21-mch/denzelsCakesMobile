@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 import '../services/api_service.dart';
 import '../constants/app_constants.dart';
@@ -30,7 +29,8 @@ class FirebaseMessagingService {
       await _getFCMTokenWithTimeout();
 
       // Handle background messages
-      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+      FirebaseMessaging.onBackgroundMessage(
+          _firebaseMessagingBackgroundHandler);
 
       // Handle foreground messages
       FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
@@ -43,7 +43,6 @@ class FirebaseMessagingService {
       if (initialMessage != null) {
         _handleNotificationTap(initialMessage);
       }
-
     } catch (e) {
       _logger.e('Failed to initialize Firebase messaging: $e');
       _logger.i('App will continue without push notifications');
@@ -54,7 +53,7 @@ class FirebaseMessagingService {
   static Future<void> _getFCMTokenWithTimeout() async {
     try {
       _logger.i('Attempting to get FCM token...');
-      
+
       // Try to get token with 10 second timeout
       _fcmToken = await _messaging.getToken().timeout(
         const Duration(seconds: 10),
@@ -63,12 +62,13 @@ class FirebaseMessagingService {
           return null;
         },
       );
-      
+
       if (_fcmToken != null) {
         _logger.i('FCM Token obtained successfully');
         await _registerFCMToken(_fcmToken!);
       } else {
-        _logger.w('FCM Token is null - Google Play Services may not be available');
+        _logger
+            .w('FCM Token is null - Google Play Services may not be available');
       }
     } catch (e) {
       _logger.e('Failed to get FCM token: $e');
@@ -96,7 +96,7 @@ class FirebaseMessagingService {
     try {
       _logger.i('Attempting to register FCM token with backend...');
       _logger.i('Token: ${token.substring(0, 20)}...');
-      
+
       final response = await ApiService.post(
         '${AppConstants.authEndpoint}/fcm-token',
         data: {'fcmToken': token},
@@ -121,7 +121,7 @@ class FirebaseMessagingService {
     _logger.i('Received foreground message: ${message.messageId}');
     _logger.i('Title: ${message.notification?.title}');
     _logger.i('Body: ${message.notification?.body}');
-    
+
     // Show a local notification when app is in foreground
     _showLocalNotification(message);
   }
@@ -130,7 +130,7 @@ class FirebaseMessagingService {
   static void _showLocalNotification(RemoteMessage message) {
     // This will show a notification even when app is in foreground
     _logger.i('Showing local notification: ${message.notification?.title}');
-    
+
     // You can implement local notifications here if needed
     // For now, just log it
   }
@@ -138,7 +138,7 @@ class FirebaseMessagingService {
   /// Handle notification tap
   static void _handleNotificationTap(RemoteMessage message) {
     _logger.i('Notification tapped: ${message.messageId}');
-    
+
     // Handle navigation based on notification data
     final data = message.data;
     if (data.containsKey('type')) {

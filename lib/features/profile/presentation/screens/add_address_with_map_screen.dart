@@ -18,27 +18,29 @@ class AddAddressWithMapScreen extends StatefulWidget {
   });
 
   @override
-  State<AddAddressWithMapScreen> createState() => _AddAddressWithMapScreenState();
+  State<AddAddressWithMapScreen> createState() =>
+      _AddAddressWithMapScreenState();
 }
 
 class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+
   // Form controllers
   late TextEditingController _streetController;
   late TextEditingController _cityController;
   late TextEditingController _stateController;
   late TextEditingController _zipController;
-  
+
   // Map related
   GoogleMapController? _mapController;
-  LatLng _selectedLocation = const LatLng(3.848, 11.502); // Yaoundé, Cameroon default
+  LatLng _selectedLocation =
+      const LatLng(3.848, 11.502); // Yaoundé, Cameroon default
   Set<Marker> _markers = {};
-  
+
   // Dropdown values
   String _selectedType = 'home';
   Country? _selectedCountry;
-  
+
   bool _isLoading = false;
   bool _loadingCountries = true;
   bool _loadingLocation = false;
@@ -49,16 +51,16 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize controllers
     final address = widget.initialAddress;
     _streetController = TextEditingController(text: address?.street ?? '');
     _cityController = TextEditingController(text: address?.city ?? '');
     _stateController = TextEditingController(text: address?.state ?? '');
     _zipController = TextEditingController(text: address?.zipCode ?? '');
-    
+
     _selectedType = address?.type ?? 'home';
-    
+
     // Load countries and get current location
     _loadCountries();
     _getCurrentLocation();
@@ -70,7 +72,7 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
       setState(() {
         _countries = countries;
         _loadingCountries = false;
-        
+
         // Set initial country
         final address = widget.initialAddress;
         if (address?.country != null) {
@@ -153,7 +155,7 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
   Future<void> _getAddressFromCoordinates(LatLng location) async {
     try {
 // print('Getting address for coordinates: ${location.latitude}, ${location.longitude}');
-      
+
       List<Placemark> placemarks = await placemarkFromCoordinates(
         location.latitude,
         location.longitude,
@@ -164,15 +166,19 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
       if (placemarks.isNotEmpty) {
         final placemark = placemarks.first;
 // print('First placemark: ${placemark.toString()}');
-        
+
         setState(() {
-          _streetController.text = '${placemark.street ?? ''} ${placemark.subThoroughfare ?? ''}'.trim();
+          _streetController.text =
+              '${placemark.street ?? ''} ${placemark.subThoroughfare ?? ''}'
+                  .trim();
           _cityController.text = placemark.locality ?? '';
           _stateController.text = placemark.administrativeArea ?? '';
           _zipController.text = placemark.postalCode ?? '';
-          
+
           // Try to find country by ISO code, but don't override user selection
-          if (placemark.isoCountryCode != null && _selectedCountry == null && _countries.isNotEmpty) {
+          if (placemark.isoCountryCode != null &&
+              _selectedCountry == null &&
+              _countries.isNotEmpty) {
             final countryCode = placemark.isoCountryCode!.toUpperCase();
             try {
               final country = _countries.firstWhere(
@@ -197,10 +203,10 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
           );
         }
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
 // print('Error getting address: $e');
 // print('Stack trace: $stackTrace');
-      
+
       // Show error message to user
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -259,9 +265,14 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
         type: _selectedType,
         street: _streetController.text.trim(),
         city: _cityController.text.trim(),
-        state: _stateController.text.trim().isEmpty ? null : _stateController.text.trim(),
-        zipCode: _zipController.text.trim().isEmpty ? null : _zipController.text.trim(),
-        country: _selectedCountry?.code ?? 'CM', // Force country code, default to CM
+        state: _stateController.text.trim().isEmpty
+            ? null
+            : _stateController.text.trim(),
+        zipCode: _zipController.text.trim().isEmpty
+            ? null
+            : _zipController.text.trim(),
+        country:
+            _selectedCountry?.code ?? 'CM', // Force country code, default to CM
         isDefault: widget.initialAddress?.isDefault ?? false,
       );
 
@@ -282,7 +293,8 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: Text(widget.initialAddress == null ? 'Add Address' : 'Edit Address'),
+        title: Text(
+            widget.initialAddress == null ? 'Add Address' : 'Edit Address'),
         backgroundColor: AppTheme.backgroundColor,
         elevation: 0,
         leading: IconButton(
@@ -333,14 +345,15 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
                       child: FloatingActionButton.small(
                         onPressed: _getCurrentLocation,
                         backgroundColor: Colors.white,
-                        child: const Icon(Icons.my_location, color: AppTheme.primaryColor),
+                        child: const Icon(Icons.my_location,
+                            color: AppTheme.primaryColor),
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-            
+
             // Form Section
             Expanded(
               child: SingleChildScrollView(
@@ -356,7 +369,7 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    
+
                     // Address Type
                     const Text(
                       'Address Type',
@@ -379,9 +392,12 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
                           value: _selectedType,
                           isExpanded: true,
                           items: const [
-                            DropdownMenuItem(value: 'home', child: Text('Home')),
-                            DropdownMenuItem(value: 'work', child: Text('Work')),
-                            DropdownMenuItem(value: 'other', child: Text('Other')),
+                            DropdownMenuItem(
+                                value: 'home', child: Text('Home')),
+                            DropdownMenuItem(
+                                value: 'work', child: Text('Work')),
+                            DropdownMenuItem(
+                                value: 'other', child: Text('Other')),
                           ],
                           onChanged: (value) {
                             setState(() {
@@ -392,7 +408,7 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Street Address
                     const Text(
                       'Street Address',
@@ -408,11 +424,13 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
                         hintText: 'Enter street address',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppTheme.borderColor),
+                          borderSide:
+                              const BorderSide(color: AppTheme.borderColor),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppTheme.primaryColor),
+                          borderSide:
+                              const BorderSide(color: AppTheme.primaryColor),
                         ),
                         filled: true,
                         fillColor: Colors.white,
@@ -425,7 +443,7 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // City
                     const Text(
                       'City',
@@ -441,11 +459,13 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
                         hintText: 'Enter city',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppTheme.borderColor),
+                          borderSide:
+                              const BorderSide(color: AppTheme.borderColor),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppTheme.primaryColor),
+                          borderSide:
+                              const BorderSide(color: AppTheme.primaryColor),
                         ),
                         filled: true,
                         fillColor: Colors.white,
@@ -458,7 +478,7 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // State
                     const Text(
                       'State/Province',
@@ -474,11 +494,13 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
                         hintText: 'Enter state or province',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppTheme.borderColor),
+                          borderSide:
+                              const BorderSide(color: AppTheme.borderColor),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppTheme.primaryColor),
+                          borderSide:
+                              const BorderSide(color: AppTheme.primaryColor),
                         ),
                         filled: true,
                         fillColor: Colors.white,
@@ -486,7 +508,7 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
                       validator: null, // Made optional
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // ZIP Code
                     const Text(
                       'ZIP/Postal Code',
@@ -502,18 +524,20 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
                         hintText: 'Enter postal code',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppTheme.borderColor),
+                          borderSide:
+                              const BorderSide(color: AppTheme.borderColor),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppTheme.primaryColor),
+                          borderSide:
+                              const BorderSide(color: AppTheme.primaryColor),
                         ),
                         filled: true,
                         fillColor: Colors.white,
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Country
                     const Text(
                       'Country',
@@ -567,7 +591,7 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
                       ),
                     ),
                     const SizedBox(height: 32),
-                    
+
                     // Save Button
                     SizedBox(
                       width: double.infinity,
@@ -581,7 +605,8 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
                           ),
                         ),
                         child: _isLoading
-                            ? const CircularProgressIndicator(color: Colors.white)
+                            ? const CircularProgressIndicator(
+                                color: Colors.white)
                             : const Text(
                                 'Save Address',
                                 style: TextStyle(

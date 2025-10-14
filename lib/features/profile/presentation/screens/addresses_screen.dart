@@ -48,7 +48,8 @@ class _AddressesScreenState extends State<AddressesScreen> {
         // Use cached data
         setState(() {
           _currentUser = User.fromJson(cachedProfile);
-          _addresses = cachedAddresses.map((json) => Address.fromJson(json)).toList();
+          _addresses =
+              cachedAddresses.map((json) => Address.fromJson(json)).toList();
         });
       } else {
         // Load from backend and cache
@@ -105,7 +106,8 @@ class _AddressesScreenState extends State<AddressesScreen> {
 
         // Cache the data
         await CacheService.setUserProfile(user.toJson());
-        await CacheService.setUserAddresses(user.addresses.map((addr) => addr.toJson()).toList());
+        await CacheService.setUserAddresses(
+            user.addresses.map((addr) => addr.toJson()).toList());
 
         setState(() {
           _currentUser = user;
@@ -451,7 +453,8 @@ class _AddressesScreenState extends State<AddressesScreen> {
 
 // print('DEBUG: Sending address data: $addressData');
 
-      final response = await ApiService.post('/auth/addresses', data: addressData);
+      final response =
+          await ApiService.post('/auth/addresses', data: addressData);
 
 // print('DEBUG: Response status: ${response.statusCode}');
 // print('DEBUG: Response data: ${response.data}');

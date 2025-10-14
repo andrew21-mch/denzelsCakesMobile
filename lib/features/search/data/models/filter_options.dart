@@ -35,24 +35,24 @@ class FilterOptions {
 
   Map<String, dynamic> toQueryParams() {
     final params = <String, dynamic>{};
-    
+
     if (minPrice != null) params['minPrice'] = minPrice;
     if (maxPrice != null) params['maxPrice'] = maxPrice;
     if (tags != null && tags!.isNotEmpty) params['tags'] = tags!.join(',');
     if (sortBy != null) params['sortBy'] = sortBy;
     if (sortOrder != null) params['sortOrder'] = sortOrder;
     if (isAvailable != null) params['isAvailable'] = isAvailable;
-    
+
     return params;
   }
 
   bool get hasActiveFilters {
     return minPrice != null ||
-           maxPrice != null ||
-           (tags != null && tags!.isNotEmpty) ||
-           sortBy != null ||
-           sortOrder != null ||
-           isAvailable != null;
+        maxPrice != null ||
+        (tags != null && tags!.isNotEmpty) ||
+        sortBy != null ||
+        sortOrder != null ||
+        isAvailable != null;
   }
 
   FilterOptions clear() {
@@ -67,7 +67,7 @@ class FilterOptions {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    
+
     return other is FilterOptions &&
         other.minPrice == minPrice &&
         other.maxPrice == maxPrice &&
@@ -80,11 +80,11 @@ class FilterOptions {
   @override
   int get hashCode {
     return minPrice.hashCode ^
-           maxPrice.hashCode ^
-           tags.hashCode ^
-           sortBy.hashCode ^
-           sortOrder.hashCode ^
-           isAvailable.hashCode;
+        maxPrice.hashCode ^
+        tags.hashCode ^
+        sortBy.hashCode ^
+        sortOrder.hashCode ^
+        isAvailable.hashCode;
   }
 }
 
@@ -111,4 +111,3 @@ class SortOptions {
     'desc': 'High to Low',
   };
 }
-

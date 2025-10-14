@@ -431,8 +431,8 @@ class _CakeManagementScreenState extends State<CakeManagementScreen> {
                     itemCount: images.length,
                     itemBuilder: (context, index) {
                       return ClipRRect(
-                        borderRadius:
-                            const BorderRadius.vertical(top: Radius.circular(12)),
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(12)),
                         child: Image.network(
                           images[index],
                           width: double.infinity,
@@ -446,11 +446,13 @@ class _CakeManagementScreenState extends State<CakeManagementScreen> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(Icons.broken_image, size: 40, color: Colors.grey),
+                                  const Icon(Icons.broken_image,
+                                      size: 40, color: Colors.grey),
                                   const SizedBox(height: 8),
                                   Text(
                                     'Image ${index + 1} failed to load',
-                                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                                    style: const TextStyle(
+                                        color: Colors.grey, fontSize: 12),
                                   ),
                                 ],
                               ),
@@ -492,7 +494,8 @@ class _CakeManagementScreenState extends State<CakeManagementScreen> {
                     top: 12,
                     left: 12,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.7),
                         borderRadius: BorderRadius.circular(12),

@@ -220,15 +220,21 @@ class CakeRepository {
       }
 
       final categoryList = categories.toList()..sort();
-      
+
       // Cache the data
       await CacheService.setCategories(categoryList);
-      
+
       return categoryList;
     } catch (e) {
 // print('DEBUG: Repository error loading categories: $e');
       // Return the fixed categories that the business wants as fallback
-      return ['Birthday', 'Wedding', 'Anniversary', 'Baby Shower', 'Faith Celebrations'];
+      return [
+        'Birthday',
+        'Wedding',
+        'Anniversary',
+        'Baby Shower',
+        'Faith Celebrations'
+      ];
     }
   }
 

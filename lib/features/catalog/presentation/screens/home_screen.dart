@@ -81,7 +81,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       if (cachedCakes != null) {
         // Use cached data
         setState(() {
-          _featuredCakes = cachedCakes.map((json) => CakeStyle.fromJson(json)).toList();
+          _featuredCakes =
+              cachedCakes.map((json) => CakeStyle.fromJson(json)).toList();
           _filteredCakes = _featuredCakes;
         });
       } else {
@@ -93,7 +94,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             _filteredCakes = cakeResponse.data;
           });
           // Cache the data
-          await CacheService.setFeaturedCakes(cakeResponse.data.map((cake) => cake.toJson()).toList());
+          await CacheService.setFeaturedCakes(
+              cakeResponse.data.map((cake) => cake.toJson()).toList());
         } catch (e) {
           throw Exception('Failed to load cakes: $e');
         }
@@ -101,7 +103,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
       // ALWAYS use the exact same 5 categories - no API calls
       setState(() {
-        _categories = ['Birthday', 'Wedding', 'Anniversary', 'Baby Shower', 'Faith Celebrations'];
+        _categories = [
+          'Birthday',
+          'Wedding',
+          'Anniversary',
+          'Baby Shower',
+          'Faith Celebrations'
+        ];
       });
 
       // Load favorites
@@ -389,8 +397,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 color: AppTheme.accentColor, size: 24),
                             onPressed: () {
                               if (_searchController.text.isNotEmpty) {
-                                Navigator.of(context)
-                                    .pushNamed('/search', arguments: _searchController.text);
+                                Navigator.of(context).pushNamed('/search',
+                                    arguments: _searchController.text);
                               }
                             },
                           ),
@@ -1020,25 +1028,26 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               icon: Icon(Icons.person),
               label: 'Profile',
             ),
-          ],        onTap: (index) {
-          switch (index) {
-            case 0:
-              // Already on home
-              break;
-            case 1:
-              Navigator.of(context).pushNamed('/search');
-              break;
-            case 2:
-              Navigator.of(context).pushNamed('/training');
-              break;
-            case 3:
-              Navigator.of(context).pushNamed('/cart');
-              break;
-            case 4:
-              Navigator.of(context).pushNamed('/profile');
-              break;
-          }
-        },
+          ],
+          onTap: (index) {
+            switch (index) {
+              case 0:
+                // Already on home
+                break;
+              case 1:
+                Navigator.of(context).pushNamed('/search');
+                break;
+              case 2:
+                Navigator.of(context).pushNamed('/training');
+                break;
+              case 3:
+                Navigator.of(context).pushNamed('/cart');
+                break;
+              case 4:
+                Navigator.of(context).pushNamed('/profile');
+                break;
+            }
+          },
         ),
       ),
     );
@@ -1056,7 +1065,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       case 'baby shower':
         return Icons.child_friendly;
       case 'faith celebrations':
-        return Icons.church; // For Christian events like communion, baptism, etc.
+        return Icons
+            .church; // For Christian events like communion, baptism, etc.
       case 'religious events':
         return Icons.church; // For backward compatibility
       case 'celebrations':

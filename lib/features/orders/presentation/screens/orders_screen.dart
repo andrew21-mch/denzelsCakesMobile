@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../data/repositories/order_repository.dart';
+import '../../../../core/services/order_service.dart';
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
@@ -127,6 +128,89 @@ class _OrdersScreenState extends State<OrdersScreen>
           const SnackBar(
             content: Text('Failed to load orders'),
             backgroundColor: AppTheme.errorColor,
+          ),
+        );
+      }
+    }
+  }
+
+  /// Check if order can be cancelled
+  bool _canCancelOrder(String status) {
+    return ['pending', 'confirmed', 'accepted'].contains(status.toLowerCase());
+  }
+
+  /// Show cancel order confirmation dialog
+  void _showCancelDialog(Map<String, dynamic> order) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cancel Order'),
+        content: Text(
+          'Are you sure you want to cancel order #${order['orderNumber']}?\n\nThis action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Keep Order'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _cancelOrder(order);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text(
+              'Cancel Order',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Cancel the order
+  Future<void> _cancelOrder(Map<String, dynamic> order) async {
+    try {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      // Call cancel order API
+      await OrderService.cancelOrder(order['_id'] ?? order['id'] ?? '');
+
+      // Close loading dialog
+      if (mounted) Navigator.of(context).pop();
+
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Order #${order['orderNumber']} has been cancelled'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+
+      // Reload orders to reflect the change
+      _loadOrders();
+    } catch (e) {
+      // Close loading dialog
+      if (mounted) Navigator.of(context).pop();
+
+      // Show error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to cancel order: $e'),
+            backgroundColor: Colors.red,
           ),
         );
       }
@@ -304,20 +388,42 @@ class _OrdersScreenState extends State<OrdersScreen>
                     ),
                   ],
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    _showOrderDetails(order);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.accentColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Show cancel button only for orders that can be cancelled
+                    if (_canCancelOrder(order['fulfillmentStatus'] ?? '')) ...[
+                      OutlinedButton(
+                        onPressed: () => _showCancelDialog(order),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Colors.red),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                    ElevatedButton(
+                      onPressed: () {
+                        _showOrderDetails(order);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.accentColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        'Details',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    'Details',
-                    style: TextStyle(color: Colors.white),
-                  ),
+                  ],
                 ),
               ],
             ),

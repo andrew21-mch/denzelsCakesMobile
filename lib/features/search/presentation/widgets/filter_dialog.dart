@@ -48,10 +48,11 @@ class _FilterDialogState extends State<FilterDialog> {
         _isLoading = false;
 
         // Set initial price range if filters have values
-        if (_currentFilters.minPrice != null || _currentFilters.maxPrice != null) {
+        if (_currentFilters.minPrice != null ||
+            _currentFilters.maxPrice != null) {
           final filterMinPrice = _currentFilters.minPrice ?? minPrice;
           final filterMaxPrice = _currentFilters.maxPrice ?? maxPrice;
-          
+
           // Ensure values are within bounds
           _priceRange = RangeValues(
             filterMinPrice.clamp(minPrice, maxPrice),
@@ -75,7 +76,6 @@ class _FilterDialogState extends State<FilterDialog> {
       );
     });
   }
-
 
   void _toggleTag(String tag) {
     setState(() {
@@ -144,7 +144,7 @@ class _FilterDialogState extends State<FilterDialog> {
                 ),
                 TextButton(
                   onPressed: _clearAllFilters,
-                  child: Text(
+                  child: const Text(
                     'Clear All',
                     style: TextStyle(
                       color: AppTheme.accentColor,
@@ -208,7 +208,7 @@ class _FilterDialogState extends State<FilterDialog> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   'Apply Filters',
                   style: TextStyle(
                     color: Colors.white,
@@ -297,9 +297,9 @@ class _FilterDialogState extends State<FilterDialog> {
   }
 
   Widget _buildSortChip(String sortBy, String sortOrder, String label) {
-    final isSelected = _currentFilters.sortBy == sortBy && 
-                      _currentFilters.sortOrder == sortOrder;
-    
+    final isSelected = _currentFilters.sortBy == sortBy &&
+        _currentFilters.sortOrder == sortOrder;
+
     return FilterChip(
       label: Text(label),
       selected: isSelected,
@@ -314,7 +314,6 @@ class _FilterDialogState extends State<FilterDialog> {
       checkmarkColor: AppTheme.accentColor,
     );
   }
-
 
   Widget _buildTagsSection() {
     return Column(

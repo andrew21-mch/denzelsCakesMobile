@@ -77,15 +77,18 @@ class OrderService {
   static Future<Map<String, dynamic>> getOrderById(String orderId) async {
     final response = await ApiService.get('$_baseUrl/$orderId');
     return response.data['data'];
-  }
-
-  /// Cancel an order
-  static Future<bool> cancelOrder(String orderId) async {
+  }  /// Cancel an order
+  static Future<Map<String, dynamic>> cancelOrder(String orderId) async {
     try {
-      await ApiService.post('$_baseUrl/$orderId/cancel');
-      return true;
+      final response = await ApiService.post('$_baseUrl/$orderId/cancel');
+      
+      if (response.statusCode == 200) {
+        return response.data;
+      } else {
+        throw Exception(response.data['message'] ?? 'Failed to cancel order');
+      }
     } catch (e) {
-      return false;
+      throw Exception('Failed to cancel order: $e');
     }
   }
 
