@@ -45,15 +45,11 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-// print('✅ Firebase initialized successfully!');
 
     // Initialize messaging service
     await FirebaseMessagingService.initialize();
-// print('✅ Firebase Messaging initialized!');
   } catch (e) {
-// print('❌ Firebase initialization failed: $e');
-// print('📱 Your phone may not have Google Play Services');
-// print('🔄 App will continue without push notifications');
+    print('❌ Firebase initialization error: $e');
   }
 
   // Load cart on startup

@@ -274,6 +274,8 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
         country:
             _selectedCountry?.code ?? 'CM', // Force country code, default to CM
         isDefault: widget.initialAddress?.isDefault ?? false,
+        latitude: _selectedLocation.latitude,  // Save map coordinates
+        longitude: _selectedLocation.longitude, // Save map coordinates
       );
 
       widget.onSave(address);

@@ -91,7 +91,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen>
                               })
                           .toList() ??
                       [],
-                  'deliveryAddress': order['deliveryAddress'] ?? '',
+                  'deliveryAddress': _formatAddress(order),
                   'notes': order['customerNotes'] ?? '',
                   'merchantNotes': order['merchantNotes'] ?? '',
                 })
@@ -577,7 +577,8 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen>
                         [
                           _buildDetailRow('Name', order['customer']),
                           _buildDetailRow('Phone', order['customerPhone']),
-                          _buildDetailRow('Address', order['deliveryAddress']),
+                          _buildDetailRow('Address', order['deliveryAddress'], 
+                              hasCoordinates: _hasCoordinates(order)),
                         ],
                       ),
 
@@ -697,7 +698,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen>
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(String label, String value, {bool hasCoordinates = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -714,13 +715,55 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen>
             ),
           ),
           Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(
-                color: AppTheme.textPrimary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            child: hasCoordinates
+                ? GestureDetector(
+                    onTap: () => _openInGoogleMaps(value),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                      decoration: BoxDecoration(
+                        color: AppTheme.accentColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppTheme.accentColor.withOpacity(0.3)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              value,
+                              style: const TextStyle(
+                                color: AppTheme.accentColor,
+                                fontWeight: FontWeight.w600,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(
+                            Icons.location_on,
+                            color: AppTheme.accentColor,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 4),
+                          const Text(
+                            'View on Maps',
+                            style: TextStyle(
+                              color: AppTheme.accentColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : Text(
+                    value,
+                    style: const TextStyle(
+                      color: AppTheme.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
           ),
         ],
       ),
@@ -958,6 +1001,161 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen>
         return 'Cancelled';
       default:
         return 'Unknown';
+    }
+  }
+
+  String _formatAddress(Map<String, dynamic> order) {
+    try {
+      // Try to get address from deliveryDetails.address (new structure)
+      final deliveryDetails = order['deliveryDetails'];
+      if (deliveryDetails != null && deliveryDetails is Map<String, dynamic>) {
+        final address = deliveryDetails['address'];
+        if (address != null && address is Map<String, dynamic>) {
+          final street = address['street'] ?? '';
+          final city = address['city'] ?? '';
+          final state = address['state'] ?? '';
+          final country = address['country'] ?? '';
+          
+          // Build formatted address
+          final parts = <String>[];
+          if (street.isNotEmpty) parts.add(street);
+          if (city.isNotEmpty) parts.add(city);
+          if (state.isNotEmpty) parts.add(state);
+          if (country.isNotEmpty) parts.add(country);
+          
+          return parts.join(', ');
+        }
+      }
+      
+      // Fallback: try direct deliveryAddress field (old structure)
+      final directAddress = order['deliveryAddress'];
+      if (directAddress != null && directAddress.toString().isNotEmpty) {
+        return directAddress.toString();
+      }
+      
+      // Final fallback: try guestDetails address
+      final guestDetails = order['guestDetails'];
+      if (guestDetails != null && guestDetails is Map<String, dynamic>) {
+        final address = guestDetails['address'];
+        if (address != null && address is Map<String, dynamic>) {
+          final street = address['street'] ?? '';
+          final city = address['city'] ?? '';
+          return '$street, $city'.trim().replaceAll(RegExp(r'^,|,$'), '');
+        }
+      }
+      
+      return 'Address not available';
+    } catch (e) {
+      return 'Address error';
+    }
+  }
+
+  bool _hasCoordinates(Map<String, dynamic> order) {
+    try {
+      // Check if deliveryDetails.address has coordinates
+      final deliveryDetails = order['deliveryDetails'];
+      if (deliveryDetails != null && deliveryDetails is Map<String, dynamic>) {
+        final address = deliveryDetails['address'];
+        if (address != null && address is Map<String, dynamic>) {
+          final lat = address['latitude'];
+          final lng = address['longitude'];
+          return lat != null && lng != null && 
+                 lat != 0 && lng != 0 && 
+                 lat is num && lng is num;
+        }
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  void _openInGoogleMaps(String addressText) {
+    try {
+      // Try to get coordinates first
+      final coordinates = _getCoordinatesFromOrder(addressText);
+      
+      if (coordinates != null) {
+        // Use coordinates for more accurate location
+        final lat = coordinates['lat'];
+        final lng = coordinates['lng'];
+        final url = 'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
+        
+        _launchUrl(url);
+      } else {
+        // Fallback to address search
+        final encodedAddress = Uri.encodeComponent(addressText);
+        final url = 'https://www.google.com/maps/search/?api=1&query=$encodedAddress';
+        
+        _launchUrl(url);
+      }
+    } catch (e) {
+      // Show error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to open maps: $e'),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+      }
+    }
+  }
+
+  Map<String, double>? _getCoordinatesFromOrder(String addressText) {
+    try {
+      // Find the order with this address and extract coordinates
+      for (final order in _orders) {
+        if (order['deliveryAddress'] == addressText) {
+          final deliveryDetails = order['deliveryDetails'];
+          if (deliveryDetails != null && deliveryDetails is Map<String, dynamic>) {
+            final address = deliveryDetails['address'];
+            if (address != null && address is Map<String, dynamic>) {
+              final lat = address['latitude']?.toDouble();
+              final lng = address['longitude']?.toDouble();
+              
+              if (lat != null && lng != null && lat != 0 && lng != 0) {
+                return {'lat': lat, 'lng': lng};
+              }
+            }
+          }
+          break;
+        }
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  void _launchUrl(String url) async {
+    try {
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        // Copy to clipboard as fallback
+        await Clipboard.setData(ClipboardData(text: url));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Maps URL copied to clipboard'),
+              backgroundColor: AppTheme.successColor,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Copy to clipboard as fallback
+      await Clipboard.setData(ClipboardData(text: url));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Maps URL copied to clipboard'),
+            backgroundColor: AppTheme.successColor,
+          ),
+        );
+      }
     }
   }
 }

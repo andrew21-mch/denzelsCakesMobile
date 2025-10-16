@@ -104,6 +104,8 @@ class Address {
   final String? zipCode; // Made optional
   final String? country; // Made optional
   final bool isDefault;
+  final double? latitude; // Added for Google Maps coordinates
+  final double? longitude; // Added for Google Maps coordinates
 
   const Address({
     this.id,
@@ -114,6 +116,8 @@ class Address {
     this.zipCode, // Made optional
     this.country, // Made optional
     required this.isDefault,
+    this.latitude, // Added for Google Maps coordinates
+    this.longitude, // Added for Google Maps coordinates
   });
 
   factory Address.fromJson(Map<String, dynamic> json) {
@@ -126,6 +130,8 @@ class Address {
       zipCode: json['zipCode']?.toString() ?? '',
       country: json['country']?.toString() ?? '',
       isDefault: json['isDefault'] as bool? ?? false,
+      latitude: json['latitude']?.toDouble(),
+      longitude: json['longitude']?.toDouble(),
     );
   }
 
@@ -141,6 +147,8 @@ class Address {
       if (zipCode != null && zipCode!.isNotEmpty) 'zipCode': zipCode,
       if (country != null && country!.isNotEmpty) 'country': country,
       'isDefault': isDefault,
+      if (latitude != null) 'latitude': latitude,
+      if (longitude != null) 'longitude': longitude,
     };
   }
 
@@ -153,6 +161,8 @@ class Address {
     String? zipCode,
     String? country,
     bool? isDefault,
+    double? latitude,
+    double? longitude,
   }) {
     return Address(
       id: id ?? this.id,
@@ -163,6 +173,8 @@ class Address {
       zipCode: zipCode ?? this.zipCode,
       country: country ?? this.country,
       isDefault: isDefault ?? this.isDefault,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
     );
   }
 
