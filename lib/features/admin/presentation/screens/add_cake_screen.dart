@@ -35,6 +35,7 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
   final List<String> _tags = [];
   bool _isAvailable = true;
   String? _targetGender; // New field for gender specification
+  String? _selectedCategory; // Selected category
 
   @override
   void dispose() {
@@ -79,21 +80,77 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
       ),
       body: Form(
         key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
+        child: Column(
           children: [
-            _buildImageSection(),
-            const SizedBox(height: 20),
-            _buildBasicInfoSection(),
-            const SizedBox(height: 20),
-            _buildSizesSection(),
-            const SizedBox(height: 20),
-            _buildFlavorsSection(),
-            const SizedBox(height: 20),
-            _buildTagsSection(),
-            const SizedBox(height: 20),
-            _buildAvailabilitySection(),
-            const SizedBox(height: 30),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  _buildImageSection(),
+                  const SizedBox(height: 20),
+                  _buildBasicInfoSection(),
+                  const SizedBox(height: 20),
+                  _buildSizesSection(),
+                  const SizedBox(height: 20),
+                  _buildFlavorsSection(),
+                  const SizedBox(height: 20),
+                  _buildCategorySection(),
+                  const SizedBox(height: 20),
+                  _buildTagsSection(),
+                  const SizedBox(height: 20),
+                  _buildAvailabilitySection(),
+                  const SizedBox(height: 100), // Extra padding for bottom button
+                ],
+              ),
+            ),
+            // Bottom Save Button
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppTheme.surfaceColor,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
+              ),
+              child: SafeArea(
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _saveCake,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.accentColor,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text(
+                            'Save Cake',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -497,6 +554,130 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
     );
   }
 
+  Widget _buildCategorySection() {
+    // Comprehensive list of cake categories covering all occasions
+    // Using a Set to ensure uniqueness, then converting to sorted list
+    final categoriesSet = {
+      // Life Celebrations
+      'Birthday',
+      'Wedding',
+      'Engagement',
+      'Anniversary',
+      'Bridal Shower',
+      'Baby Shower',
+      'Gender Reveal',
+      
+      // Religious & Faith Celebrations
+      'Baptism',
+      'Child Dedication',
+      'First Communion',
+      'Confirmation',
+      'Bar Mitzvah',
+      'Bat Mitzvah',
+      'Religious Celebration',
+      
+      // Holidays & Seasonal
+      'Christmas',
+      'Easter',
+      'New Year',
+      'Thanksgiving',
+      'Halloween',
+      'Valentine\'s Day',
+      'Mother\'s Day',
+      'Father\'s Day',
+      'Independence Day',
+      'St. Patrick\'s Day',
+      
+      // Milestones & Achievements
+      'Graduation',
+      'Retirement',
+      'Promotion',
+      'Congratulations',
+      'Achievement',
+      
+      // Other Occasions
+      'Corporate Event',
+      'Office Party',
+      'Housewarming',
+      'Welcome Party',
+      'Farewell Party',
+      'Sympathy',
+      'Memorial',
+      'Custom Design',
+      'General Celebration',
+    };
+    
+    // Convert to sorted list for consistent display
+    final categories = categoriesSet.toList()..sort();
+
+    return Card(
+      color: AppTheme.surfaceColor,
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Category *',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              value: (_selectedCategory != null && categories.contains(_selectedCategory))
+                  ? _selectedCategory
+                  : null,
+              decoration: const InputDecoration(
+                labelText: 'Select Category',
+                hintText: 'Choose a category for this cake',
+                prefixIcon: Icon(Icons.category, color: AppTheme.accentColor),
+                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: Colors.white,
+              ),
+              items: categories.map((category) {
+                return DropdownMenuItem(
+                  value: category,
+                  child: Text(category),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedCategory = value;
+                  // Automatically add category to tags if not already present
+                  if (value != null && !_tags.contains(value.toLowerCase())) {
+                    _tags.add(value.toLowerCase());
+                  }
+                });
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please select a category';
+                }
+                return null;
+              },
+            ),
+            if (_selectedCategory != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Selected: $_selectedCategory',
+                style: TextStyle(
+                  color: AppTheme.accentColor,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildTagsSection() {
     return Card(
       color: AppTheme.surfaceColor,
@@ -815,6 +996,16 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
       return;
     }
 
+    if (_selectedCategory == null || _selectedCategory!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a category'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
@@ -914,6 +1105,12 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
         return;
       }
 
+      // Ensure category is in tags
+      final tagsWithCategory = [..._tags];
+      if (_selectedCategory != null && !tagsWithCategory.contains(_selectedCategory!.toLowerCase())) {
+        tagsWithCategory.add(_selectedCategory!.toLowerCase());
+      }
+
       final cakeData = {
         'title': _titleController.text.trim(),
         'description': _descriptionController.text.trim(),
@@ -921,7 +1118,7 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
         'basePrice': basePrice,
         'sizes': _sizes,
         'flavors': _flavors,
-        'tags': _tags,
+        'tags': tagsWithCategory,
         'prepTimeMinutes': prepTime,
         'servingsEstimate': servings,
         'isAvailable': _isAvailable,

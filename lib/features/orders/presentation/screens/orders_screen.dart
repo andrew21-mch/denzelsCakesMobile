@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../shared/theme/app_theme.dart';
+import '../../../../shared/widgets/loading_overlay.dart';
 import '../../data/repositories/order_repository.dart';
 import '../../../../core/services/order_service.dart';
 
@@ -243,20 +244,18 @@ class _OrdersScreenState extends State<OrdersScreen>
           ],
         ),
       ),
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.accentColor),
-              ),
-            )
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                _buildOrdersList(_activeOrders),
-                _buildOrdersList(_completedOrders),
-                _buildOrdersList(_cancelledOrders),
-              ],
-            ),
+      body: LoadingOverlay(
+        isLoading: _isLoading,
+        message: 'Loading orders...',
+        child: TabBarView(
+          controller: _tabController,
+          children: [
+            _buildOrdersList(_activeOrders),
+            _buildOrdersList(_completedOrders),
+            _buildOrdersList(_cancelledOrders),
+          ],
+        ),
+      ),
     );
   }
 
@@ -507,54 +506,222 @@ class _OrdersScreenState extends State<OrdersScreen>
   }
 
   Widget _buildOrderItem(Map<String, dynamic> item) {
+    final customizations = item['customizations'] as Map<String, dynamic>? ?? {};
+    
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppTheme.accentColor,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(
-              Icons.cake,
-              color: Colors.white,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppTheme.surfaceColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppTheme.borderColor),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Item header
+            Row(
               children: [
-                Text(
-                  item['title'] ?? 'Unknown Item',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.textPrimary,
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppTheme.accentColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.cake,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item['title'] ?? 'Unknown Item',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.textPrimary,
+                            ),
                       ),
+                      Text(
+                        '${item['size'] ?? 'N/A'} • ${item['flavor'] ?? 'N/A'} • Qty: ${item['quantity'] ?? 0}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: AppTheme.textSecondary,
+                            ),
+                      ),
+                    ],
+                  ),
                 ),
                 Text(
-                  '${item['size'] ?? 'N/A'} • ${item['flavor'] ?? 'N/A'} • Qty: ${item['quantity'] ?? 0}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.textSecondary,
+                  '${(item['totalPrice'] ?? 0).toStringAsFixed(0)} XAF',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
                       ),
                 ),
               ],
             ),
-          ),
-          Text(
-            '${(item['totalPrice'] ?? 0).toStringAsFixed(0)} XAF',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
+            
+            // Show customizations if they exist
+            if (customizations.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppTheme.accentColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: AppTheme.accentColor.withValues(alpha: 0.3),
+                  ),
                 ),
-          ),
-        ],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Customizations:',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.accentColor,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    
+                    // Show delivery date and time
+                    if (customizations['deliveryDate'] != null) ...[
+                      _buildCustomizationRow(
+                        Icons.calendar_today,
+                        'Delivery Date',
+                        _formatCustomizationDate(customizations['deliveryDate']),
+                      ),
+                      const SizedBox(height: 4),
+                    ],
+                    
+                    if (customizations['deliveryTime'] != null) ...[
+                      _buildCustomizationRow(
+                        Icons.access_time,
+                        'Delivery Time',
+                        customizations['deliveryTime'],
+                      ),
+                      const SizedBox(height: 4),
+                    ],
+                    
+                    // Show selected color
+                    if (customizations['selectedColor'] != null) ...[
+                      Row(
+                        children: [
+                          const Icon(Icons.color_lens, size: 16, color: AppTheme.accentColor),
+                          const SizedBox(width: 8),
+                          Container(
+                            width: 16,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              color: _parseColor(customizations['selectedColor']),
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.grey.shade300),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Custom Color',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: AppTheme.textSecondary,
+                                ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                    ],
+                    
+                    // Show special instructions
+                    if (customizations['specialInstructions'] != null && 
+                        customizations['specialInstructions'].toString().isNotEmpty) ...[
+                      _buildCustomizationRow(
+                        Icons.note_outlined,
+                        'Special Instructions',
+                        customizations['specialInstructions'],
+                      ),
+                      const SizedBox(height: 4),
+                    ],
+                    
+                    // Show image count
+                    if (customizations['images'] != null && 
+                        (customizations['images'] as List).isNotEmpty) ...[
+                      Row(
+                        children: [
+                          const Icon(Icons.image, size: 16, color: AppTheme.accentColor),
+                          const SizedBox(width: 8),
+                          Text(
+                            '${(customizations['images'] as List).length} reference image(s)',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: AppTheme.textSecondary,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
+  }
+
+  Widget _buildCustomizationRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: AppTheme.accentColor),
+        const SizedBox(width: 8),
+        Text(
+          '$label: ',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w500,
+                color: AppTheme.textSecondary,
+              ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppTheme.textSecondary,
+                ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _formatCustomizationDate(dynamic dateValue) {
+    if (dateValue is String) {
+      try {
+        final date = DateTime.parse(dateValue);
+        return '${date.day}/${date.month}/${date.year}';
+      } catch (e) {
+        return dateValue.toString();
+      }
+    }
+    return dateValue.toString();
+  }
+
+  Color _parseColor(dynamic colorValue) {
+    if (colorValue is String) {
+      // Handle hex color strings like "#ffffeb3b"
+      if (colorValue.startsWith('#')) {
+        try {
+          return Color(int.parse(colorValue.substring(1), radix: 16));
+        } catch (e) {
+          return Colors.grey;
+        }
+      }
+    }
+    return Colors.grey;
   }
 
   void _showOrderDetails(Map<String, dynamic> order) {

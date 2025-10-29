@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../shared/theme/app_theme.dart';
+import '../../../../shared/widgets/loading_overlay.dart';
 import '../../data/auth_repository.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -80,8 +81,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
+    return LoadingOverlay(
+      isLoading: _isLoading,
+      message: 'Signing you in...',
+      child: Scaffold(
+        body: Container(
         decoration: const BoxDecoration(
           gradient: AppTheme.backgroundGradient,
         ),
@@ -383,6 +387,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import '../../../../shared/theme/app_theme.dart';
+import '../../../../shared/widgets/loading_overlay.dart';
 import '../../../catalog/data/repositories/cake_repository.dart';
 import '../../../catalog/data/models/cake_model.dart';
 import '../../../../core/services/cache_service.dart';
@@ -101,8 +102,11 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
+    return LoadingOverlay(
+      isLoading: _isSearching || _isLoadingCategories,
+      message: _isSearching ? 'Searching...' : 'Loading categories...',
+      child: Scaffold(
+        body: Container(
         decoration: const BoxDecoration(
           gradient: AppTheme.backgroundGradient,
         ),
@@ -292,6 +296,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 

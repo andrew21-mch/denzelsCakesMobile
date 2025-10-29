@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:denzels_cakes/shared/theme/app_theme.dart';
 import 'package:denzels_cakes/core/services/admin_api_service_new.dart';
+import 'orders_management_screen.dart';
 
 class CustomerManagementScreen extends StatefulWidget {
   final bool embedded;
@@ -427,17 +429,10 @@ class _CustomerManagementScreenState extends State<CustomerManagementScreen> {
                   onSelected: (value) {
                     switch (value) {
                       case 'view_orders':
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content:
-                                  Text('View orders feature coming soon!')),
-                        );
+                        _viewCustomerOrders(customer);
                         break;
                       case 'contact':
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Contact feature coming soon!')),
-                        );
+                        _showContactOptions(context, customer);
                         break;
                     }
                   },
@@ -591,6 +586,198 @@ class _CustomerManagementScreenState extends State<CustomerManagementScreen> {
       }
     } catch (e) {
       return '';
+    }
+  }
+
+  void _viewCustomerOrders(Map<String, dynamic> customer) {
+    final customerName = customer['name'] ?? 'Unknown Customer';
+    
+    // Navigate to orders management screen
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const OrdersManagementScreen(
+          embedded: false,
+        ),
+      ),
+    ).then((_) {
+      // After returning, could optionally reload customers if needed
+      _loadCustomers();
+    });
+    
+    // Show a snackbar to inform the user
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Showing orders for: $customerName'),
+        duration: const Duration(seconds: 2),
+        action: SnackBarAction(
+          label: 'Search',
+          onPressed: () {
+            // The orders screen will be opened, user can search for customer name
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showContactOptions(BuildContext context, Map<String, dynamic> customer) {
+    final customerName = customer['name'] ?? 'Unknown Customer';
+    final email = customer['email'];
+    final phone = customer['phone'];
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.contact_mail, color: AppTheme.primaryColor),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Contact $customerName',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            if (phone != null && phone.isNotEmpty) ...[
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.phone, color: Colors.green),
+                ),
+                title: const Text('Call'),
+                subtitle: Text(phone),
+                onTap: () {
+                  Navigator.pop(context);
+                  _makePhoneCall(phone);
+                },
+              ),
+              const Divider(),
+            ],
+            if (email != null && email.isNotEmpty) ...[
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.email, color: Colors.blue),
+                ),
+                title: const Text('Send Email'),
+                subtitle: Text(email),
+                onTap: () {
+                  Navigator.pop(context);
+                  _sendEmail(email, customerName);
+                },
+              ),
+            ],
+            if ((phone == null || phone.isEmpty) && (email == null || email.isEmpty))
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: Text(
+                  'No contact information available for this customer.',
+                  style: TextStyle(color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    // Clean phone number - remove any spaces, dashes, etc.
+    String cleanNumber = phoneNumber.replaceAll(RegExp(r'[\s\-\(\)]'), '');
+    
+    // Try different phone formats
+    final phoneFormats = [
+      'tel:$cleanNumber',
+      'tel:+$cleanNumber',
+      'tel://$cleanNumber',
+    ];
+
+    for (final phoneFormat in phoneFormats) {
+      try {
+        final Uri phoneUri = Uri.parse(phoneFormat);
+        if (await canLaunchUrl(phoneUri)) {
+          await launchUrl(phoneUri, mode: LaunchMode.externalApplication);
+          return;
+        }
+      } catch (e) {
+        // Try next format
+      }
+    }
+
+    // Last resort - try direct launch
+    try {
+      final Uri phoneUri = Uri.parse('tel:$cleanNumber');
+      await launchUrl(phoneUri, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not make phone call: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _sendEmail(String email, String customerName) async {
+    try {
+      final Uri emailUri = Uri(
+        scheme: 'mailto',
+        path: email,
+        queryParameters: {
+          'subject': 'Message for $customerName',
+          'body': 'Dear $customerName,\n\n',
+        },
+      );
+
+      if (await canLaunchUrl(emailUri)) {
+        await launchUrl(emailUri, mode: LaunchMode.externalApplication);
+      } else {
+        // Fallback: try simpler mailto
+        final simpleUri = Uri.parse('mailto:$email');
+        if (await canLaunchUrl(simpleUri)) {
+          await launchUrl(simpleUri, mode: LaunchMode.externalApplication);
+        } else {
+          throw Exception('Cannot launch email');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not open email: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }

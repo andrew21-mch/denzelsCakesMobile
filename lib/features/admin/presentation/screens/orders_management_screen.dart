@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../shared/theme/app_theme.dart';
+import '../../../../shared/widgets/loading_overlay.dart';
 import '../../../../core/services/admin_api_service.dart';
 
 class OrdersManagementScreen extends StatefulWidget {
@@ -62,15 +64,9 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen>
                   'actualId': order['_id'] ??
                       order['id'] ??
                       '', // Keep the actual MongoDB ID for API calls
-                  'customer': order['userId']?['name'] ??
-                      order['guestDetails']?['name'] ??
-                      'Unknown Customer',
-                  'customerPhone': order['userId']?['phone'] ??
-                      order['guestDetails']?['phone'] ??
-                      'No phone',
-                  'customerEmail': order['userId']?['email'] ??
-                      order['guestDetails']?['email'] ??
-                      'No email',
+                  'customer': _getCustomerName(order),
+                  'customerPhone': _getCustomerPhone(order),
+                  'customerEmail': _getCustomerEmail(order),
                   'total': (order['total'] ?? 0)
                       .toDouble(), // Convert from cents if needed
                   'currency': order['currency'] ?? 'XAF',
@@ -82,12 +78,16 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen>
                   'items': (order['items'] as List?)
                           ?.map((item) => {
                                 'name': item['cakeStyleId']?['title'] ??
-                                    'Unknown Item',
+                                    item['title'] ?? 'Unknown Item',
                                 'quantity': item['quantity'] ?? 1,
                                 'price': (item['unitPrice'] ?? 0)
                                     .toDouble(), // Keep original value
                                 'size': item['size'] ?? '',
                                 'flavor': item['flavor'] ?? '',
+                                'customizations': item['customizations'] ?? {},
+                                'cakeStyleId': item['cakeStyleId'],
+                                'unitPrice': item['unitPrice'],
+                                'totalPrice': item['totalPrice'],
                               })
                           .toList() ??
                       [],
@@ -166,14 +166,18 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen>
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildOrdersList(),
-          _buildOrdersList(statusFilter: 'pending'),
-          _buildOrdersList(statusFilter: 'in_progress'),
-          _buildOrdersList(statusFilter: 'delivered'),
-        ],
+      body: LoadingOverlay(
+        isLoading: _isLoading,
+        message: 'Loading orders...',
+        child: TabBarView(
+          controller: _tabController,
+          children: [
+            _buildOrdersList(),
+            _buildOrdersList(statusFilter: 'pending'),
+            _buildOrdersList(statusFilter: 'in_progress'),
+            _buildOrdersList(statusFilter: 'delivered'),
+          ],
+        ),
       ),
     );
   }
@@ -265,27 +269,20 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen>
 
         // Orders List
         Expanded(
-          child: _isLoading
-              ? const Center(
-                  child: CircularProgressIndicator(
-                    valueColor:
-                        AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+          child: ordersToShow.isEmpty
+              ? _buildEmptyState()
+              : RefreshIndicator(
+                  onRefresh: _loadOrders,
+                  color: AppTheme.primaryColor,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: ordersToShow.length,
+                    itemBuilder: (context, index) {
+                      final order = ordersToShow[index];
+                      return _buildOrderCard(order);
+                    },
                   ),
-                )
-              : ordersToShow.isEmpty
-                  ? _buildEmptyState()
-                  : RefreshIndicator(
-                      onRefresh: _loadOrders,
-                      color: AppTheme.primaryColor,
-                      child: ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: ordersToShow.length,
-                        itemBuilder: (context, index) {
-                          final order = ordersToShow[index];
-                          return _buildOrderCard(order);
-                        },
-                      ),
-                    ),
+                ),
         ),
       ],
     );
@@ -584,47 +581,11 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen>
 
                       const SizedBox(height: 24),
 
-                      // Order Items
+                      // Order Items with Customizations
                       _buildDetailSection(
                         'Order Items',
                         (order['items'] as List).map<Widget>((item) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        item['name'],
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          color: AppTheme.textPrimary,
-                                        ),
-                                      ),
-                                      Text(
-                                        'Qty: ${item['quantity']}',
-                                        style: const TextStyle(
-                                          color: AppTheme.textSecondary,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Text(
-                                  '${item['price'].toStringAsFixed(0)} XAF',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.textPrimary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
+                          return _buildItemDetailWithCustomizations(item, order['currency'] ?? 'XAF');
                         }).toList(),
                       ),
 
@@ -1156,6 +1117,374 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen>
           ),
         );
       }
+    }
+  }
+
+  Widget _buildItemDetailWithCustomizations(Map<String, dynamic> item, String currency) {
+    // Handle customizations - can be Map or null
+    Map<String, dynamic> customizations = {};
+    if (item['customizations'] != null) {
+      if (item['customizations'] is Map) {
+        customizations = Map<String, dynamic>.from(item['customizations'] as Map);
+      } else if (item['customizations'] is String) {
+        // Try to parse if it's a JSON string
+        try {
+          final decoded = Map<String, dynamic>.from(
+            json.decode(item['customizations'] as String)
+          );
+          customizations = decoded;
+        } catch (e) {
+          // If parsing fails, use empty map
+        }
+      }
+    }
+    
+    // Debug: Print customizations to see what we're working with
+    print('DEBUG: Admin Orders Management - Item: ${item['name']}');
+    print('DEBUG: Admin Orders Management - Customizations raw: ${item['customizations']}');
+    print('DEBUG: Admin Orders Management - Customizations parsed: $customizations');
+    
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey[300]!),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item['name'] ?? 'Unknown Item',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Size: ${item['size']} • Flavor: ${item['flavor']} • Qty: ${item['quantity']}',
+                      style: const TextStyle(
+                        color: AppTheme.textSecondary,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                '${(item['price'] * (item['quantity'] ?? 1)).toStringAsFixed(0)} $currency',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          
+          // Customizations
+          if (customizations.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppTheme.accentColor.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppTheme.accentColor.withValues(alpha: 0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.palette_outlined,
+                        size: 18,
+                        color: AppTheme.accentColor,
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Customizations',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: AppTheme.accentColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  // Delivery Date
+                  if (customizations['deliveryDate'] != null && 
+                      customizations['deliveryDate'].toString().isNotEmpty)
+                    _buildCustomizationRow(
+                      'Delivery Date',
+                      _formatCustomizationDate(customizations['deliveryDate']),
+                      icon: Icons.calendar_today,
+                    ),
+                  
+                  // Delivery Time
+                  if (customizations['deliveryTime'] != null && 
+                      customizations['deliveryTime'].toString().isNotEmpty)
+                    _buildCustomizationRow(
+                      'Delivery Time',
+                      _formatCustomizationTime(customizations['deliveryTime']),
+                      icon: Icons.access_time,
+                    ),
+                  
+                  // Selected Color
+                  if (customizations['selectedColor'] != null && 
+                      customizations['selectedColor'].toString().isNotEmpty)
+                    _buildCustomizationRow(
+                      'Custom Color',
+                      _getColorDisplayText(customizations['selectedColor']),
+                      color: _parseColor(customizations['selectedColor']),
+                      icon: Icons.color_lens,
+                    ),
+                  
+                  // Special Instructions
+                  if (customizations['specialInstructions'] != null && 
+                      customizations['specialInstructions'].toString().isNotEmpty)
+                    _buildCustomizationRow(
+                      'Special Instructions',
+                      customizations['specialInstructions'].toString(),
+                      icon: Icons.notes,
+                    ),
+                  
+                  // Reference Images
+                  if (_getImageCount(customizations) > 0)
+                    _buildCustomizationRow(
+                      'Reference Images',
+                      '${_getImageCount(customizations)} image(s) uploaded',
+                      icon: Icons.image,
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCustomizationRow(String label, String value, {Color? color, IconData? icon}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 16, color: AppTheme.accentColor),
+            const SizedBox(width: 8),
+          ],
+          SizedBox(
+            width: icon != null ? 110 : 120,
+            child: Text(
+              '$label:',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textSecondary,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Row(
+              children: [
+                if (color != null) ...[
+                  Container(
+                    width: 20,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.grey.shade300, width: 2),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                Expanded(
+                  child: Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.textPrimary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color? _parseColor(dynamic colorData) {
+    if (colorData == null) return null;
+    
+    try {
+      if (colorData is String) {
+        String hex = colorData.trim();
+        hex = hex.replaceAll('#', '').replaceAll('0x', '').replaceAll('0X', '');
+        
+        if (hex.length == 6) {
+          hex = 'FF$hex';
+        } else if (hex.length == 8) {
+          // Already has alpha channel
+        } else {
+          print('DEBUG: Invalid hex color format: $colorData');
+          return null;
+        }
+        
+        final colorValue = int.parse(hex, radix: 16);
+        return Color(colorValue);
+      } else if (colorData is Map) {
+        final r = (colorData['r'] as num?)?.toInt() ?? 0;
+        final g = (colorData['g'] as num?)?.toInt() ?? 0;
+        final b = (colorData['b'] as num?)?.toInt() ?? 0;
+        final a = (colorData['a'] as num?)?.toInt() ?? 255;
+        return Color.fromARGB(a, r, g, b);
+      } else if (colorData is int) {
+        return Color(colorData);
+      }
+    } catch (e) {
+      print('DEBUG: Error parsing color $colorData: $e');
+    }
+    return null;
+  }
+
+  String _formatCustomizationDate(dynamic dateValue) {
+    if (dateValue is String) {
+      try {
+        final date = DateTime.parse(dateValue);
+        return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+      } catch (e) {
+        return dateValue.toString();
+      }
+    } else if (dateValue is Map) {
+      return '${dateValue['day'] ?? ''}/${dateValue['month'] ?? ''}/${dateValue['year'] ?? ''}';
+    }
+    return dateValue.toString();
+  }
+
+  String _formatCustomizationTime(dynamic timeValue) {
+    if (timeValue is String) {
+      if (timeValue.contains(':')) {
+        final parts = timeValue.split(':');
+        if (parts.length >= 2) {
+          return '${parts[0].padLeft(2, '0')}:${parts[1].padLeft(2, '0')}';
+        }
+      }
+      try {
+        final dateTime = DateTime.parse(timeValue);
+        return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+      } catch (e) {
+        return timeValue.toString();
+      }
+    }
+    return timeValue.toString();
+  }
+
+  String _getColorDisplayText(dynamic colorValue) {
+    if (colorValue is String) {
+      return colorValue;
+    }
+    return 'Custom color selected';
+  }
+
+  int _getImageCount(Map<String, dynamic> customizations) {
+    final images = customizations['images'] as List?;
+    final referenceImages = customizations['referenceImages'] as List?;
+    
+    if (images != null && images.isNotEmpty) {
+      return images.length;
+    }
+    if (referenceImages != null && referenceImages.isNotEmpty) {
+      return referenceImages.length;
+    }
+    return 0;
+  }
+
+  String _getCustomerName(Map<String, dynamic> order) {
+    try {
+      // Check if userId exists and is a Map
+      if (order['userId'] != null) {
+        if (order['userId'] is Map) {
+          final name = order['userId']['name'];
+          if (name != null) return name.toString();
+        }
+      }
+      
+      // Check guestDetails
+      if (order['guestDetails'] != null && order['guestDetails'] is Map) {
+        final guestDetails = order['guestDetails'] as Map;
+        final name = guestDetails['name'];
+        if (name != null) return name.toString();
+      }
+      
+      return 'Unknown Customer';
+    } catch (e) {
+      print('DEBUG: Error getting customer name: $e');
+      return 'Unknown Customer';
+    }
+  }
+
+  String _getCustomerPhone(Map<String, dynamic> order) {
+    try {
+      // Check if userId exists and is a Map
+      if (order['userId'] != null) {
+        if (order['userId'] is Map) {
+          final phone = order['userId']['phone'];
+          if (phone != null) return phone.toString();
+        }
+      }
+      
+      // Check guestDetails
+      if (order['guestDetails'] != null && order['guestDetails'] is Map) {
+        final guestDetails = order['guestDetails'] as Map;
+        final phone = guestDetails['phone'];
+        if (phone != null) return phone.toString();
+      }
+      
+      return 'No phone';
+    } catch (e) {
+      print('DEBUG: Error getting customer phone: $e');
+      return 'No phone';
+    }
+  }
+
+  String _getCustomerEmail(Map<String, dynamic> order) {
+    try {
+      // Check if userId exists and is a Map
+      if (order['userId'] != null) {
+        if (order['userId'] is Map) {
+          final email = order['userId']['email'];
+          if (email != null) return email.toString();
+        }
+      }
+      
+      // Check guestDetails
+      if (order['guestDetails'] != null && order['guestDetails'] is Map) {
+        final guestDetails = order['guestDetails'] as Map;
+        final email = guestDetails['email'];
+        if (email != null) return email.toString();
+      }
+      
+      return 'No email';
+    } catch (e) {
+      print('DEBUG: Error getting customer email: $e');
+      return 'No email';
     }
   }
 }

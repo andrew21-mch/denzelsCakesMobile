@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../shared/theme/app_theme.dart';
+import '../../../../shared/widgets/loading_overlay.dart';
 import '../../../../core/services/cart_service.dart';
 import '../../../../core/models/cart_model.dart';
 
@@ -122,16 +123,13 @@ class _CartScreenState extends State<CartScreen> {
 
               // Content
               Expanded(
-                child: _isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                              AppTheme.accentColor),
-                        ),
-                      )
-                    : _cart.isEmpty
-                        ? _buildEmptyCart()
-                        : _buildCartContent(),
+                child: LoadingOverlay(
+                  isLoading: _isLoading,
+                  message: 'Loading cart...',
+                  child: _cart.isEmpty
+                      ? _buildEmptyCart()
+                      : _buildCartContent(),
+                ),
               ),
             ],
           ),

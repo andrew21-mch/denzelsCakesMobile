@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import '../../../../shared/theme/app_theme.dart';
+import '../../../../shared/widgets/loading_overlay.dart';
 import '../../data/models/cake_model.dart';
 import '../../data/repositories/cake_repository.dart';
 import '../../../../core/services/favorites_service.dart';
@@ -292,8 +293,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
+    return LoadingOverlay(
+      isLoading: _isLoading,
+      message: 'Loading cakes...',
+      child: Scaffold(
+        body: Container(
         decoration: const BoxDecoration(
           gradient: AppTheme.backgroundGradient,
         ),
@@ -730,6 +734,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         ),
       ),
       bottomNavigationBar: _buildBottomNavigationBar(context),
+    ),
     );
   }
 

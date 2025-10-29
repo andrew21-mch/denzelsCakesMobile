@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../shared/theme/app_theme.dart';
+import '../../../../shared/widgets/loading_overlay.dart';
 import '../../../../core/services/contact_service.dart';
 
 class ContactUsScreen extends StatefulWidget {
@@ -46,32 +47,36 @@ class _ContactUsScreenState extends State<ContactUsScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      appBar: AppBar(
-        title: const Text('Contact Us'),
-        backgroundColor: AppTheme.surfaceColor,
-        elevation: 0,
-        bottom: TabBar(
+    return LoadingOverlay(
+      isLoading: _isLoading,
+      message: 'Sending your message...',
+      child: Scaffold(
+        backgroundColor: AppTheme.backgroundColor,
+        appBar: AppBar(
+          title: const Text('Contact Us'),
+          backgroundColor: AppTheme.surfaceColor,
+          elevation: 0,
+          bottom: TabBar(
+            controller: _tabController,
+            labelColor: AppTheme.accentColor,
+            unselectedLabelColor: AppTheme.textSecondary,
+            indicatorColor: AppTheme.accentColor,
+            onTap: (index) => HapticFeedback.lightImpact(),
+            tabs: const [
+              Tab(text: 'Contact', icon: Icon(Icons.contact_support)),
+              Tab(text: 'Location', icon: Icon(Icons.location_on)),
+              Tab(text: 'Hours', icon: Icon(Icons.access_time)),
+            ],
+          ),
+        ),
+        body: TabBarView(
           controller: _tabController,
-          labelColor: AppTheme.accentColor,
-          unselectedLabelColor: AppTheme.textSecondary,
-          indicatorColor: AppTheme.accentColor,
-          onTap: (index) => HapticFeedback.lightImpact(),
-          tabs: const [
-            Tab(text: 'Contact', icon: Icon(Icons.contact_support)),
-            Tab(text: 'Location', icon: Icon(Icons.location_on)),
-            Tab(text: 'Hours', icon: Icon(Icons.access_time)),
+          children: [
+            _buildContactTab(),
+            _buildLocationTab(),
+            _buildHoursTab(),
           ],
         ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildContactTab(),
-          _buildLocationTab(),
-          _buildHoursTab(),
-        ],
       ),
     );
   }

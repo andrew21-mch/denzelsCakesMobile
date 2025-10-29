@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../../core/services/admin_api_service.dart';
@@ -598,19 +599,23 @@ class _ManageOrdersScreenState extends State<ManageOrdersScreen>
     );
   }
 
-  Widget _buildCustomizationRow(String label, String value, {Color? color}) {
+  Widget _buildCustomizationRow(String label, String value, {Color? color, IconData? icon}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (icon != null) ...[
+            Icon(icon, size: 16, color: AppTheme.accentColor),
+            const SizedBox(width: 8),
+          ],
           SizedBox(
-            width: 80,
+            width: icon != null ? 110 : 120,
             child: Text(
               '$label:',
               style: const TextStyle(
                 fontSize: 12,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
                 color: AppTheme.textSecondary,
               ),
             ),
@@ -620,12 +625,12 @@ class _ManageOrdersScreenState extends State<ManageOrdersScreen>
               children: [
                 if (color != null) ...[
                   Container(
-                    width: 16,
-                    height: 16,
+                    width: 20,
+                    height: 20,
                     decoration: BoxDecoration(
                       color: color,
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey.shade300),
+                      border: Border.all(color: Colors.grey.shade300, width: 2),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -636,6 +641,7 @@ class _ManageOrdersScreenState extends State<ManageOrdersScreen>
                     style: const TextStyle(
                       fontSize: 12,
                       color: AppTheme.textPrimary,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -652,12 +658,26 @@ class _ManageOrdersScreenState extends State<ManageOrdersScreen>
     
     try {
       if (colorData is String) {
-        // Handle hex color strings like "#FF5722" or "0xFF5722"
-        String hex = colorData.replaceAll('#', '').replaceAll('0x', '');
+        // Handle hex color strings like "#FF5722", "FF5722", "0xFF5722", or "#FFFFFFFF"
+        String hex = colorData.trim();
+        
+        // Remove common prefixes
+        hex = hex.replaceAll('#', '').replaceAll('0x', '').replaceAll('0X', '');
+        
+        // If it's 6 characters, add alpha channel
         if (hex.length == 6) {
-          hex = 'FF$hex'; // Add alpha channel
+          hex = 'FF$hex'; // Add alpha channel (fully opaque)
+        } else if (hex.length == 8) {
+          // Already has alpha channel
+        } else {
+          // Invalid format, return null
+          print('DEBUG: Invalid hex color format: $colorData');
+          return null;
         }
-        return Color(int.parse(hex, radix: 16));
+        
+        // Parse as integer
+        final colorValue = int.parse(hex, radix: 16);
+        return Color(colorValue);
       } else if (colorData is Map) {
         // Handle Color objects with r, g, b, a properties
         final r = (colorData['r'] as num?)?.toInt() ?? 0;
@@ -665,9 +685,13 @@ class _ManageOrdersScreenState extends State<ManageOrdersScreen>
         final b = (colorData['b'] as num?)?.toInt() ?? 0;
         final a = (colorData['a'] as num?)?.toInt() ?? 255;
         return Color.fromARGB(a, r, g, b);
+      } else if (colorData is int) {
+        // Handle direct integer color value
+        return Color(colorData);
       }
     } catch (e) {
       // If parsing fails, return null
+      print('DEBUG: Error parsing color $colorData: $e');
     }
     return null;
   }
@@ -718,8 +742,35 @@ class _ManageOrdersScreenState extends State<ManageOrdersScreen>
   }
 
   Widget _buildItemDetailWithCustomizations(Map<String, dynamic> item, String currency) {
-    final customizations = item['customizations'] as Map<String, dynamic>? ?? {};
-    print('DEBUG: Admin - Item customizations: $customizations');
+    // Handle customizations - can be Map or null
+    Map<String, dynamic> customizations = {};
+    if (item['customizations'] != null) {
+      if (item['customizations'] is Map) {
+        customizations = Map<String, dynamic>.from(item['customizations'] as Map);
+      } else if (item['customizations'] is String) {
+        // Try to parse if it's a JSON string
+        try {
+          final decoded = Map<String, dynamic>.from(
+            json.decode(item['customizations'] as String)
+          );
+          customizations = decoded;
+        } catch (e) {
+          // If parsing fails, use empty map
+        }
+      }
+    }
+    
+    // Debug: Print customizations to see what we're working with
+    print('DEBUG: Admin - Item: ${item['title']}');
+    print('DEBUG: Admin - Customizations raw type: ${item['customizations'].runtimeType}');
+    print('DEBUG: Admin - Customizations raw: ${item['customizations']}');
+    print('DEBUG: Admin - Customizations parsed: $customizations');
+    print('DEBUG: Admin - Customizations keys: ${customizations.keys.toList()}');
+    print('DEBUG: Admin - Has deliveryDate: ${customizations.containsKey('deliveryDate')}, value: ${customizations['deliveryDate']}');
+    print('DEBUG: Admin - Has deliveryTime: ${customizations.containsKey('deliveryTime')}, value: ${customizations['deliveryTime']}');
+    print('DEBUG: Admin - Has selectedColor: ${customizations.containsKey('selectedColor')}, value: ${customizations['selectedColor']}');
+    print('DEBUG: Admin - Has specialInstructions: ${customizations.containsKey('specialInstructions')}, value: ${customizations['specialInstructions']}');
+    print('DEBUG: Admin - Has images: ${customizations.containsKey('images')}, value: ${customizations['images']}');
     
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -732,7 +783,7 @@ class _ManageOrdersScreenState extends State<ManageOrdersScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            item['title'] ?? item['cakeStyleId']['title'],
+            item['title'] ?? (item['cakeStyleId'] is Map ? item['cakeStyleId']['title'] : 'Unknown'),
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -760,60 +811,90 @@ class _ManageOrdersScreenState extends State<ManageOrdersScreen>
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.surfaceColor,
+                color: AppTheme.accentColor.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppTheme.borderColor),
+                border: Border.all(color: AppTheme.accentColor.withValues(alpha: 0.3)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Customizations:',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                      color: AppTheme.textPrimary,
-                    ),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.palette_outlined,
+                        size: 18,
+                        color: AppTheme.accentColor,
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Customizations',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: AppTheme.accentColor,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   
                   // Delivery Date
-                  if (customizations['deliveryDate'] != null)
+                  if (customizations['deliveryDate'] != null && 
+                      customizations['deliveryDate'].toString().isNotEmpty)
                     _buildCustomizationRow(
                       'Delivery Date',
                       _formatCustomizationDate(customizations['deliveryDate']),
+                      icon: Icons.calendar_today,
                     ),
                   
                   // Delivery Time
-                  if (customizations['deliveryTime'] != null)
+                  if (customizations['deliveryTime'] != null && 
+                      customizations['deliveryTime'].toString().isNotEmpty)
                     _buildCustomizationRow(
                       'Delivery Time',
-                      customizations['deliveryTime'].toString(),
+                      _formatCustomizationTime(customizations['deliveryTime']),
+                      icon: Icons.access_time,
                     ),
                   
                   // Selected Color
-                  if (customizations['selectedColor'] != null)
+                  if (customizations['selectedColor'] != null && 
+                      customizations['selectedColor'].toString().isNotEmpty)
                     _buildCustomizationRow(
                       'Custom Color',
-                      'Selected custom color',
+                      _getColorDisplayText(customizations['selectedColor']),
                       color: _parseColor(customizations['selectedColor']),
+                      icon: Icons.color_lens,
                     ),
                   
                   // Special Instructions
                   if (customizations['specialInstructions'] != null && 
-                      customizations['specialInstructions'].toString().isNotEmpty)
+                      customizations['specialInstructions'].toString().isNotEmpty) ...[
                     _buildCustomizationRow(
                       'Special Instructions',
                       customizations['specialInstructions'].toString(),
+                      icon: Icons.notes,
                     ),
+                  ],
                   
-                  // Reference Images (check both 'images' and 'referenceImages' for compatibility)
+                  // Reference Images
                   if (_getImageCount(customizations) > 0)
                     _buildCustomizationRow(
                       'Reference Images',
                       '${_getImageCount(customizations)} image(s) uploaded',
+                      icon: Icons.image,
                     ),
                 ],
+              ),
+            ),
+          ] else ...[
+            // Show debug info if no customizations found
+            const SizedBox(height: 8),
+            Text(
+              'No customizations found',
+              style: TextStyle(
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+                color: Colors.grey[600],
               ),
             ),
           ],
@@ -830,12 +911,45 @@ class _ManageOrdersScreenState extends State<ManageOrdersScreen>
     if (dateValue is String) {
       try {
         final date = DateTime.parse(dateValue);
-        return '${date.day}/${date.month}/${date.year}';
+        return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
       } catch (e) {
         return dateValue.toString();
       }
+    } else if (dateValue is Map) {
+      // Handle date object from MongoDB
+      return '${dateValue['day'] ?? ''}/${dateValue['month'] ?? ''}/${dateValue['year'] ?? ''}';
     }
     return dateValue.toString();
+  }
+
+  String _formatCustomizationTime(dynamic timeValue) {
+    if (timeValue is String) {
+      // Handle "HH:MM" format or ISO string
+      if (timeValue.contains(':')) {
+        // Check if it's a simple "HH:MM" format
+        final parts = timeValue.split(':');
+        if (parts.length >= 2) {
+          return '${parts[0].padLeft(2, '0')}:${parts[1].padLeft(2, '0')}';
+        }
+      }
+      // Try parsing as DateTime
+      try {
+        final dateTime = DateTime.parse(timeValue);
+        return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+      } catch (e) {
+        return timeValue.toString();
+      }
+    }
+    return timeValue.toString();
+  }
+
+  String _getColorDisplayText(dynamic colorValue) {
+    if (colorValue is String) {
+      // Return hex code if it's a string
+      return colorValue;
+    }
+    // Return generic message for other types
+    return 'Custom color selected';
   }
 
   int _getImageCount(Map<String, dynamic> customizations) {

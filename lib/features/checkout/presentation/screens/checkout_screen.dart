@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../../../shared/theme/app_theme.dart';
+import '../../../../shared/widgets/loading_overlay.dart';
 import '../../../../core/services/cart_service.dart';
 import '../../../../core/services/address_service.dart';
 import '../../../../core/services/payment_service.dart';
@@ -181,26 +182,30 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       );
     }
 
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      appBar: AppBar(
-        title: const Text('Checkout'),
+    return LoadingOverlay(
+      isLoading: _isPlacingOrder,
+      message: 'Placing your order...',
+      child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
-        elevation: 0,
-      ),
-      body: Column(
-        children: [
-          // Progress Indicator
-          _buildProgressIndicator(),
+        appBar: AppBar(
+          title: const Text('Checkout'),
+          backgroundColor: AppTheme.backgroundColor,
+          elevation: 0,
+        ),
+        body: Column(
+          children: [
+            // Progress Indicator
+            _buildProgressIndicator(),
 
-          // Content
-          Expanded(
-            child: _buildStepContent(),
-          ),
+            // Content
+            Expanded(
+              child: _buildStepContent(),
+            ),
 
-          // Bottom Navigation
-          _buildBottomNavigation(),
-        ],
+            // Bottom Navigation
+            _buildBottomNavigation(),
+          ],
+        ),
       ),
     );
   }

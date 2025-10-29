@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../shared/theme/app_theme.dart';
+import '../../../../shared/widgets/loading_overlay.dart';
 import '../../../../core/services/favorites_service.dart';
 
 class FavoritesScreen extends StatefulWidget {
@@ -73,13 +74,15 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-              ? _buildErrorState()
-              : _favorites.isEmpty
-                  ? _buildEmptyState()
-                  : _buildFavoritesList(),
+      body: LoadingOverlay(
+        isLoading: _isLoading,
+        message: 'Loading favorites...',
+        child: _error != null
+            ? _buildErrorState()
+            : _favorites.isEmpty
+                ? _buildEmptyState()
+                : _buildFavoritesList(),
+      ),
     );
   }
 

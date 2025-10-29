@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../shared/theme/app_theme.dart';
+import '../../../../shared/widgets/loading_overlay.dart';
 import '../../../../core/models/review_model.dart';
 import '../../../../core/services/review_service.dart';
 import '../../../catalog/data/repositories/cake_repository.dart';
@@ -86,17 +87,19 @@ class _ReviewsScreenState extends State<ReviewsScreen>
           ],
         ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-              ? _buildErrorState()
-              : TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildMyReviewsTab(),
-                    _buildPendingReviewsTab(),
-                  ],
-                ),
+      body: LoadingOverlay(
+        isLoading: _isLoading,
+        message: 'Loading reviews...',
+        child: _error != null
+            ? _buildErrorState()
+            : TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildMyReviewsTab(),
+                  _buildPendingReviewsTab(),
+                ],
+              ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showWriteGeneralReviewDialog,
         backgroundColor: AppTheme.accentColor,
