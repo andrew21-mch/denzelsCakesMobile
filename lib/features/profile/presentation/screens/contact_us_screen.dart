@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../shared/theme/app_theme.dart';
+import '../../../../core/services/contact_service.dart';
 
 class ContactUsScreen extends StatefulWidget {
   const ContactUsScreen({super.key});
@@ -20,6 +22,11 @@ class _ContactUsScreenState extends State<ContactUsScreen>
   final _messageController = TextEditingController();
   bool _isLoading = false;
 
+  // Map related variables
+  GoogleMapController? _mapController;
+  static const LatLng _shopLocation = LatLng(4.0483, 9.7043); // Makepe, Douala coordinates
+  static const double _zoom = 15.0;
+
   @override
   void initState() {
     super.initState();
@@ -33,6 +40,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
     _emailController.dispose();
     _subjectController.dispose();
     _messageController.dispose();
+    _mapController?.dispose();
     super.dispose();
   }
 
@@ -355,38 +363,89 @@ class _ContactUsScreenState extends State<ContactUsScreen>
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          // Map Placeholder
+          // Interactive Map
           Container(
             height: 200,
             decoration: BoxDecoration(
-              color: AppTheme.accentColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                  color: AppTheme.accentColor.withValues(alpha: 0.3)),
+              boxShadow: const [
+                BoxShadow(
+                  color: AppTheme.cardShadowColor,
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
+                ),
+              ],
             ),
-            child: const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Stack(
                 children: [
-                  Icon(
-                    Icons.map,
-                    size: 60,
-                    color: AppTheme.accentColor,
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Interactive Map',
-                    style: TextStyle(
-                      color: AppTheme.textSecondary,
-                      fontSize: 16,
+                  GoogleMap(
+                    onMapCreated: (GoogleMapController controller) {
+                      _mapController = controller;
+                    },
+                    initialCameraPosition: const CameraPosition(
+                      target: _shopLocation,
+                      zoom: _zoom,
                     ),
+                    markers: {
+                      const Marker(
+                        markerId: MarkerId('shop_location'),
+                        position: _shopLocation,
+                        infoWindow: InfoWindow(
+                          title: 'Denzel\'s Cakes',
+                          snippet: 'Makepe, Opposite Tradex Rhone Poulenc',
+                        ),
+                      ),
+                    },
+                    mapType: MapType.normal,
+                    zoomControlsEnabled: false,
+                    myLocationButtonEnabled: false,
+                    compassEnabled: false,
+                    mapToolbarEnabled: false,
                   ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Coming Soon',
-                    style: TextStyle(
-                      color: AppTheme.textTertiary,
-                      fontSize: 12,
+                  // Tap to open maps button
+                  Positioned(
+                    bottom: 16,
+                    right: 16,
+                    child: GestureDetector(
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        _openMaps();
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppTheme.accentColor,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.accentColor.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.directions,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Directions',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -612,50 +671,49 @@ class _ContactUsScreenState extends State<ContactUsScreen>
 
     HapticFeedback.mediumImpact();
 
-    // Compose email with form data
-    final String subject = _subjectController.text.trim();
-    final String body = '''
-Name: ${_nameController.text.trim()}
-Email: ${_emailController.text.trim()}
+    try {
+      // Send message to backend
+      final response = await ContactService.sendMessage(
+        name: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        subject: _subjectController.text.trim(),
+        message: _messageController.text.trim(),
+      );
 
-Message:
-${_messageController.text.trim()}
+      setState(() {
+        _isLoading = false;
+      });
 
----
-Sent from DenzelsCakes Mobile App
-''';
+      if (response['success'] == true) {
+        // Clear form on successful submission
+        _nameController.clear();
+        _emailController.clear();
+        _subjectController.clear();
+        _messageController.clear();
 
-    final success = await _sendEmailWithContent(subject, body);
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    if (success) {
-      // Clear form only if email was sent successfully
-      _nameController.clear();
-      _emailController.clear();
-      _subjectController.clear();
-      _messageController.clear();
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-                'Email client opened with your message. Please send the email to complete your inquiry.'),
-            backgroundColor: AppTheme.successColor,
-            duration: Duration(seconds: 4),
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Message sent successfully! We\'ll get back to you soon.'),
+              backgroundColor: AppTheme.successColor,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
+      } else {
+        throw Exception(response['message'] ?? 'Failed to send message');
       }
-    } else {
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-                'Could not open email client. Please try the direct email option above.'),
+          SnackBar(
+            content: Text('Failed to send message: ${e.toString()}'),
             backgroundColor: AppTheme.errorColor,
-            duration: Duration(seconds: 4),
+            duration: const Duration(seconds: 4),
           ),
         );
       }
@@ -847,3 +905,4 @@ Sent from DenzelsCakes Mobile App
     }
   }
 }
+

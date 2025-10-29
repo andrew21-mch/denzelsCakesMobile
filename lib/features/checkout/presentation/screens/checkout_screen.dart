@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../../core/services/cart_service.dart';
 import '../../../../core/services/address_service.dart';
 import '../../../../core/services/payment_service.dart';
 import '../../../../core/services/payment_method_service.dart';
 import '../../../../core/services/country_service.dart';
+import '../../../../core/services/api_service.dart';
 import '../../../../core/models/cart_model.dart';
 import '../../../../core/models/user_model.dart';
 import '../../../../core/models/payment_method_model.dart';
@@ -27,7 +31,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   final _instructionsController = TextEditingController();
   String? _targetGender; // Gender specification for the order
-  DateTime? _expectedDeliveryDate; // Expected delivery date
+
+  // Cake customization state - per item
+  Map<String, Map<String, dynamic>> _itemCustomizations = {};
+  Map<String, TextEditingController> _instructionControllers = {};
+  final ImagePicker _imagePicker = ImagePicker();
 
   // Payment detail controllers
   final _phoneController = TextEditingController();
@@ -62,6 +70,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     _quickStreetController.dispose();
     _quickCityController.dispose();
     _quickStateController.dispose();
+    // Dispose instruction controllers
+    for (final controller in _instructionControllers.values) {
+      controller.dispose();
+    }
     // Card detail controllers removed for security - we don't collect card details in the app
     super.dispose();
   }
@@ -151,38 +163,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
   }
 
-  Future<void> _selectDeliveryDate() async {
-    final DateTime now = DateTime.now();
-    final DateTime firstDate = now.add(const Duration(hours: 4)); // Minimum 4 hours from now
-    final DateTime lastDate = now.add(const Duration(days: 30)); // Maximum 30 days from now
-
-    final DateTime? selectedDate = await showDatePicker(
-      context: context,
-      initialDate: _expectedDeliveryDate ?? firstDate,
-      firstDate: firstDate,
-      lastDate: lastDate,
-      helpText: 'Select expected delivery date',
-      cancelText: 'Cancel',
-      confirmText: 'Select',
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-              primary: AppTheme.accentColor,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (selectedDate != null) {
-      setState(() {
-        _expectedDeliveryDate = selectedDate;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -234,7 +214,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           Expanded(child: _buildStepLine(_currentStep >= 1)),
           _buildStepIndicator(1, 'Payment', _currentStep >= 1),
           Expanded(child: _buildStepLine(_currentStep >= 2)),
-          _buildStepIndicator(2, 'Review', _currentStep >= 2),
+          _buildStepIndicator(2, 'Customize', _currentStep >= 2),
+          Expanded(child: _buildStepLine(_currentStep >= 3)),
+          _buildStepIndicator(3, 'Review', _currentStep >= 3),
         ],
       ),
     );
@@ -289,6 +271,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       case 1:
         return _buildPaymentStep();
       case 2:
+        return _buildCustomizationStep();
+      case 3:
         return _buildReviewStep();
       default:
         return _buildAddressStep();
@@ -378,109 +362,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ),
 
           const SizedBox(height: 24),
-
-          // Expected Delivery Date
-          Text(
-            'Expected Delivery Date',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
-                ),
-          ),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: _selectDeliveryDate,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                border: Border.all(color: AppTheme.borderColor),
-                borderRadius: BorderRadius.circular(12),
-                color: AppTheme.surfaceColor,
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.calendar_today, color: AppTheme.accentColor),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      _expectedDeliveryDate != null
-                          ? '${_expectedDeliveryDate!.day}/${_expectedDeliveryDate!.month}/${_expectedDeliveryDate!.year}'
-                          : 'Select delivery date',
-                      style: TextStyle(
-                        color: _expectedDeliveryDate != null
-                            ? AppTheme.textPrimary
-                            : AppTheme.textSecondary,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                  const Icon(Icons.arrow_forward_ios, 
-                      color: AppTheme.textSecondary, size: 16),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          // Delivery Instructions
-          Text(
-            'Delivery Instructions (Optional)',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
-                ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _instructionsController,
-            maxLines: 3,
-            decoration: InputDecoration(
-              hintText: 'e.g., Leave at front door, Ring doorbell twice...',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              filled: true,
-              fillColor: AppTheme.surfaceColor,
-            ),
-            onChanged: (value) {
-              // Instructions are handled by the controller
-            },
-          ),
-
-          const SizedBox(height: 24),
-
-          // Gender Specification
-          Text(
-            'Gender Specification (Optional)',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
-                ),
-          ),
-          const SizedBox(height: 12),
-          DropdownButtonFormField<String>(
-            initialValue: _targetGender,
-            decoration: InputDecoration(
-              hintText: 'Select target gender for this order',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              filled: true,
-              fillColor: AppTheme.surfaceColor,
-              prefixIcon: const Icon(Icons.person, color: AppTheme.accentColor),
-            ),
-            items: const [
-              DropdownMenuItem(value: null, child: Text('Not specified')),
-              DropdownMenuItem(value: 'male', child: Text('Male')),
-              DropdownMenuItem(value: 'female', child: Text('Female')),
-            ],
-            onChanged: (value) {
-              setState(() {
-                _targetGender = value;
-              });
-            },
-          ),
         ],
       ),
     );
@@ -1078,6 +959,1001 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
+  Widget _buildCustomizationStep() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Customize Your Cakes',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimary,
+                ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Add special touches to each cake in your order',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppTheme.textSecondary,
+                ),
+          ),
+          const SizedBox(height: 24),
+
+          // List of cart items with customization options
+          ..._cart.items.asMap().entries.map((entry) {
+            final index = entry.key;
+            final item = entry.value;
+            return _buildItemCustomizationCard(item, index);
+          }).toList(),
+
+          const SizedBox(height: 24),
+
+          // Order-level customizations
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceColor,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: const [
+                BoxShadow(
+                  color: AppTheme.cardShadowColor,
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Order Customizations',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Additional instructions and specifications for your entire order',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppTheme.textSecondary,
+                      ),
+                ),
+                const SizedBox(height: 16),
+
+                // Delivery Instructions
+                Text(
+                  'Delivery Instructions (Optional)',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textPrimary,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _instructionsController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: 'e.g., Leave at front door, Ring doorbell twice...',
+                    hintStyle: const TextStyle(color: AppTheme.textSecondary),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: AppTheme.borderColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: AppTheme.accentColor, width: 2),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.all(12),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Gender Specification
+                Text(
+                  'Gender Specification (Optional)',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textPrimary,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Specify the target gender for this order',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppTheme.textSecondary,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  value: _targetGender,
+                  decoration: InputDecoration(
+                    hintText: 'Select target gender for this order',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: AppTheme.borderColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: AppTheme.accentColor, width: 2),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    prefixIcon: const Icon(Icons.person, color: AppTheme.accentColor),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: null, child: Text('Not specified')),
+                    DropdownMenuItem(value: 'male', child: Text('Male')),
+                    DropdownMenuItem(value: 'female', child: Text('Female')),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _targetGender = value;
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildItemCustomizationCard(CartItem item, int index) {
+    final itemId = item.id;
+    
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            color: AppTheme.cardShadowColor,
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Item header
+          Row(
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  gradient: AppTheme.primaryGradient,
+                ),
+                child: item.cakeImageUrl.isNotEmpty
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          item.cakeImageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.cake,
+                              color: Colors.white,
+                              size: 24,
+                            );
+                          },
+                        ),
+                      )
+                    : const Icon(
+                        Icons.cake,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.cakeTitle,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.textPrimary,
+                          ),
+                    ),
+                    Text(
+                      '${item.selectedSize} • ${item.selectedFlavor} • Qty: ${item.quantity}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppTheme.textSecondary,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Delivery Date & Time
+          _buildDeliveryDateTimeSection(itemId),
+          
+          const SizedBox(height: 16),
+          
+          // Color Selection
+          _buildColorSelectionSection(itemId),
+          
+          const SizedBox(height: 16),
+          
+          // Special Instructions
+          _buildSpecialInstructionsSection(itemId),
+          
+          const SizedBox(height: 16),
+          
+          // Reference Images
+          _buildReferenceImagesSection(itemId),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDeliveryDateTimeSection(String itemId) {
+    final customizations = _itemCustomizations[itemId] ?? {};
+    final deliveryDate = customizations['deliveryDate'] as DateTime?;
+    final deliveryTime = customizations['deliveryTime'] as TimeOfDay?;
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Delivery Date & Time',
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
+              ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onTap: () => _selectDeliveryDate(itemId),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppTheme.borderColor),
+                    borderRadius: BorderRadius.circular(8),
+                    color: AppTheme.surfaceColor,
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.calendar_today, color: AppTheme.accentColor, size: 16),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          deliveryDate != null
+                              ? '${deliveryDate.day}/${deliveryDate.month}/${deliveryDate.year}'
+                              : 'Select Date',
+                          style: TextStyle(
+                            color: deliveryDate != null
+                                ? AppTheme.textPrimary
+                                : AppTheme.textSecondary,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: GestureDetector(
+                onTap: () => _selectDeliveryTime(itemId),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppTheme.borderColor),
+                    borderRadius: BorderRadius.circular(8),
+                    color: AppTheme.surfaceColor,
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.access_time, color: AppTheme.accentColor, size: 16),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          deliveryTime != null
+                              ? '${deliveryTime.hour.toString().padLeft(2, '0')}:${deliveryTime.minute.toString().padLeft(2, '0')}'
+                              : 'Select Time',
+                          style: TextStyle(
+                            color: deliveryTime != null
+                                ? AppTheme.textPrimary
+                                : AppTheme.textSecondary,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildColorSelectionSection(String itemId) {
+    final customizations = _itemCustomizations[itemId] ?? {};
+    final selectedColor = customizations['selectedColor'] as Color?;
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Cake Color (Optional)',
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
+              ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Choose any color for your cake',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppTheme.textSecondary,
+              ),
+        ),
+        const SizedBox(height: 12),
+        
+        // Color picker button
+        GestureDetector(
+          onTap: () => _showColorPicker(itemId),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            decoration: BoxDecoration(
+              color: selectedColor ?? Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: selectedColor != null 
+                    ? AppTheme.accentColor 
+                    : AppTheme.borderColor,
+                width: selectedColor != null ? 2 : 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: selectedColor ?? Colors.grey.shade300,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    selectedColor != null 
+                        ? 'Selected Color' 
+                        : 'Tap to choose color',
+                    style: TextStyle(
+                      color: selectedColor != null 
+                          ? Colors.white 
+                          : AppTheme.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.color_lens,
+                  color: selectedColor != null 
+                      ? Colors.white 
+                      : AppTheme.accentColor,
+                ),
+              ],
+            ),
+          ),
+        ),
+        
+        // Clear color button (if color is selected)
+        if (selectedColor != null) ...[
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _itemCustomizations[itemId] = {
+                  ...customizations,
+                  'selectedColor': null,
+                };
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.red.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.clear, color: Colors.red, size: 16),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Clear Color',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildSpecialInstructionsSection(String itemId) {
+    final customizations = _itemCustomizations[itemId] ?? {};
+    final instructions = customizations['specialInstructions'] as String? ?? '';
+    
+    // Get or create controller for this item
+    if (!_instructionControllers.containsKey(itemId)) {
+      _instructionControllers[itemId] = TextEditingController(text: instructions);
+    }
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Special Instructions (Optional)',
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
+              ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _instructionControllers[itemId],
+          maxLines: 3,
+          decoration: InputDecoration(
+            hintText: 'e.g., "Happy Birthday John", pink roses, gold lettering...',
+            hintStyle: const TextStyle(color: AppTheme.textSecondary),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: AppTheme.borderColor),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: AppTheme.accentColor, width: 2),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: const EdgeInsets.all(12),
+          ),
+          onChanged: (value) {
+            setState(() {
+              _itemCustomizations[itemId] = {
+                ...customizations,
+                'specialInstructions': value,
+              };
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReferenceImagesSection(String itemId) {
+    final customizations = _itemCustomizations[itemId] ?? {};
+    final images = customizations['images'] as List<File>? ?? [];
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Reference Images (Optional)',
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
+              ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Upload images to show us your vision for this cake',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppTheme.textSecondary,
+              ),
+        ),
+        const SizedBox(height: 12),
+        
+        // Upload button
+        GestureDetector(
+          onTap: () => _pickImages(itemId),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            decoration: BoxDecoration(
+              color: AppTheme.accentColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: AppTheme.accentColor.withValues(alpha: 0.3),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.add_photo_alternate,
+                  color: AppTheme.accentColor,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Add Reference Images',
+                  style: TextStyle(
+                    color: AppTheme.accentColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        
+        // Display selected images
+        if (images.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: images.asMap().entries.map((entry) {
+              final index = entry.key;
+              final image = entry.value;
+              return Stack(
+                children: [
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppTheme.borderColor),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.file(
+                        image,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          final customizations = _itemCustomizations[itemId] ?? {};
+                          final images = List<File>.from(customizations['images'] ?? []);
+                          images.removeAt(index);
+                          _itemCustomizations[itemId] = {
+                            ...customizations,
+                            'images': images,
+                          };
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Future<void> _selectDeliveryDate(String itemId) async {
+    final customizations = _itemCustomizations[itemId] ?? {};
+    final currentDate = customizations['deliveryDate'] as DateTime?;
+    
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: currentDate ?? DateTime.now().add(const Duration(days: 1)),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 30)),
+      helpText: 'Select delivery date',
+      cancelText: 'Cancel',
+      confirmText: 'Select',
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+              primary: AppTheme.accentColor,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null && picked != currentDate) {
+      setState(() {
+        _itemCustomizations[itemId] = {
+          ...customizations,
+          'deliveryDate': picked,
+        };
+      });
+    }
+  }
+
+  Future<void> _selectDeliveryTime(String itemId) async {
+    final customizations = _itemCustomizations[itemId] ?? {};
+    final currentTime = customizations['deliveryTime'] as TimeOfDay?;
+    
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: currentTime ?? const TimeOfDay(hour: 10, minute: 0),
+      helpText: 'Select delivery time',
+      cancelText: 'Cancel',
+      confirmText: 'Select',
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+              primary: AppTheme.accentColor,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null && picked != currentTime) {
+      setState(() {
+        _itemCustomizations[itemId] = {
+          ...customizations,
+          'deliveryTime': picked,
+        };
+      });
+    }
+  }
+
+  Future<void> _showColorPicker(String itemId) async {
+    final customizations = _itemCustomizations[itemId] ?? {};
+    final currentColor = customizations['selectedColor'] as Color? ?? Colors.pink;
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Choose Cake Color'),
+        content: SizedBox(
+          width: 350,
+          height: 500,
+          child: Column(
+            children: [
+              // Current color display
+              Container(
+                width: double.infinity,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: currentColor,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: Center(
+                  child: Text(
+                    'Current Color',
+                    style: TextStyle(
+                      color: _getContrastColor(currentColor),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // HSV Color Picker
+              Expanded(
+                child: _buildHSVColorPicker(itemId, currentColor),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // Quick color buttons
+              Text(
+                'Quick Colors:',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: _quickColors.map((color) {
+                  final isSelected = currentColor == color;
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _itemCustomizations[itemId] = {
+                          ...customizations,
+                          'selectedColor': color,
+                        };
+                      });
+                    },
+                    child: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isSelected ? Colors.black : Colors.grey.shade300,
+                          width: isSelected ? 3 : 1,
+                        ),
+                      ),
+                      child: isSelected
+                          ? const Icon(
+                              Icons.check,
+                              color: Colors.white,
+                              size: 16,
+                            )
+                          : null,
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                _itemCustomizations[itemId] = {
+                  ...customizations,
+                  'selectedColor': null,
+                };
+              });
+              Navigator.of(context).pop();
+            },
+            child: const Text('Clear'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Done'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHSVColorPicker(String itemId, Color currentColor) {
+    final customizations = _itemCustomizations[itemId] ?? {};
+    
+    // Convert to HSV
+    final hsv = HSVColor.fromColor(currentColor);
+    
+    return Column(
+      children: [
+        // Hue slider
+        Text('Hue: ${hsv.hue.round()}°'),
+        Slider(
+          value: hsv.hue,
+          min: 0,
+          max: 360,
+          divisions: 360,
+          onChanged: (value) {
+            final newColor = HSVColor.fromAHSV(
+              hsv.alpha,
+              value,
+              hsv.saturation,
+              hsv.value,
+            ).toColor();
+            setState(() {
+              _itemCustomizations[itemId] = {
+                ...customizations,
+                'selectedColor': newColor,
+              };
+            });
+          },
+        ),
+        
+        // Saturation slider
+        Text('Saturation: ${(hsv.saturation * 100).round()}%'),
+        Slider(
+          value: hsv.saturation,
+          min: 0,
+          max: 1,
+          divisions: 100,
+          onChanged: (value) {
+            final newColor = HSVColor.fromAHSV(
+              hsv.alpha,
+              hsv.hue,
+              value,
+              hsv.value,
+            ).toColor();
+            setState(() {
+              _itemCustomizations[itemId] = {
+                ...customizations,
+                'selectedColor': newColor,
+              };
+            });
+          },
+        ),
+        
+        // Value (brightness) slider
+        Text('Brightness: ${(hsv.value * 100).round()}%'),
+        Slider(
+          value: hsv.value,
+          min: 0,
+          max: 1,
+          divisions: 100,
+          onChanged: (value) {
+            final newColor = HSVColor.fromAHSV(
+              hsv.alpha,
+              hsv.hue,
+              hsv.saturation,
+              value,
+            ).toColor();
+            setState(() {
+              _itemCustomizations[itemId] = {
+                ...customizations,
+                'selectedColor': newColor,
+              };
+            });
+          },
+        ),
+        
+        const SizedBox(height: 16),
+        
+        // Color preview grid
+        Text(
+          'Color Preview:',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          height: 100,
+          child: GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 8,
+              crossAxisSpacing: 4,
+              mainAxisSpacing: 4,
+            ),
+            itemCount: 24,
+            itemBuilder: (context, index) {
+              final hue = (index * 15) % 360;
+              final color = HSVColor.fromAHSV(1.0, hue.toDouble(), hsv.saturation, hsv.value).toColor();
+              final isSelected = currentColor == color;
+              
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _itemCustomizations[itemId] = {
+                      ...customizations,
+                      'selectedColor': color,
+                    };
+                  });
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(
+                      color: isSelected ? Colors.black : Colors.grey.shade300,
+                      width: isSelected ? 2 : 1,
+                    ),
+                  ),
+                  child: isSelected
+                      ? const Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 12,
+                        )
+                      : null,
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Color _getContrastColor(Color color) {
+    // Calculate luminance to determine if we should use white or black text
+    final luminance = color.computeLuminance();
+    return luminance > 0.5 ? Colors.black : Colors.white;
+  }
+
+  // Quick colors for easy selection
+  static const List<Color> _quickColors = [
+    Colors.red,
+    Colors.pink,
+    Colors.purple,
+    Colors.deepPurple,
+    Colors.indigo,
+    Colors.blue,
+    Colors.lightBlue,
+    Colors.cyan,
+    Colors.teal,
+    Colors.green,
+    Colors.lightGreen,
+    Colors.lime,
+    Colors.yellow,
+    Colors.amber,
+    Colors.orange,
+    Colors.deepOrange,
+    Colors.brown,
+    Colors.grey,
+    Colors.blueGrey,
+    Colors.black,
+  ];
+
+  Future<void> _pickImages(String itemId) async {
+    try {
+      final List<XFile> images = await _imagePicker.pickMultiImage();
+      if (images.isNotEmpty) {
+        setState(() {
+          final customizations = _itemCustomizations[itemId] ?? {};
+          final existingImages = List<File>.from(customizations['images'] ?? []);
+          final newImages = images.map((xFile) => File(xFile.path)).toList();
+          
+          _itemCustomizations[itemId] = {
+            ...customizations,
+            'images': [...existingImages, ...newImages],
+          };
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error picking images: $e'),
+          backgroundColor: AppTheme.errorColor,
+        ),
+      );
+    }
+  }
+
   Widget _buildReviewStep() {
     final selectedAddress = _addresses.isNotEmpty
         ? _addresses.firstWhere(
@@ -1138,8 +2014,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           // Payment Method
           _buildSummarySection(
             'Payment Method',
-            _getPaymentMethodDisplayName(_selectedPayment),
-            _getPaymentMethodIcon(_selectedPayment),
+            _getPaymentMethodDisplayNameForReview(_selectedPayment),
+            _getPaymentMethodIconForReview(_selectedPayment),
           ),
 
           // Delivery Instructions (if provided)
@@ -1174,7 +2050,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             child: Column(
               children: [
                 _buildTotalRow('Subtotal', _cart.subtotal),
-                _buildTotalRow('Tax (10%)', _cart.tax),
                 const Divider(),
                 _buildTotalRow('Total', _cart.total, isTotal: true),
               ],
@@ -1186,44 +2061,188 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _buildOrderSummaryItem(CartItem item) {
+    // Get customizations for this item from the checkout customizations
+    final customizations = _itemCustomizations[item.id] ?? {};
+    
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.cakeTitle,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppTheme.textPrimary,
-                        fontWeight: FontWeight.w600,
-                      ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.cakeTitle,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: AppTheme.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                    Text(
+                      '${item.selectedSize} • ${item.selectedFlavor} • Qty: ${item.quantity}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppTheme.textSecondary,
+                          ),
+                    ),
+                  ],
                 ),
-                Text(
-                  '${item.selectedSize} • ${item.selectedFlavor} • Qty: ${item.quantity}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.textSecondary,
-                      ),
+              ),
+              Text(
+                '${item.totalPrice.toStringAsFixed(0)} ${item.currency}',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textPrimary,
+                    ),
+              ),
+            ],
+          ),
+          
+          // Show customizations if they exist
+          if (customizations.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppTheme.accentColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: AppTheme.accentColor.withValues(alpha: 0.3),
                 ),
-              ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Customizations:',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.accentColor,
+                        ),
+                  ),
+                  const SizedBox(height: 4),
+                  
+                  // Show delivery date and time
+                  if (customizations['deliveryDate'] != null) ...[
+                    Row(
+                      children: [
+                        const Icon(Icons.calendar_today, size: 16, color: AppTheme.accentColor),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Delivery: ${_formatDeliveryDate(customizations['deliveryDate'])}',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppTheme.textSecondary,
+                              ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                  ],
+                  
+                  if (customizations['deliveryTime'] != null) ...[
+                    Row(
+                      children: [
+                        const Icon(Icons.access_time, size: 16, color: AppTheme.accentColor),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Time: ${_formatDeliveryTime(customizations['deliveryTime'])}',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppTheme.textSecondary,
+                              ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                  ],
+                  
+                  // Show selected color
+                  if (customizations['selectedColor'] != null) ...[
+                    Row(
+                      children: [
+                        Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: customizations['selectedColor'] as Color,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Custom Color Selected',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppTheme.textSecondary,
+                              ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                  ],
+                  
+                  // Show special instructions
+                  if (customizations['specialInstructions'] != null && 
+                      customizations['specialInstructions'].toString().isNotEmpty) ...[
+                    Text(
+                      'Instructions: ${customizations['specialInstructions']}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppTheme.textSecondary,
+                          ),
+                    ),
+                    const SizedBox(height: 4),
+                  ],
+                  
+                  // Show image count
+                  if (customizations['images'] != null && 
+                      (customizations['images'] as List).isNotEmpty) ...[
+                    Row(
+                      children: [
+                        const Icon(Icons.image, size: 16, color: AppTheme.accentColor),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${(customizations['images'] as List).length} reference image(s)',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppTheme.textSecondary,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
             ),
-          ),
-          Text(
-            '${item.totalPrice.toStringAsFixed(0)} ${item.currency}',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
-                ),
-          ),
+          ],
         ],
       ),
     );
   }
 
-  String _getPaymentMethodDisplayName(String method) {
+  String _formatDeliveryDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
+  String _formatDeliveryTime(TimeOfDay time) {
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  }
+
+  String _getPaymentMethodDisplayNameForReview(String method) {
+    // Check if it's a saved payment method ID
+    if (_savedPaymentMethods.isNotEmpty) {
+      try {
+        final savedMethod = _savedPaymentMethods.firstWhere(
+          (pm) => pm.id == method,
+        );
+        return savedMethod.formattedDisplay;
+      } catch (e) {
+        // Not a saved method, treat as manual selection
+      }
+    }
+    
+    // Handle manual payment method selections
     switch (method.toLowerCase()) {
       case 'card':
         return 'Credit/Debit Card';
@@ -1236,7 +2255,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
   }
 
-  IconData _getPaymentMethodIcon(String method) {
+  IconData _getPaymentMethodIconForReview(String method) {
+    // Check if it's a saved payment method ID
+    if (_savedPaymentMethods.isNotEmpty) {
+      try {
+        final savedMethod = _savedPaymentMethods.firstWhere(
+          (pm) => pm.id == method,
+        );
+        return savedMethod.type.toString().contains('card') 
+            ? Icons.credit_card 
+            : Icons.phone_android;
+      } catch (e) {
+        // Not a saved method, treat as manual selection
+      }
+    }
+    
+    // Handle manual payment method selections
     switch (method.toLowerCase()) {
       case 'card':
         return Icons.credit_card;
@@ -1423,7 +2457,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 child: ElevatedButton(
                   onPressed: canProceed && !_isPlacingOrder
                       ? () {
-                          if (_currentStep < 2) {
+                          if (_currentStep < 3) {
                             setState(() {
                               _currentStep++;
                             });
@@ -1452,7 +2486,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           ),
                         )
                       : Text(
-                          _currentStep < 2 ? 'Continue' : 'Place Order',
+                          _currentStep < 3 ? 'Continue' : 'Place Order',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -1514,13 +2548,21 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 // print('DEBUG: Using manual payment method: $_selectedPayment -> ${paymentMethod.name}');
       }
 
-      // Create payment request
+      // Create payment request with customizations
+      final itemsWithCustomizations = _cart.items.map((item) {
+        final customizations = _itemCustomizations[item.id];
+        if (customizations != null && customizations.isNotEmpty) {
+          return item.copyWith(customizations: customizations);
+        }
+        return item;
+      }).toList();
+      
       final paymentRequest = PaymentRequest(
-        items: _cart.items,
+        items: itemsWithCustomizations,
         deliveryAddress: selectedAddress,
         paymentMethod: paymentMethod,
         deliveryInstructions: _instructionsController.text.trim(),
-        expectedDeliveryDate: _expectedDeliveryDate,
+        expectedDeliveryDate: null, // Delivery date is handled in cart
         customerNotes: _targetGender != null
             ? 'Gender: ${_getGenderDisplayName(_targetGender!)}'
             : '',
@@ -1528,23 +2570,40 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
 // print('DEBUG: Initiating payment with method: ${paymentMethod.name}');
 
-      // Initiate payment
-      final paymentResponse =
-          await PaymentService.initiatePayment(paymentRequest);
+      // For cash payments, create order directly without payment processing
+      if (paymentMethod == PaymentMethod.cash) {
+        final orderResponse = await ApiService.post(
+          '/orders',
+          data: paymentRequest.toJson(),
+        );
+
+        if (orderResponse.statusCode == 201 && orderResponse.data['success'] == true) {
+          final orderData = orderResponse.data['data'];
+          final orderId = orderData['_id']?.toString() ?? '';
+
+          // Clear the cart
+          await CartService.clearCart();
+
+          setState(() => _isPlacingOrder = false);
+
+          if (mounted) {
+            _showOrderSuccessDialog(orderId);
+          }
+        } else {
+          throw Exception('Failed to create order');
+        }
+      } else {
+        // Initiate payment for non-cash methods
+        final paymentResponse =
+            await PaymentService.initiatePayment(paymentRequest);
 
 // print('DEBUG: Payment initiated, orderId: ${paymentResponse.orderId}');
 
-      // Clear the cart
-      await CartService.clearCart();
+        // Clear the cart
+        await CartService.clearCart();
 
-      setState(() => _isPlacingOrder = false);
+        setState(() => _isPlacingOrder = false);
 
-      // For cash payments, go directly to success
-      if (paymentMethod == PaymentMethod.cash) {
-        if (mounted) {
-          _showOrderSuccessDialog(paymentResponse.orderId);
-        }
-      } else {
         // Navigate to payment waiting screen for other payment methods
         if (mounted) {
           Navigator.of(context).pushReplacement(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../catalog/data/repositories/cake_repository.dart';
 import '../../../catalog/data/models/cake_model.dart';
@@ -19,6 +20,7 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final _searchController = TextEditingController();
   final _focusNode = FocusNode();
+  Timer? _searchDebounceTimer;
 
   List<CakeStyle> _searchResults = [];
   final List<String> _recentSearches = [
@@ -48,15 +50,14 @@ class _SearchScreenState extends State<SearchScreen> {
     _focusNode.requestFocus();
 
     // Add listener to update UI when search text changes
-    _searchController.addListener(() {
-      setState(() {});
-    });
+    _searchController.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
     _focusNode.dispose();
+    _searchDebounceTimer?.cancel();
     super.dispose();
   }
 
@@ -162,6 +163,20 @@ class _SearchScreenState extends State<SearchScreen> {
                       suffixIcon: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          // Loading indicator
+                          if (_isSearching)
+                            const Padding(
+                              padding: EdgeInsets.all(12),
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      AppTheme.accentColor),
+                                ),
+                              ),
+                            ),
                           // Filter button
                           Container(
                             margin: const EdgeInsets.only(right: 8),
@@ -188,7 +203,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             ),
                           ),
                           // Clear button (only when there's text)
-                          if (_searchController.text.isNotEmpty)
+                          if (_searchController.text.isNotEmpty && !_isSearching)
                             IconButton(
                               icon: const Icon(Icons.clear,
                                   color: AppTheme.textSecondary),
@@ -211,15 +226,6 @@ class _SearchScreenState extends State<SearchScreen> {
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 16),
                     ),
-                    onSubmitted: _performSearch,
-                    onChanged: (query) {
-                      setState(() {
-                        if (query.isEmpty) {
-                          _searchResults.clear();
-                          _isSearching = false;
-                        }
-                      });
-                    },
                   ),
                 ),
               ),
@@ -744,6 +750,51 @@ class _SearchScreenState extends State<SearchScreen> {
       });
     } catch (e) {
 // print('DEBUG: Error searching cakes: $e');
+      setState(() {
+        _searchResults = [];
+        _isSearching = false;
+      });
+    }
+  }
+
+  void _onSearchChanged() {
+    // Cancel previous timer
+    _searchDebounceTimer?.cancel();
+    
+    // Start new timer for debounced search
+    _searchDebounceTimer = Timer(const Duration(milliseconds: 500), () {
+      _performRealTimeSearch();
+    });
+  }
+
+  Future<void> _performRealTimeSearch() async {
+    final query = _searchController.text.trim();
+    
+    if (query.isEmpty) {
+      setState(() {
+        _isSearching = false;
+        _searchResults = [];
+        _selectedCategory = null;
+      });
+      return;
+    }
+
+    setState(() {
+      _isSearching = true;
+      _selectedCategory = null; // Clear category selection when searching
+    });
+
+    try {
+      final cakeResponse = await CakeRepository.searchCakesWithFilters(
+        query: query,
+        filters: _currentFilters.hasActiveFilters ? _currentFilters : null,
+        limit: 20,
+      );
+      setState(() {
+        _searchResults = cakeResponse.data;
+        _isSearching = false;
+      });
+    } catch (e) {
       setState(() {
         _searchResults = [];
         _isSearching = false;

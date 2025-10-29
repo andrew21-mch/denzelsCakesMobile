@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:async';
 import '../../../../shared/theme/app_theme.dart';
 import '../../data/models/cake_model.dart';
 import '../../data/repositories/cake_repository.dart';
@@ -16,6 +17,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final _searchController = TextEditingController();
+  Timer? _searchDebounceTimer;
 
   // State management
   List<CakeStyle> _featuredCakes = [];
@@ -23,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   List<String> _categories = [];
   bool _isLoading = true;
   String? _errorMessage;
+  bool _isSearching = false;
 
   // Favorites state
   Set<String> _favoriteIds = {};
@@ -38,12 +41,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _loadData();
+    
+    // Add search listener for real-time search
+    _searchController.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _searchController.dispose();
+    _searchDebounceTimer?.cancel();
     super.dispose();
   }
 
@@ -242,6 +249,47 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     await _loadData();
   }
 
+  void _onSearchChanged() {
+    // Cancel previous timer
+    _searchDebounceTimer?.cancel();
+    
+    // Start new timer for debounced search
+    _searchDebounceTimer = Timer(const Duration(milliseconds: 500), () {
+      _performRealTimeSearch();
+    });
+  }
+
+  Future<void> _performRealTimeSearch() async {
+    final query = _searchController.text.trim();
+    
+    if (query.isEmpty) {
+      setState(() {
+        _isSearching = false;
+        _filteredCakes = _featuredCakes;
+        _selectedCategory = null;
+      });
+      return;
+    }
+
+    setState(() {
+      _isSearching = true;
+    });
+
+    try {
+      final searchResults = await CakeRepository.searchCakes(query: query, limit: 20);
+      setState(() {
+        _filteredCakes = searchResults.data;
+        _isSearching = false;
+        _selectedCategory = null; // Clear category filter when searching
+      });
+    } catch (e) {
+      setState(() {
+        _isSearching = false;
+        _filteredCakes = [];
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -392,16 +440,28 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               const TextStyle(color: AppTheme.textTertiary),
                           prefixIcon: const Icon(Icons.search,
                               color: AppTheme.accentColor, size: 24),
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.search,
-                                color: AppTheme.accentColor, size: 24),
-                            onPressed: () {
-                              if (_searchController.text.isNotEmpty) {
-                                Navigator.of(context).pushNamed('/search',
-                                    arguments: _searchController.text);
-                              }
-                            },
-                          ),
+                          suffixIcon: _isSearching
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(12),
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          AppTheme.accentColor),
+                                    ),
+                                  ),
+                                )
+                              : _searchController.text.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(Icons.clear,
+                                          color: AppTheme.textSecondary),
+                                      onPressed: () {
+                                        _searchController.clear();
+                                      },
+                                    )
+                                  : null,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(20),
                             borderSide: BorderSide.none,
@@ -1013,10 +1073,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.search),
-              label: 'Search',
-            ),
-            BottomNavigationBarItem(
               icon: Icon(Icons.school),
               label: 'Training',
             ),
@@ -1035,15 +1091,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 // Already on home
                 break;
               case 1:
-                Navigator.of(context).pushNamed('/search');
-                break;
-              case 2:
                 Navigator.of(context).pushNamed('/training');
                 break;
-              case 3:
+              case 2:
                 Navigator.of(context).pushNamed('/cart');
                 break;
-              case 4:
+              case 3:
                 Navigator.of(context).pushNamed('/profile');
                 break;
             }

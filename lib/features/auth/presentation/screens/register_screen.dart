@@ -105,38 +105,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 // App logo and branding
                 Column(
                   children: [
-                    // Logo with gradient background
+                    // Logo with shadow and animation effect
                     Container(
-                      width: 80,
-                      height: 80,
+                      width: 100,
+                      height: 100,
                       decoration: BoxDecoration(
-                        gradient: AppTheme.primaryGradient,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: const [
                           BoxShadow(
-                            color: AppTheme.accentColor.withValues(alpha: 0.3),
-                            blurRadius: 15,
-                            offset: const Offset(0, 8),
+                            color: AppTheme.shadowColor,
+                            blurRadius: 20,
+                            offset: Offset(0, 10),
                           ),
                         ],
                       ),
+                      padding: const EdgeInsets.all(8),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(22),
                         child: Image.asset(
-                          'assets/icons/app_logo.png',
+                          'assets/images/logo.jpeg',
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
-                            return const Icon(
-                              Icons.cake,
-                              size: 50,
-                              color: Colors.white,
+                            return Container(
+                              decoration: BoxDecoration(
+                                gradient: AppTheme.primaryGradient,
+                                borderRadius: BorderRadius.circular(22),
+                              ),
+                              child: const Icon(
+                                Icons.cake,
+                                size: 50,
+                                color: Colors.white,
+                              ),
                             );
                           },
                         ),
                       ),
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
 
                     // Welcome text
                     ShaderMask(
@@ -416,7 +423,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                         // Register Button
                         SizedBox(
-                          height: 48,
+                          height: 56,
                           child: ElevatedButton(
                             onPressed: _isLoading ? null : _handleRegister,
                             style: ElevatedButton.styleFrom(
@@ -424,6 +431,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
                             ),
                             child: _isLoading
                                 ? const SizedBox(

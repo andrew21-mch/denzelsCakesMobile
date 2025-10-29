@@ -6,18 +6,20 @@ class ReviewService {
 
   /// Create a new review
   static Future<Review> createReview({
-    required String orderId,
+    String? orderId, // Made optional for general reviews
     required String cakeStyleId,
     required int rating,
     required String comment,
     List<String>? images,
+    String reviewType = 'general', // Default to general review
   }) async {
     final response = await ApiService.post(_baseUrl, data: {
-      'orderId': orderId,
+      if (orderId != null) 'orderId': orderId,
       'cakeStyleId': cakeStyleId,
       'rating': rating,
       'comment': comment,
       'images': images ?? [],
+      'reviewType': reviewType,
     });
 
     return Review.fromJson(response.data['data']);

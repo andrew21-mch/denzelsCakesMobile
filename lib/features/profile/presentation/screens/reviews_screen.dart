@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../../core/models/review_model.dart';
 import '../../../../core/services/review_service.dart';
+import '../../../catalog/data/repositories/cake_repository.dart';
+import '../../../catalog/data/models/cake_model.dart';
 
 class ReviewsScreen extends StatefulWidget {
   const ReviewsScreen({super.key});
@@ -95,6 +97,12 @@ class _ReviewsScreenState extends State<ReviewsScreen>
                     _buildPendingReviewsTab(),
                   ],
                 ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showWriteGeneralReviewDialog,
+        backgroundColor: AppTheme.accentColor,
+        foregroundColor: Colors.white,
+        child: const Icon(Icons.add),
+      ),
     );
   }
 
@@ -620,5 +628,299 @@ class _ReviewsScreenState extends State<ReviewsScreen>
         content: Text('Edit review feature coming soon!'),
       ),
     );
+  }
+
+  void _showWriteGeneralReviewDialog() {
+    HapticFeedback.lightImpact();
+    
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _WriteGeneralReviewDialog(
+        onReviewSubmitted: (review) {
+          setState(() {
+            _myReviews.insert(0, review);
+          });
+        },
+      ),
+    );
+  }
+}
+
+class _WriteGeneralReviewDialog extends StatefulWidget {
+  final Function(Review) onReviewSubmitted;
+
+  const _WriteGeneralReviewDialog({
+    required this.onReviewSubmitted,
+  });
+
+  @override
+  State<_WriteGeneralReviewDialog> createState() => _WriteGeneralReviewDialogState();
+}
+
+class _WriteGeneralReviewDialogState extends State<_WriteGeneralReviewDialog> {
+  List<CakeStyle> _cakes = [];
+  CakeStyle? _selectedCake;
+  int _rating = 5;
+  final _commentController = TextEditingController();
+  bool _isLoading = false;
+  bool _loadingCakes = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCakes();
+  }
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadCakes() async {
+    try {
+      final response = await CakeRepository.getCakes();
+      setState(() {
+        _cakes = response.data;
+        _loadingCakes = false;
+      });
+    } catch (e) {
+      setState(() {
+        _loadingCakes = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load cakes: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.8,
+      decoration: const BoxDecoration(
+        color: AppTheme.surfaceColor,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        children: [
+          // Handle
+          Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.symmetric(vertical: 12),
+            decoration: BoxDecoration(
+              color: AppTheme.textTertiary,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+
+          // Header
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                const Text(
+                  'Write Review',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+          ),
+
+          const Divider(),
+
+          // Content
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Cake Selection
+                  const Text(
+                    'Select Cake',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  
+                  if (_loadingCakes)
+                    const Center(child: CircularProgressIndicator())
+                  else
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppTheme.borderColor),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<CakeStyle>(
+                          value: _selectedCake,
+                          hint: const Text('Choose a cake to review'),
+                          isExpanded: true,
+                          items: _cakes.map((cake) {
+                            return DropdownMenuItem<CakeStyle>(
+                              value: cake,
+                              child: Text(cake.title),
+                            );
+                          }).toList(),
+                          onChanged: (CakeStyle? value) {
+                            setState(() {
+                              _selectedCake = value;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+
+                  const SizedBox(height: 24),
+
+                  // Rating
+                  const Text(
+                    'Rating',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: List.generate(5, (index) {
+                      return GestureDetector(
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          setState(() {
+                            _rating = index + 1;
+                          });
+                        },
+                        child: Icon(
+                          index < _rating ? Icons.star : Icons.star_border,
+                          color: Colors.amber,
+                          size: 32,
+                        ),
+                      );
+                    }),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Comment
+                  const Text(
+                    'Your Review',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _commentController,
+                    decoration: const InputDecoration(
+                      hintText: 'Tell others about your experience...',
+                      border: OutlineInputBorder(),
+                    ),
+                    maxLines: 4,
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Submit Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _selectedCake != null && !_isLoading ? _submitReview : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.accentColor,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : const Text('Submit Review'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _submitReview() async {
+    if (_selectedCake == null) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    HapticFeedback.mediumImpact();
+
+    try {
+      final newReview = await ReviewService.createReview(
+        cakeStyleId: _selectedCake!.id,
+        rating: _rating,
+        comment: _commentController.text.trim().isEmpty 
+            ? 'Great cake!' 
+            : _commentController.text.trim(),
+        reviewType: 'general',
+      );
+
+      widget.onReviewSubmitted(newReview);
+      
+      if (mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Review submitted successfully!'),
+            backgroundColor: AppTheme.successColor,
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to submit review: ${e.toString()}'),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+      }
+    }
   }
 }

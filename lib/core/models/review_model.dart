@@ -1,8 +1,9 @@
 class Review {
   final String id;
   final String userId;
-  final String orderId;
+  final String? orderId; // Made optional for general reviews
   final String cakeStyleId;
+  final String reviewType; // 'general' or 'order_specific'
   final int rating;
   final String comment;
   final List<String> images;
@@ -22,8 +23,9 @@ class Review {
   const Review({
     required this.id,
     required this.userId,
-    required this.orderId,
+    this.orderId,
     required this.cakeStyleId,
+    required this.reviewType,
     required this.rating,
     required this.comment,
     required this.images,
@@ -48,6 +50,7 @@ class Review {
       cakeStyleId: json['cakeStyleId'] is Map
           ? json['cakeStyleId']['_id']
           : json['cakeStyleId'],
+      reviewType: json['reviewType'] ?? 'general',
       rating: json['rating'] ?? 0,
       comment: json['comment'] ?? '',
       images: List<String>.from(json['images'] ?? []),
@@ -76,6 +79,7 @@ class Review {
       'userId': userId,
       'orderId': orderId,
       'cakeStyleId': cakeStyleId,
+      'reviewType': reviewType,
       'rating': rating,
       'comment': comment,
       'images': images,
@@ -92,6 +96,7 @@ class Review {
     String? userId,
     String? orderId,
     String? cakeStyleId,
+    String? reviewType,
     int? rating,
     String? comment,
     List<String>? images,
@@ -111,6 +116,7 @@ class Review {
       userId: userId ?? this.userId,
       orderId: orderId ?? this.orderId,
       cakeStyleId: cakeStyleId ?? this.cakeStyleId,
+      reviewType: reviewType ?? this.reviewType,
       rating: rating ?? this.rating,
       comment: comment ?? this.comment,
       images: images ?? this.images,

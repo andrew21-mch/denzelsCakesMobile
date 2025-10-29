@@ -162,9 +162,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
             ),
             actions: [
               PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert, color: Colors.white),
+                icon: const Icon(Icons.person, color: Colors.white),
                 onSelected: (value) async {
-                  if (value == 'logout') {
+                  if (value == 'profile') {
+                    // Navigate to profile screen
+                    Navigator.of(context).pushNamed('/profile');
+                  } else if (value == 'logout') {
                     await AuthRepository.logout();
                     if (context.mounted) {
                       Navigator.of(context).pushReplacementNamed('/login');
@@ -172,6 +175,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                   }
                 },
                 itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'profile',
+                    child: Row(
+                      children: [
+                        Icon(Icons.person_outline, size: 20),
+                        SizedBox(width: 12),
+                        Text('Profile'),
+                      ],
+                    ),
+                  ),
                   const PopupMenuItem(
                     value: 'logout',
                     child: Row(

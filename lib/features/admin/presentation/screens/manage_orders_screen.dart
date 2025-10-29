@@ -250,27 +250,85 @@ class _ManageOrdersScreenState extends State<ManageOrdersScreen>
 
               const SizedBox(height: 12),
 
-              // Order items
+              // Order items with customizations
               ...((order['items'] as List).map((item) {
+                final customizations = item['customizations'] as Map<String, dynamic>? ?? {};
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          color: AppTheme.accentColor,
-                          shape: BoxShape.circle,
-                        ),
+                      Row(
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: const BoxDecoration(
+                              color: AppTheme.accentColor,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              '${item['quantity']}x ${item['title']} (${item['size']}, ${item['flavor']})',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          '${item['quantity']}x ${item['cakeStyleId']['title']} (${item['size']}, ${item['flavor']})',
-                          style: const TextStyle(fontSize: 14),
+                      
+                      // Customizations details
+                      if (customizations.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Delivery Date
+                              if (customizations['deliveryDate'] != null)
+                                _buildCustomizationRow(
+                                  'Delivery Date',
+                                  _formatCustomizationDate(customizations['deliveryDate']),
+                                ),
+                              
+                              // Delivery Time
+                              if (customizations['deliveryTime'] != null)
+                                _buildCustomizationRow(
+                                  'Delivery Time',
+                                  customizations['deliveryTime'].toString(),
+                                ),
+                              
+                              // Selected Color
+                              if (customizations['selectedColor'] != null)
+                                _buildCustomizationRow(
+                                  'Custom Color',
+                                  'Selected custom color',
+                                  color: _parseColor(customizations['selectedColor']),
+                                ),
+                              
+                              // Special Instructions
+                              if (customizations['specialInstructions'] != null && 
+                                  customizations['specialInstructions'].toString().isNotEmpty)
+                                _buildCustomizationRow(
+                                  'Special Instructions',
+                                  customizations['specialInstructions'].toString(),
+                                ),
+                              
+                              // Reference Images (check both 'images' and 'referenceImages' for compatibility)
+                              if (_getImageCount(customizations) > 0)
+                                _buildCustomizationRow(
+                                  'Reference Images',
+                                  '${_getImageCount(customizations)} image(s) uploaded',
+                                ),
+                            ],
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 );
@@ -508,19 +566,19 @@ class _ManageOrdersScreenState extends State<ManageOrdersScreen>
 
                   // Customer Info
                   _buildDetailSection('Customer Information', [
-                    _buildDetailRow('Name', order['guestDetails']['name']),
-                    _buildDetailRow('Email', order['guestDetails']['email']),
-                    _buildDetailRow('Phone', order['guestDetails']['phone']),
+                    _buildDetailRow('Name', _getCustomerName(order)),
+                    _buildDetailRow('Email', _getCustomerEmail(order)),
+                    _buildDetailRow('Phone', _getCustomerPhone(order)),
                   ]),
 
                   const SizedBox(height: 20),
 
-                  // Order Items
+                  // Order Items with Customizations
                   _buildDetailSection(
                       'Order Items',
                       (order['items'] as List)
                           .map((item) =>
-                              _buildItemDetail(item, order['currency']))
+                              _buildItemDetailWithCustomizations(item, order['currency']))
                           .toList()),
 
                   const SizedBox(height: 20),
@@ -538,6 +596,80 @@ class _ManageOrdersScreenState extends State<ManageOrdersScreen>
         ],
       ),
     );
+  }
+
+  Widget _buildCustomizationRow(String label, String value, {Color? color}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 80,
+            child: Text(
+              '$label:',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: AppTheme.textSecondary,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Row(
+              children: [
+                if (color != null) ...[
+                  Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                Expanded(
+                  child: Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color? _parseColor(dynamic colorData) {
+    if (colorData == null) return null;
+    
+    try {
+      if (colorData is String) {
+        // Handle hex color strings like "#FF5722" or "0xFF5722"
+        String hex = colorData.replaceAll('#', '').replaceAll('0x', '');
+        if (hex.length == 6) {
+          hex = 'FF$hex'; // Add alpha channel
+        }
+        return Color(int.parse(hex, radix: 16));
+      } else if (colorData is Map) {
+        // Handle Color objects with r, g, b, a properties
+        final r = (colorData['r'] as num?)?.toInt() ?? 0;
+        final g = (colorData['g'] as num?)?.toInt() ?? 0;
+        final b = (colorData['b'] as num?)?.toInt() ?? 0;
+        final a = (colorData['a'] as num?)?.toInt() ?? 255;
+        return Color.fromARGB(a, r, g, b);
+      }
+    } catch (e) {
+      // If parsing fails, return null
+    }
+    return null;
   }
 
   Widget _buildDetailSection(String title, List<Widget> children) {
@@ -585,7 +717,10 @@ class _ManageOrdersScreenState extends State<ManageOrdersScreen>
     );
   }
 
-  Widget _buildItemDetail(Map<String, dynamic> item, String currency) {
+  Widget _buildItemDetailWithCustomizations(Map<String, dynamic> item, String currency) {
+    final customizations = item['customizations'] as Map<String, dynamic>? ?? {};
+    print('DEBUG: Admin - Item customizations: $customizations');
+    
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
@@ -597,7 +732,7 @@ class _ManageOrdersScreenState extends State<ManageOrdersScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            item['cakeStyleId']['title'],
+            item['title'] ?? item['cakeStyleId']['title'],
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -618,6 +753,70 @@ class _ManageOrdersScreenState extends State<ManageOrdersScreen>
               ),
             ],
           ),
+          
+          // Customizations
+          if (customizations.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppTheme.surfaceColor,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppTheme.borderColor),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Customizations:',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  
+                  // Delivery Date
+                  if (customizations['deliveryDate'] != null)
+                    _buildCustomizationRow(
+                      'Delivery Date',
+                      _formatCustomizationDate(customizations['deliveryDate']),
+                    ),
+                  
+                  // Delivery Time
+                  if (customizations['deliveryTime'] != null)
+                    _buildCustomizationRow(
+                      'Delivery Time',
+                      customizations['deliveryTime'].toString(),
+                    ),
+                  
+                  // Selected Color
+                  if (customizations['selectedColor'] != null)
+                    _buildCustomizationRow(
+                      'Custom Color',
+                      'Selected custom color',
+                      color: _parseColor(customizations['selectedColor']),
+                    ),
+                  
+                  // Special Instructions
+                  if (customizations['specialInstructions'] != null && 
+                      customizations['specialInstructions'].toString().isNotEmpty)
+                    _buildCustomizationRow(
+                      'Special Instructions',
+                      customizations['specialInstructions'].toString(),
+                    ),
+                  
+                  // Reference Images (check both 'images' and 'referenceImages' for compatibility)
+                  if (_getImageCount(customizations) > 0)
+                    _buildCustomizationRow(
+                      'Reference Images',
+                      '${_getImageCount(customizations)} image(s) uploaded',
+                    ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -625,5 +824,64 @@ class _ManageOrdersScreenState extends State<ManageOrdersScreen>
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+  }
+
+  String _formatCustomizationDate(dynamic dateValue) {
+    if (dateValue is String) {
+      try {
+        final date = DateTime.parse(dateValue);
+        return '${date.day}/${date.month}/${date.year}';
+      } catch (e) {
+        return dateValue.toString();
+      }
+    }
+    return dateValue.toString();
+  }
+
+  int _getImageCount(Map<String, dynamic> customizations) {
+    // Check both 'images' and 'referenceImages' for compatibility
+    final images = customizations['images'] as List?;
+    final referenceImages = customizations['referenceImages'] as List?;
+    
+    if (images != null && images.isNotEmpty) {
+      return images.length;
+    }
+    if (referenceImages != null && referenceImages.isNotEmpty) {
+      return referenceImages.length;
+    }
+    return 0;
+  }
+
+  String _getCustomerName(Map<String, dynamic> order) {
+    // Handle both guestDetails and userId structures
+    if (order['guestDetails'] != null) {
+      return order['guestDetails']['name'] ?? 'Unknown';
+    }
+    if (order['userId'] != null && order['userId'] is Map) {
+      return order['userId']['name'] ?? 'Unknown';
+    }
+    return 'Unknown';
+  }
+
+  String _getCustomerEmail(Map<String, dynamic> order) {
+    // Handle both guestDetails and userId structures
+    if (order['guestDetails'] != null) {
+      return order['guestDetails']['email'] ?? 'Unknown';
+    }
+    if (order['userId'] != null && order['userId'] is Map) {
+      return order['userId']['email'] ?? 'Unknown';
+    }
+    return 'Unknown';
+  }
+
+  String _getCustomerPhone(Map<String, dynamic> order) {
+    // Handle both guestDetails and userId structures
+    if (order['guestDetails'] != null) {
+      return order['guestDetails']['phone'] ?? 'Unknown';
+    }
+    if (order['userId'] != null && order['userId'] is Map) {
+      return order['userId']['phone'] ?? 'Unknown';
+    }
+    return 'Unknown';
   }
 }

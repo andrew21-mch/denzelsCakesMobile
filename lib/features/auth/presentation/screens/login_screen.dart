@@ -307,6 +307,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
                               ),
                               child: _isLoading
                                   ? const SizedBox(

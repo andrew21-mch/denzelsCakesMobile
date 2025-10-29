@@ -12,28 +12,11 @@ class NotificationsSettingsScreen extends StatefulWidget {
 
 class _NotificationsSettingsScreenState
     extends State<NotificationsSettingsScreen> {
-  // Notification preferences
+  // Simplified notification preferences - only 4 options
   bool _pushNotifications = true;
-  bool _emailNotifications = true;
-  bool _smsNotifications = false;
-
-  // Order notifications
-  bool _orderConfirmation = true;
-  bool _orderPreparation = true;
-  bool _orderReady = true;
-  bool _orderDelivered = true;
-  bool _orderCancelled = true;
-
-  // Marketing notifications
-  bool _promotions = true;
-  bool _newProducts = false;
-  bool _specialOffers = true;
-  bool _newsletter = false;
-
-  // App notifications
-  bool _appUpdates = true;
+  bool _orderUpdates = true;
+  bool _promotions = false;
   bool _securityAlerts = true;
-  bool _accountActivity = false;
 
   @override
   Widget build(BuildContext context) {
@@ -59,9 +42,9 @@ class _NotificationsSettingsScreenState
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // General Settings
+          // Simplified notification settings - only 4 options
           _buildSectionCard(
-            title: 'General Settings',
+            title: 'Notification Preferences',
             children: [
               _buildSwitchTile(
                 icon: Icons.notifications_outlined,
@@ -71,132 +54,26 @@ class _NotificationsSettingsScreenState
                 onChanged: (value) {
                   setState(() {
                     _pushNotifications = value;
-                    if (!value) {
-                      // Disable all push-based notifications
-                      _orderConfirmation = false;
-                      _orderPreparation = false;
-                      _orderReady = false;
-                      _orderDelivered = false;
-                      _orderCancelled = false;
-                      _promotions = false;
-                      _newProducts = false;
-                      _specialOffers = false;
-                      _appUpdates = false;
-                      _securityAlerts = false;
-                      _accountActivity = false;
-                    }
                   });
                 },
               ),
               _buildSwitchTile(
-                icon: Icons.email_outlined,
-                title: 'Email Notifications',
-                subtitle: 'Receive notifications via email',
-                value: _emailNotifications,
-                onChanged: (value) {
-                  setState(() {
-                    _emailNotifications = value;
-                  });
-                },
-              ),
-              _buildSwitchTile(
-                icon: Icons.sms_outlined,
-                title: 'SMS Notifications',
-                subtitle: 'Receive notifications via SMS',
-                value: _smsNotifications,
-                onChanged: (value) {
-                  setState(() {
-                    _smsNotifications = value;
-                  });
-                },
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          // Order Notifications
-          _buildSectionCard(
-            title: 'Order Notifications',
-            children: [
-              _buildSwitchTile(
-                icon: Icons.check_circle_outline,
-                title: 'Order Confirmation',
-                subtitle: 'When your order is confirmed',
-                value: _orderConfirmation,
+                icon: Icons.shopping_bag_outlined,
+                title: 'Order Updates',
+                subtitle: 'Order confirmations, preparation, and delivery updates',
+                value: _orderUpdates,
                 onChanged: _pushNotifications
                     ? (value) {
                         setState(() {
-                          _orderConfirmation = value;
+                          _orderUpdates = value;
                         });
                       }
                     : null,
               ),
-              _buildSwitchTile(
-                icon: Icons.kitchen_outlined,
-                title: 'Order Preparation',
-                subtitle: 'When your order is being prepared',
-                value: _orderPreparation,
-                onChanged: _pushNotifications
-                    ? (value) {
-                        setState(() {
-                          _orderPreparation = value;
-                        });
-                      }
-                    : null,
-              ),
-              _buildSwitchTile(
-                icon: Icons.cake_outlined,
-                title: 'Order Ready',
-                subtitle: 'When your order is ready for pickup/delivery',
-                value: _orderReady,
-                onChanged: _pushNotifications
-                    ? (value) {
-                        setState(() {
-                          _orderReady = value;
-                        });
-                      }
-                    : null,
-              ),
-              _buildSwitchTile(
-                icon: Icons.delivery_dining_outlined,
-                title: 'Order Delivered',
-                subtitle: 'When your order has been delivered',
-                value: _orderDelivered,
-                onChanged: _pushNotifications
-                    ? (value) {
-                        setState(() {
-                          _orderDelivered = value;
-                        });
-                      }
-                    : null,
-              ),
-              _buildSwitchTile(
-                icon: Icons.cancel_outlined,
-                title: 'Order Cancelled',
-                subtitle: 'When your order is cancelled',
-                value: _orderCancelled,
-                onChanged: _pushNotifications
-                    ? (value) {
-                        setState(() {
-                          _orderCancelled = value;
-                        });
-                      }
-                    : null,
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          // Marketing Notifications
-          _buildSectionCard(
-            title: 'Marketing & Promotions',
-            children: [
               _buildSwitchTile(
                 icon: Icons.local_offer_outlined,
-                title: 'Promotions',
-                subtitle: 'Special deals and discounts',
+                title: 'Promotions & Offers',
+                subtitle: 'Special deals and new product announcements',
                 value: _promotions,
                 onChanged: _pushNotifications
                     ? (value) {
@@ -207,88 +84,14 @@ class _NotificationsSettingsScreenState
                     : null,
               ),
               _buildSwitchTile(
-                icon: Icons.new_releases_outlined,
-                title: 'New Products',
-                subtitle: 'When new cakes are available',
-                value: _newProducts,
-                onChanged: _pushNotifications
-                    ? (value) {
-                        setState(() {
-                          _newProducts = value;
-                        });
-                      }
-                    : null,
-              ),
-              _buildSwitchTile(
-                icon: Icons.star_outline,
-                title: 'Special Offers',
-                subtitle: 'Limited time offers and events',
-                value: _specialOffers,
-                onChanged: _pushNotifications
-                    ? (value) {
-                        setState(() {
-                          _specialOffers = value;
-                        });
-                      }
-                    : null,
-              ),
-              _buildSwitchTile(
-                icon: Icons.newspaper_outlined,
-                title: 'Newsletter',
-                subtitle: 'Weekly newsletter with updates',
-                value: _newsletter,
-                onChanged: _emailNotifications
-                    ? (value) {
-                        setState(() {
-                          _newsletter = value;
-                        });
-                      }
-                    : null,
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          // App Notifications
-          _buildSectionCard(
-            title: 'App & Security',
-            children: [
-              _buildSwitchTile(
-                icon: Icons.system_update_outlined,
-                title: 'App Updates',
-                subtitle: 'When new app versions are available',
-                value: _appUpdates,
-                onChanged: _pushNotifications
-                    ? (value) {
-                        setState(() {
-                          _appUpdates = value;
-                        });
-                      }
-                    : null,
-              ),
-              _buildSwitchTile(
                 icon: Icons.security_outlined,
                 title: 'Security Alerts',
-                subtitle: 'Important security notifications',
+                subtitle: 'Important security notifications and account activity',
                 value: _securityAlerts,
                 onChanged: _pushNotifications
                     ? (value) {
                         setState(() {
                           _securityAlerts = value;
-                        });
-                      }
-                    : null,
-              ),
-              _buildSwitchTile(
-                icon: Icons.account_circle_outlined,
-                title: 'Account Activity',
-                subtitle: 'Login attempts and profile changes',
-                value: _accountActivity,
-                onChanged: _pushNotifications
-                    ? (value) {
-                        setState(() {
-                          _accountActivity = value;
                         });
                       }
                     : null,
@@ -425,23 +228,9 @@ class _NotificationsSettingsScreenState
               setState(() {
                 // Reset to default values
                 _pushNotifications = true;
-                _emailNotifications = true;
-                _smsNotifications = false;
-
-                _orderConfirmation = true;
-                _orderPreparation = true;
-                _orderReady = true;
-                _orderDelivered = true;
-                _orderCancelled = true;
-
-                _promotions = true;
-                _newProducts = false;
-                _specialOffers = true;
-                _newsletter = false;
-
-                _appUpdates = true;
+                _orderUpdates = true;
+                _promotions = false;
                 _securityAlerts = true;
-                _accountActivity = false;
               });
 
               Navigator.of(context).pop();

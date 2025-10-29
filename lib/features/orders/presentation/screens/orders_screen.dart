@@ -397,16 +397,18 @@ class _OrdersScreenState extends State<OrdersScreen>
                         onPressed: () => _showCancelDialog(order),
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: Colors.red),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          minimumSize: const Size(60, 32),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(6),
                           ),
                         ),
                         child: const Text(
                           'Cancel',
-                          style: TextStyle(color: Colors.red),
+                          style: TextStyle(color: Colors.red, fontSize: 12),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 6),
                     ],
                     ElevatedButton(
                       onPressed: () {
@@ -414,13 +416,15 @@ class _OrdersScreenState extends State<OrdersScreen>
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.accentColor,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        minimumSize: const Size(60, 32),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(6),
                         ),
                       ),
                       child: const Text(
                         'Details',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: Colors.white, fontSize: 12),
                       ),
                     ),
                   ],

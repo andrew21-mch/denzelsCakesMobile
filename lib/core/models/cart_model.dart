@@ -93,9 +93,9 @@ class Cart {
 
   double get subtotal => items.fold(0.0, (sum, item) => sum + item.totalPrice);
 
-  double get tax => subtotal * 0.10; // 10% tax rate for Cameroon
+  double get tax => 0.0; // Tax removed
 
-  double get total => subtotal + tax;
+  double get total => subtotal;
 
   bool get isEmpty => items.isEmpty;
   bool get isNotEmpty => items.isNotEmpty;

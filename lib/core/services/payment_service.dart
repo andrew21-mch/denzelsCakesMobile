@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'api_service.dart';
 import '../models/cart_model.dart';
 import '../models/user_model.dart';
@@ -38,17 +39,21 @@ class PaymentRequest {
   });
 
   Map<String, dynamic> toJson() {
+    final serializedItems = items
+        .map((item) => {
+              'cakeStyleId': item.cakeId,
+              'title': item.cakeTitle,
+              'size': item.selectedSize,
+              'flavor': item.selectedFlavor,
+              'quantity': item.quantity,
+              'unitPrice': item.unitPrice,
+              'totalPrice': item.totalPrice,
+              'customizations': _serializeCustomizations(item.customizations),
+            })
+        .toList();
+    
     return {
-      'items': items
-          .map((item) => {
-                'cakeStyleId': item.cakeId,
-                'size': item.selectedSize,
-                'flavor': item.selectedFlavor,
-                'quantity': item.quantity,
-                'customMessage': '', // TODO: Add if needed
-                'images': [], // TODO: Add if needed
-              })
-          .toList(),
+      'items': serializedItems,
       'paymentMethod': paymentMethod.name,
       'deliveryDetails': {
         'type': 'delivery',
@@ -60,6 +65,42 @@ class PaymentRequest {
       'customerNotes': customerNotes,
       if (paymentDetails != null) 'paymentDetails': paymentDetails,
     };
+  }
+
+  /// Serialize customizations to JSON-safe format
+  Map<String, dynamic> _serializeCustomizations(Map<String, dynamic>? customizations) {
+    if (customizations == null || customizations.isEmpty) {
+      return {};
+    }
+
+    final serialized = <String, dynamic>{};
+    
+    for (final entry in customizations.entries) {
+      final key = entry.key;
+      final value = entry.value;
+      
+      if (value == null) continue;
+      
+      // Handle different types of customization values
+      if (value is Color) {
+        // Convert Color to hex string
+        serialized[key] = '#${value.value.toRadixString(16).padLeft(8, '0')}';
+      } else if (value is DateTime) {
+        // Convert DateTime to ISO string
+        serialized[key] = value.toIso8601String();
+      } else if (value is TimeOfDay) {
+        // Convert TimeOfDay to "HH:MM" string
+        serialized[key] = '${value.hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}';
+      } else if (value is List) {
+        // Handle lists (like reference images)
+        serialized[key] = value.map((item) => item.toString()).toList();
+      } else {
+        // Handle strings and other simple types
+        serialized[key] = value.toString();
+      }
+    }
+    
+    return serialized;
   }
 }
 

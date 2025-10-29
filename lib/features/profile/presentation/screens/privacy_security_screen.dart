@@ -10,13 +10,14 @@ class PrivacySecurityScreen extends StatefulWidget {
 }
 
 class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
-  bool _biometricEnabled = true;
-  bool _twoFactorEnabled = false;
-  bool _dataEncryption = true;
-  bool _activityLogging = true;
-  bool _shareAnalytics = false;
-  bool _marketingEmails = true;
-  bool _locationTracking = false;
+  // COMMENTED OUT - Unused state variables for disabled features
+  // bool _biometricEnabled = true;
+  // bool _twoFactorEnabled = false;
+  // bool _dataEncryption = true;
+  // bool _activityLogging = true;
+  // bool _shareAnalytics = false;
+  // bool _marketingEmails = true;
+  // bool _locationTracking = false;
 
   @override
   Widget build(BuildContext context) {
@@ -31,23 +32,19 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // Security Section
+            // Security Section - Only keep Change Password and Active Sessions
             _buildSecuritySection(),
 
             const SizedBox(height: 24),
 
-            // Privacy Section
-            _buildPrivacySection(),
-
-            const SizedBox(height: 24),
-
-            // Data Management Section
-            _buildDataManagementSection(),
-
-            const SizedBox(height: 24),
-
-            // Account Actions Section
+            // Account Actions Section - Keep Delete and Deactivate
             _buildAccountActionsSection(),
+
+            // COMMENTED OUT SECTIONS - Too many options
+            // const SizedBox(height: 24),
+            // _buildPrivacySection(),
+            // const SizedBox(height: 24),
+            // _buildDataManagementSection(),
           ],
         ),
       ),
@@ -90,42 +87,43 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
           ),
           const SizedBox(height: 20),
 
+          // COMMENTED OUT - Too many security options
           // Biometric Authentication
-          _buildSwitchTile(
-            icon: Icons.fingerprint,
-            title: 'Biometric Authentication',
-            subtitle: 'Use fingerprint or face ID to unlock app',
-            value: _biometricEnabled,
-            onChanged: (value) {
-              HapticFeedback.lightImpact();
-              setState(() {
-                _biometricEnabled = value;
-              });
-              _showSecurityChangeDialog('Biometric Authentication', value);
-            },
-          ),
+          // _buildSwitchTile(
+          //   icon: Icons.fingerprint,
+          //   title: 'Biometric Authentication',
+          //   subtitle: 'Use fingerprint or face ID to unlock app',
+          //   value: _biometricEnabled,
+          //   onChanged: (value) {
+          //     HapticFeedback.lightImpact();
+          //     setState(() {
+          //       _biometricEnabled = value;
+          //     });
+          //     _showSecurityChangeDialog('Biometric Authentication', value);
+          //   },
+          // ),
 
-          const SizedBox(height: 16),
+          // const SizedBox(height: 16),
 
           // Two-Factor Authentication
-          _buildSwitchTile(
-            icon: Icons.verified_user,
-            title: 'Two-Factor Authentication',
-            subtitle: 'Add extra security to your account',
-            value: _twoFactorEnabled,
-            onChanged: (value) {
-              HapticFeedback.lightImpact();
-              if (value) {
-                _showTwoFactorSetupDialog();
-              } else {
-                setState(() {
-                  _twoFactorEnabled = value;
-                });
-              }
-            },
-          ),
+          // _buildSwitchTile(
+          //   icon: Icons.verified_user,
+          //   title: 'Two-Factor Authentication',
+          //   subtitle: 'Add extra security to your account',
+          //   value: _twoFactorEnabled,
+          //   onChanged: (value) {
+          //     HapticFeedback.lightImpact();
+          //     if (value) {
+          //       _showTwoFactorSetupDialog();
+          //     } else {
+          //       setState(() {
+          //         _twoFactorEnabled = value;
+          //       });
+          //     }
+          //   },
+          // ),
 
-          const SizedBox(height: 16),
+          // const SizedBox(height: 16),
 
           // Change Password
           _buildActionTile(
@@ -155,6 +153,8 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
     );
   }
 
+  // COMMENTED OUT - Too many privacy options
+  /*
   Widget _buildPrivacySection() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -272,7 +272,10 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
       ),
     );
   }
+  */
 
+  // COMMENTED OUT - Too many data management options
+  /*
   Widget _buildDataManagementSection() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -349,6 +352,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
       ),
     );
   }
+  */
 
   Widget _buildAccountActionsSection() {
     return Container(
@@ -416,6 +420,8 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
     );
   }
 
+  // COMMENTED OUT - No longer needed since switch tiles are disabled
+  /*
   Widget _buildSwitchTile({
     required IconData icon,
     required String title,
@@ -460,6 +466,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
       ],
     );
   }
+  */
 
   Widget _buildActionTile({
     required IconData icon,
@@ -526,6 +533,8 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
     );
   }
 
+  // COMMENTED OUT - No longer needed since biometric and 2FA are disabled
+  /*
   void _showSecurityChangeDialog(String feature, bool enabled) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -572,6 +581,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
       ),
     );
   }
+  */
 
   void _showChangePasswordDialog() {
     showDialog(
@@ -664,6 +674,8 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
     );
   }
 
+  // COMMENTED OUT - No longer needed since data management section is disabled
+  /*
   void _showDownloadDataDialog() {
     showDialog(
       context: context,
@@ -762,6 +774,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
       ),
     );
   }
+  */
 
   void _showDeactivateAccountDialog() {
     showDialog(
