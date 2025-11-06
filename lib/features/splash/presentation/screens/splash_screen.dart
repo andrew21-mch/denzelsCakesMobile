@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../features/auth/data/auth_repository.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -238,9 +239,9 @@ class _SplashScreenState extends State<SplashScreen>
                                           ),
                                         ],
                                       ),
-                                      child: const Text(
-                                        'Handcrafted with Love, Delivered Fresh',
-                                        style: TextStyle(
+                                      child: Text(
+                                        AppLocalizations.of(context)!.splashTagline,
+                                        style: const TextStyle(
                                           fontSize: 16,
                                           color: AppTheme.textSecondary,
                                           fontWeight: FontWeight.w500,
@@ -305,9 +306,9 @@ class _SplashScreenState extends State<SplashScreen>
                               color: Colors.white.withValues(alpha: 0.8),
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            child: const Text(
-                              'Preparing your cake experience...',
-                              style: TextStyle(
+                            child: Text(
+                              AppLocalizations.of(context)!.preparingCakeExperience,
+                              style: const TextStyle(
                                 color: AppTheme.textSecondary,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,

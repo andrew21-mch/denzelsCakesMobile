@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../../core/services/admin_api_service_new.dart';
+import '../../../../core/utils/category_utils.dart';
+import 'package:denzels_cakes/l10n/app_localizations.dart';
 
 class AddCakeScreen extends StatefulWidget {
   const AddCakeScreen({super.key});
@@ -555,60 +557,9 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
   }
 
   Widget _buildCategorySection() {
-    // Comprehensive list of cake categories covering all occasions
-    // Using a Set to ensure uniqueness, then converting to sorted list
-    final categoriesSet = {
-      // Life Celebrations
-      'Birthday',
-      'Wedding',
-      'Engagement',
-      'Anniversary',
-      'Bridal Shower',
-      'Baby Shower',
-      'Gender Reveal',
-      
-      // Religious & Faith Celebrations
-      'Baptism',
-      'Child Dedication',
-      'First Communion',
-      'Confirmation',
-      'Bar Mitzvah',
-      'Bat Mitzvah',
-      'Religious Celebration',
-      
-      // Holidays & Seasonal
-      'Christmas',
-      'Easter',
-      'New Year',
-      'Thanksgiving',
-      'Halloween',
-      'Valentine\'s Day',
-      'Mother\'s Day',
-      'Father\'s Day',
-      'Independence Day',
-      'St. Patrick\'s Day',
-      
-      // Milestones & Achievements
-      'Graduation',
-      'Retirement',
-      'Promotion',
-      'Congratulations',
-      'Achievement',
-      
-      // Other Occasions
-      'Corporate Event',
-      'Office Party',
-      'Housewarming',
-      'Welcome Party',
-      'Farewell Party',
-      'Sympathy',
-      'Memorial',
-      'Custom Design',
-      'General Celebration',
-    };
-    
-    // Convert to sorted list for consistent display
-    final categories = categoriesSet.toList()..sort();
+    final l10n = AppLocalizations.of(context)!;
+    // Get all categories from CategoryUtils
+    final categories = CategoryUtils.getAllCategoryKeys();
 
     return Card(
       color: AppTheme.surfaceColor,
@@ -618,9 +569,9 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Category *',
-              style: TextStyle(
+            Text(
+              l10n.category + ' *',
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppTheme.textPrimary,
@@ -631,18 +582,18 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
               value: (_selectedCategory != null && categories.contains(_selectedCategory))
                   ? _selectedCategory
                   : null,
-              decoration: const InputDecoration(
-                labelText: 'Select Category',
-                hintText: 'Choose a category for this cake',
-                prefixIcon: Icon(Icons.category, color: AppTheme.accentColor),
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.selectCategory,
+                hintText: l10n.chooseCategoryForCake,
+                prefixIcon: const Icon(Icons.category, color: AppTheme.accentColor),
+                border: const OutlineInputBorder(),
                 filled: true,
                 fillColor: Colors.white,
               ),
               items: categories.map((category) {
                 return DropdownMenuItem(
                   value: category,
-                  child: Text(category),
+                  child: Text(CategoryUtils.getLocalizedCategory(category, l10n)),
                 );
               }).toList(),
               onChanged: (value) {
@@ -656,7 +607,7 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
               },
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please select a category';
+                  return l10n.pleaseSelectCategory;
                 }
                 return null;
               },
@@ -664,7 +615,7 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
             if (_selectedCategory != null) ...[
               const SizedBox(height: 8),
               Text(
-                'Selected: $_selectedCategory',
+                '${l10n.selected}: ${CategoryUtils.getLocalizedCategory(_selectedCategory!, l10n)}',
                 style: TextStyle(
                   color: AppTheme.accentColor,
                   fontWeight: FontWeight.w500,

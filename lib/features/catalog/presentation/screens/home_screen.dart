@@ -8,6 +8,8 @@ import '../../data/repositories/cake_repository.dart';
 import '../../../../core/services/favorites_service.dart';
 import '../../../../core/services/cart_service.dart';
 import '../../../../core/services/cache_service.dart';
+import 'package:denzels_cakes/l10n/app_localizations.dart';
+import '../../../../core/utils/category_utils.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -109,15 +111,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         }
       }
 
-      // ALWAYS use the exact same 5 categories - no API calls
+      // Get all categories with core 5 first, then all others
       setState(() {
-        _categories = [
-          'Birthday',
-          'Wedding',
-          'Anniversary',
-          'Baby Shower',
-          'Faith Celebrations'
-        ];
+        _categories = CategoryUtils.getAllCategoriesForHomePage();
       });
 
       // Load favorites
@@ -197,10 +193,24 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         // Show feedback to user
         if (mounted) {
           final isFavorite = _favoriteIds.contains(cakeId);
+          final l10n = AppLocalizations.of(context)!;
+          // Find cake name from available lists
+          String cakeName = 'Cake';
+          try {
+            final cake = _featuredCakes.firstWhere((c) => c.id == cakeId);
+            cakeName = cake.title;
+          } catch (_) {
+            try {
+              final cake = _filteredCakes.firstWhere((c) => c.id == cakeId);
+              cakeName = cake.title;
+            } catch (_) {
+              // Use default name
+            }
+          }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                  isFavorite ? 'Added to favorites' : 'Removed from favorites'),
+                  isFavorite ? l10n.addedToFavorites : l10n.removedFromFavorites(cakeName)),
               duration: const Duration(seconds: 2),
               backgroundColor:
                   isFavorite ? AppTheme.primaryColor : AppTheme.textSecondary,
@@ -211,9 +221,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     } catch (e) {
 // print('DEBUG: Error toggling favorite: $e');
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to update favorites'),
+          SnackBar(
+            content: Text(l10n.failedToUpdateFavorites),
             backgroundColor: AppTheme.errorColor,
           ),
         );
@@ -293,9 +304,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return LoadingOverlay(
       isLoading: _isLoading,
-      message: 'Loading cakes...',
+      message: l10n.loadingCakes,
       child: Scaffold(
         body: Container(
         decoration: const BoxDecoration(
@@ -366,7 +378,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  'Welcome to Denzel\'s! 🎂',
+                                  l10n.welcomeToDenzels,
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleSmall
@@ -383,7 +395,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                       .primaryGradient
                                       .createShader(bounds),
                                   child: Text(
-                                    'Delicious cakes await!',
+                                    l10n.deliciousCakesAwait,
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleMedium
@@ -439,7 +451,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       child: TextField(
                         controller: _searchController,
                         decoration: InputDecoration(
-                          hintText: 'Search for delicious cakes...',
+                          hintText: l10n.searchForCakes,
                           hintStyle:
                               const TextStyle(color: AppTheme.textTertiary),
                           prefixIcon: const Icon(Icons.search,
@@ -506,7 +518,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             ),
                             const SizedBox(width: 12),
                             Text(
-                              'Categories',
+                              l10n.categories,
                               style: Theme.of(context)
                                   .textTheme
                                   .titleLarge
@@ -527,8 +539,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                   itemCount: _categories.length,
                                   itemBuilder: (context, index) {
                                     final category = _categories[index];
+                                    final l10n = AppLocalizations.of(context)!;
                                     return _buildModernCategoryCard(
                                       category,
+                                      CategoryUtils.getLocalizedCategory(category, l10n),
                                       _getCategoryIcon(category),
                                       _getCategoryColor(category),
                                     );
@@ -549,31 +563,38 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Container(
-                              width: 4,
-                              height: 24,
-                              decoration: BoxDecoration(
-                                gradient: AppTheme.primaryGradient,
-                                borderRadius: BorderRadius.circular(2),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 4,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  gradient: AppTheme.primaryGradient,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              _selectedCategory != null
-                                  ? '$_selectedCategory Cakes'
-                                  : 'Featured Cakes',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.textPrimary,
-                                  ),
-                            ),
-                          ],
+                              const SizedBox(width: 12),
+                              Flexible(
+                                child: Text(
+                                  _selectedCategory != null
+                                      ? l10n.cakesCategory(CategoryUtils.getLocalizedCategory(_selectedCategory!, l10n))
+                                      : l10n.featuredCakes,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: AppTheme.textPrimary,
+                                      ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
+                        const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 8),
@@ -599,8 +620,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             },
                             child: Text(
                               _selectedCategory != null
-                                  ? 'Show All'
-                                  : 'See All',
+                                  ? l10n.showAll
+                                  : l10n.seeAll,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
@@ -672,9 +693,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                       ),
                                       const SizedBox(
                                           height: 8), // Reduced from 12
-                                      const Text(
-                                        'Failed to load cakes',
-                                        style: TextStyle(
+                                      Text(
+                                        l10n.failedToLoadCakes,
+                                        style: const TextStyle(
                                           color: AppTheme.textPrimary,
                                           fontSize: 13, // Reduced from 14
                                           fontWeight: FontWeight.w600,
@@ -698,9 +719,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 16),
                                           ),
-                                          child: const Text(
-                                            'Retry',
-                                            style: TextStyle(fontSize: 12),
+                                          child: Text(
+                                            l10n.tryAgain,
+                                            style: const TextStyle(fontSize: 12),
                                           ),
                                         ),
                                       ),
@@ -760,11 +781,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
   }
 
-  Widget _buildModernCategoryCard(String title, IconData icon, Color color) {
-    final isSelected = _selectedCategory == title;
+  Widget _buildModernCategoryCard(String categoryKey, String localizedTitle, IconData icon, Color color) {
+    final isSelected = _selectedCategory == categoryKey;
 
     return GestureDetector(
-      onTap: () => _selectCategory(title),
+      onTap: () => _selectCategory(categoryKey),
       child: Container(
         width: 100,
         margin: const EdgeInsets.only(right: 16),
@@ -780,52 +801,63 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             ),
           ],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [color, color.withValues(alpha: 0.7)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    color: color.withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [color, color.withValues(alpha: 0.7)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                ],
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: color.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  icon,
+                  color: Colors.white,
+                  size: 22,
+                ),
               ),
-              child: Icon(
-                icon,
-                color: Colors.white,
-                size: 24,
+              const SizedBox(height: 8),
+              Flexible(
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Text(
+                    localizedTitle,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textPrimary,
+                      height: 1.2,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textPrimary,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildModernCakeCard(BuildContext context, CakeStyle cake) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
@@ -1005,9 +1037,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             borderRadius: BorderRadius.circular(14),
                           ),
                         ),
-                        child: const Text(
-                          'Add to Cart',
-                          style: TextStyle(
+                        child: Text(
+                          l10n.addToCart,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -1045,6 +1077,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Widget _buildBottomNavigationBar(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: const BoxDecoration(
         color: AppTheme.primaryColor,
@@ -1072,22 +1105,22 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           unselectedItemColor: Colors.white.withAlpha(179),
           currentIndex: 0,
           elevation: 0,
-          items: const [
+          items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
+              icon: const Icon(Icons.home),
+              label: l10n.home,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.school),
-              label: 'Training',
+              icon: const Icon(Icons.school),
+              label: l10n.training,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart),
-              label: 'Cart',
+              icon: const Icon(Icons.shopping_cart),
+              label: l10n.cart,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Profile',
+              icon: const Icon(Icons.person),
+              label: l10n.profile,
             ),
           ],
           onTap: (index) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../shared/theme/app_theme.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class PrivacySecurityScreen extends StatefulWidget {
   const PrivacySecurityScreen({super.key});
@@ -24,7 +25,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text('Privacy & Security'),
+        title: Text(AppLocalizations.of(context)!.privacySecurity),
         backgroundColor: AppTheme.surfaceColor,
         elevation: 0,
       ),
@@ -77,7 +78,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
               ),
               const SizedBox(width: 12),
               Text(
-                'Security',
+                AppLocalizations.of(context)!.security,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: AppTheme.textPrimary,
@@ -128,8 +129,8 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
           // Change Password
           _buildActionTile(
             icon: Icons.lock_outline,
-            title: 'Change Password',
-            subtitle: 'Update your account password',
+            title: AppLocalizations.of(context)!.changePassword,
+            subtitle: AppLocalizations.of(context)!.updateAccountPassword,
             onTap: () {
               HapticFeedback.lightImpact();
               _showChangePasswordDialog();
@@ -141,8 +142,8 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
           // Active Sessions
           _buildActionTile(
             icon: Icons.devices,
-            title: 'Active Sessions',
-            subtitle: 'Manage devices logged into your account',
+            title: AppLocalizations.of(context)!.activeSessions,
+            subtitle: AppLocalizations.of(context)!.manageDevicesLoggedIn,
             onTap: () {
               HapticFeedback.lightImpact();
               _showActiveSessionsDialog();
@@ -380,7 +381,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
               ),
               const SizedBox(width: 12),
               Text(
-                'Account Actions',
+                AppLocalizations.of(context)!.accountActions,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: AppTheme.textPrimary,
@@ -393,8 +394,8 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
           // Deactivate Account
           _buildActionTile(
             icon: Icons.pause_circle_outline,
-            title: 'Deactivate Account',
-            subtitle: 'Temporarily disable your account',
+            title: AppLocalizations.of(context)!.deactivateAccount,
+            subtitle: AppLocalizations.of(context)!.deactivateAccountMessage.split('.')[0] + '.',
             onTap: () {
               HapticFeedback.lightImpact();
               _showDeactivateAccountDialog();
@@ -407,8 +408,8 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
           // Delete Account
           _buildActionTile(
             icon: Icons.delete_forever,
-            title: 'Delete Account',
-            subtitle: 'Permanently delete your account and data',
+            title: AppLocalizations.of(context)!.deleteAccount,
+            subtitle: AppLocalizations.of(context)!.deleteAccountMessage.split('.')[0] + '.',
             onTap: () {
               HapticFeedback.mediumImpact();
               _showDeleteAccountDialog();
@@ -584,33 +585,34 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
   */
 
   void _showChangePasswordDialog() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Change Password'),
-        content: const Column(
+        title: Text(l10n.changePassword),
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               decoration: InputDecoration(
-                labelText: 'Current Password',
-                border: OutlineInputBorder(),
+                labelText: l10n.currentPassword,
+                border: const OutlineInputBorder(),
               ),
               obscureText: true,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextField(
               decoration: InputDecoration(
-                labelText: 'New Password',
-                border: OutlineInputBorder(),
+                labelText: l10n.newPassword,
+                border: const OutlineInputBorder(),
               ),
               obscureText: true,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextField(
               decoration: InputDecoration(
-                labelText: 'Confirm New Password',
-                border: OutlineInputBorder(),
+                labelText: l10n.confirmNewPassword,
+                border: const OutlineInputBorder(),
               ),
               obscureText: true,
             ),
@@ -619,14 +621,14 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Password changed successfully!'),
+                SnackBar(
+                  content: Text(l10n.passwordChangedSuccessfully),
                   backgroundColor: AppTheme.successColor,
                 ),
               );
@@ -635,7 +637,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
               backgroundColor: AppTheme.accentColor,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Change'),
+            child: Text(l10n.save),
           ),
         ],
       ),
@@ -643,31 +645,32 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
   }
 
   void _showActiveSessionsDialog() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Active Sessions'),
-        content: const Column(
+        title: Text(l10n.activeSessions),
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(Icons.phone_android),
-              title: Text('This Device'),
-              subtitle: Text('Pixel 4a • Active now'),
-              trailing: Chip(label: Text('Current')),
+              leading: const Icon(Icons.phone_android),
+              title: Text(l10n.thisDevice),
+              subtitle: Text('Pixel 4a • ${l10n.activeNow}'),
+              trailing: Chip(label: Text(l10n.current)),
             ),
             ListTile(
-              leading: Icon(Icons.computer),
-              title: Text('Web Browser'),
-              subtitle: Text('Chrome • 2 days ago'),
-              trailing: Icon(Icons.more_vert),
+              leading: const Icon(Icons.computer),
+              title: Text(l10n.webBrowser),
+              subtitle: Text(l10n.daysAgo(2)),
+              trailing: const Icon(Icons.more_vert),
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
+            child: Text(l10n.close),
           ),
         ],
       ),
@@ -777,24 +780,23 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
   */
 
   void _showDeactivateAccountDialog() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Deactivate Account'),
-        content: const Text(
-          'Your account will be temporarily disabled. You can reactivate it anytime by logging in.',
-        ),
+        title: Text(l10n.deactivateAccount),
+        content: Text(l10n.deactivateAccountMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Account deactivated'),
+                SnackBar(
+                  content: Text(l10n.accountDeactivated),
                   backgroundColor: AppTheme.errorColor,
                 ),
               );
@@ -803,7 +805,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
               backgroundColor: AppTheme.errorColor,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Deactivate'),
+            child: Text(l10n.deactivate),
           ),
         ],
       ),
@@ -811,24 +813,23 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
   }
 
   void _showDeleteAccountDialog() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Account'),
-        content: const Text(
-          'This action cannot be undone. All your data will be permanently deleted.',
-        ),
+        title: Text(l10n.deleteAccount),
+        content: Text(l10n.deleteAccountMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Account deletion requires email verification'),
+                SnackBar(
+                  content: Text(l10n.accountDeletionRequiresVerification),
                   backgroundColor: AppTheme.errorColor,
                 ),
               );
@@ -837,7 +838,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
               backgroundColor: AppTheme.errorColor,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),

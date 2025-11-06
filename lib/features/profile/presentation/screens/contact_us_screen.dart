@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../../shared/widgets/loading_overlay.dart';
 import '../../../../core/services/contact_service.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class ContactUsScreen extends StatefulWidget {
   const ContactUsScreen({super.key});
@@ -49,11 +50,11 @@ class _ContactUsScreenState extends State<ContactUsScreen>
   Widget build(BuildContext context) {
     return LoadingOverlay(
       isLoading: _isLoading,
-      message: 'Sending your message...',
+      message: AppLocalizations.of(context)!.sendingYourMessage,
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
         appBar: AppBar(
-          title: const Text('Contact Us'),
+          title: Text(AppLocalizations.of(context)!.contactUs),
           backgroundColor: AppTheme.surfaceColor,
           elevation: 0,
           bottom: TabBar(
@@ -62,10 +63,10 @@ class _ContactUsScreenState extends State<ContactUsScreen>
             unselectedLabelColor: AppTheme.textSecondary,
             indicatorColor: AppTheme.accentColor,
             onTap: (index) => HapticFeedback.lightImpact(),
-            tabs: const [
-              Tab(text: 'Contact', icon: Icon(Icons.contact_support)),
-              Tab(text: 'Location', icon: Icon(Icons.location_on)),
-              Tab(text: 'Hours', icon: Icon(Icons.access_time)),
+            tabs: [
+              Tab(text: AppLocalizations.of(context)!.contact, icon: const Icon(Icons.contact_support)),
+              Tab(text: AppLocalizations.of(context)!.location, icon: const Icon(Icons.location_on)),
+              Tab(text: AppLocalizations.of(context)!.hours, icon: const Icon(Icons.access_time)),
             ],
           ),
         ),
@@ -116,7 +117,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Get in Touch',
+            AppLocalizations.of(context)!.getInTouch,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: AppTheme.textPrimary,
@@ -127,7 +128,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
           // Phone
           _buildContactOption(
             icon: Icons.phone,
-            title: 'Call Us',
+            title: AppLocalizations.of(context)!.callUs,
             subtitle: '683 252 520',
             onTap: () {
               HapticFeedback.lightImpact();
@@ -140,7 +141,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
           // WhatsApp
           _buildContactOption(
             icon: Icons.chat,
-            title: 'WhatsApp',
+            title: AppLocalizations.of(context)!.whatsapp,
             subtitle: '683 252 520',
             color: const Color(0xFF25D366),
             onTap: () {
@@ -154,7 +155,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
           // Email
           _buildContactOption(
             icon: Icons.email,
-            title: 'Email',
+            title: AppLocalizations.of(context)!.email,
             subtitle: 'hello@denzelscakes.com',
             onTap: () {
               HapticFeedback.lightImpact();
@@ -252,7 +253,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Send us a Message',
+              AppLocalizations.of(context)!.sendUsAMessage,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: AppTheme.textPrimary,
@@ -263,13 +264,13 @@ class _ContactUsScreenState extends State<ContactUsScreen>
             // Name Field
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Your Name',
-                prefixIcon: Icon(Icons.person_outline),
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.yourName,
+                prefixIcon: const Icon(Icons.person_outline),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter your name';
+                  return AppLocalizations.of(context)!.pleaseEnterYourName;
                 }
                 return null;
               },
@@ -280,17 +281,17 @@ class _ContactUsScreenState extends State<ContactUsScreen>
             // Email Field
             TextFormField(
               controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email Address',
-                prefixIcon: Icon(Icons.email_outlined),
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.emailAddress,
+                prefixIcon: const Icon(Icons.email_outlined),
               ),
               keyboardType: TextInputType.emailAddress,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter your email';
+                  return AppLocalizations.of(context)!.pleaseEnterYourEmail;
                 }
                 if (!value.contains('@')) {
-                  return 'Please enter a valid email';
+                  return AppLocalizations.of(context)!.pleaseEnterValidEmail;
                 }
                 return null;
               },
@@ -301,13 +302,13 @@ class _ContactUsScreenState extends State<ContactUsScreen>
             // Subject Field
             TextFormField(
               controller: _subjectController,
-              decoration: const InputDecoration(
-                labelText: 'Subject',
-                prefixIcon: Icon(Icons.subject_outlined),
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.subject,
+                prefixIcon: const Icon(Icons.subject_outlined),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter a subject';
+                  return AppLocalizations.of(context)!.pleaseEnterASubject;
                 }
                 return null;
               },
@@ -318,15 +319,15 @@ class _ContactUsScreenState extends State<ContactUsScreen>
             // Message Field
             TextFormField(
               controller: _messageController,
-              decoration: const InputDecoration(
-                labelText: 'Message',
-                prefixIcon: Icon(Icons.message_outlined),
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.message,
+                prefixIcon: const Icon(Icons.message_outlined),
                 alignLabelWithHint: true,
               ),
               maxLines: 4,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter your message';
+                  return AppLocalizations.of(context)!.pleaseEnterYourMessage;
                 }
                 return null;
               },
@@ -354,7 +355,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                               AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       )
-                    : const Text('Send Message'),
+                    : Text(AppLocalizations.of(context)!.sendMessage),
               ),
             ),
           ],
@@ -441,8 +442,8 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              'Directions',
-                              style: TextStyle(
+                              AppLocalizations.of(context)!.directions,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
@@ -478,7 +479,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Our Location',
+                  AppLocalizations.of(context)!.ourLocation,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: AppTheme.textPrimary,
@@ -487,13 +488,13 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                 const SizedBox(height: 16),
                 _buildLocationDetail(
                   icon: Icons.location_on,
-                  title: 'Address',
+                  title: AppLocalizations.of(context)!.address,
                   subtitle: 'Makepe, Douala\nCameroon',
                 ),
                 const SizedBox(height: 16),
                 _buildLocationDetail(
                   icon: Icons.directions,
-                  title: 'Directions',
+                  title: AppLocalizations.of(context)!.directions,
                   subtitle: 'Opposite Tradex Rhone Poulenc',
                 ),
                 const SizedBox(height: 20),
@@ -505,7 +506,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                       _openMaps();
                     },
                     icon: const Icon(Icons.directions),
-                    label: const Text('Get Directions'),
+                    label: Text(AppLocalizations.of(context)!.directions),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.accentColor,
                       foregroundColor: Colors.white,
@@ -540,7 +541,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Business Hours',
+              AppLocalizations.of(context)!.businessHours,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: AppTheme.textPrimary,
@@ -698,15 +699,15 @@ class _ContactUsScreenState extends State<ContactUsScreen>
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Message sent successfully! We\'ll get back to you soon.'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.messageSentSuccessfully),
               backgroundColor: AppTheme.successColor,
-              duration: Duration(seconds: 3),
+              duration: const Duration(seconds: 3),
             ),
           );
         }
       } else {
-        throw Exception(response['message'] ?? 'Failed to send message');
+        throw Exception(response['message'] ?? AppLocalizations.of(context)!.failedToSendMessage);
       }
     } catch (e) {
       setState(() {
@@ -716,7 +717,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to send message: ${e.toString()}'),
+            content: Text('${AppLocalizations.of(context)!.failedToSendMessage}: ${e.toString()}'),
             backgroundColor: AppTheme.errorColor,
             duration: const Duration(seconds: 4),
           ),

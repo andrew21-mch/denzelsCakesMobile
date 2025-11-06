@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/models/training_model.dart';
 import '../../../../shared/theme/app_theme.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class TrainingScreen extends StatefulWidget {
   const TrainingScreen({super.key});
@@ -145,15 +146,16 @@ class _TrainingScreenState extends State<TrainingScreen>
   }
 
   String _getStatusText(String status) {
+    final l10n = AppLocalizations.of(context)!;
     switch (status) {
       case 'current':
-        return 'Currently Running';
+        return l10n.currentlyRunning;
       case 'completed':
-        return 'Completed';
+        return l10n.completed;
       case 'upcoming':
-        return 'Upcoming';
+        return l10n.upcoming;
       default:
-        return 'Upcoming';
+        return l10n.upcoming;
     }
   }
 
@@ -282,7 +284,9 @@ class _TrainingScreenState extends State<TrainingScreen>
                       ),
                     ),
                     child: Text(
-                      period.isCurrentPeriod ? 'View Progress' : 'View Details',
+                      period.isCurrentPeriod 
+                          ? AppLocalizations.of(context)!.viewProgress 
+                          : AppLocalizations.of(context)!.viewDetails,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -394,9 +398,9 @@ class _TrainingScreenState extends State<TrainingScreen>
                       ),
                     ),
                     const SizedBox(height: 24),
-                    const Text(
-                      'Topics Covered',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.topicsCovered,
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.textPrimary,
@@ -513,22 +517,22 @@ class _TrainingScreenState extends State<TrainingScreen>
                       ),
                     ),
                     const SizedBox(width: 16),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Training Schedule',
-                            style: TextStyle(
+                            AppLocalizations.of(context)!.trainingSchedule,
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: AppTheme.textPrimary,
                             ),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
-                            'Master the art of cake decoration',
-                            style: TextStyle(
+                            AppLocalizations.of(context)!.masterArtOfCakeDecoration,
+                            style: const TextStyle(
                               fontSize: 14,
                               color: AppTheme.textSecondary,
                             ),

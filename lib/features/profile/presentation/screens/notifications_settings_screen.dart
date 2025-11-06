@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../shared/theme/app_theme.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class NotificationsSettingsScreen extends StatefulWidget {
   const NotificationsSettingsScreen({super.key});
@@ -23,15 +24,15 @@ class _NotificationsSettingsScreenState
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text('Notification Settings'),
+        title: Text(AppLocalizations.of(context)!.notificationSettings),
         backgroundColor: AppTheme.surfaceColor,
         elevation: 0,
         actions: [
           TextButton(
             onPressed: _saveSettings,
-            child: const Text(
-              'Save',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context)!.save,
+              style: const TextStyle(
                 color: AppTheme.accentColor,
                 fontWeight: FontWeight.w600,
               ),
@@ -44,12 +45,12 @@ class _NotificationsSettingsScreenState
         children: [
           // Simplified notification settings - only 4 options
           _buildSectionCard(
-            title: 'Notification Preferences',
+            title: AppLocalizations.of(context)!.notificationPreferences,
             children: [
               _buildSwitchTile(
                 icon: Icons.notifications_outlined,
-                title: 'Push Notifications',
-                subtitle: 'Receive notifications on your device',
+                title: AppLocalizations.of(context)!.pushNotifications,
+                subtitle: AppLocalizations.of(context)!.receiveNotificationsOnDevice,
                 value: _pushNotifications,
                 onChanged: (value) {
                   setState(() {
@@ -59,8 +60,8 @@ class _NotificationsSettingsScreenState
               ),
               _buildSwitchTile(
                 icon: Icons.shopping_bag_outlined,
-                title: 'Order Updates',
-                subtitle: 'Order confirmations, preparation, and delivery updates',
+                title: AppLocalizations.of(context)!.orderUpdates,
+                subtitle: AppLocalizations.of(context)!.orderUpdatesDesc,
                 value: _orderUpdates,
                 onChanged: _pushNotifications
                     ? (value) {
@@ -72,8 +73,8 @@ class _NotificationsSettingsScreenState
               ),
               _buildSwitchTile(
                 icon: Icons.local_offer_outlined,
-                title: 'Promotions & Offers',
-                subtitle: 'Special deals and new product announcements',
+                title: AppLocalizations.of(context)!.promotionsOffers,
+                subtitle: AppLocalizations.of(context)!.promotionsOffersDesc,
                 value: _promotions,
                 onChanged: _pushNotifications
                     ? (value) {
@@ -85,8 +86,8 @@ class _NotificationsSettingsScreenState
               ),
               _buildSwitchTile(
                 icon: Icons.security_outlined,
-                title: 'Security Alerts',
-                subtitle: 'Important security notifications and account activity',
+                title: AppLocalizations.of(context)!.securityAlerts,
+                subtitle: AppLocalizations.of(context)!.securityAlertsDesc,
                 value: _securityAlerts,
                 onChanged: _pushNotifications
                     ? (value) {
@@ -109,7 +110,7 @@ class _NotificationsSettingsScreenState
                 foregroundColor: AppTheme.textSecondary,
                 side: const BorderSide(color: AppTheme.borderColor),
               ),
-              child: const Text('Reset to Defaults'),
+              child: Text(AppLocalizations.of(context)!.resetToDefaults),
             ),
           ),
 
@@ -197,31 +198,31 @@ class _NotificationsSettingsScreenState
   }
 
   void _saveSettings() {
+    final l10n = AppLocalizations.of(context)!;
     HapticFeedback.lightImpact();
 
     // In a real app, save settings to backend/local storage
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Notification settings saved!'),
+      SnackBar(
+        content: Text(l10n.notificationSettingsSaved),
         backgroundColor: AppTheme.successColor,
       ),
     );
   }
 
   void _resetToDefaults() {
+    final l10n = AppLocalizations.of(context)!;
     HapticFeedback.lightImpact();
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Reset to Defaults'),
-        content: const Text(
-          'This will reset all notification settings to their default values. Are you sure?',
-        ),
+        title: Text(l10n.resetToDefaultsTitle),
+        content: Text(l10n.resetToDefaultsMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -235,15 +236,15 @@ class _NotificationsSettingsScreenState
 
               Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Settings reset to defaults'),
+                SnackBar(
+                  content: Text(l10n.settingsResetToDefaults),
                   backgroundColor: AppTheme.successColor,
                 ),
               );
             },
-            child: const Text(
-              'Reset',
-              style: TextStyle(color: AppTheme.errorColor),
+            child: Text(
+              l10n.reset,
+              style: const TextStyle(color: AppTheme.errorColor),
             ),
           ),
         ],

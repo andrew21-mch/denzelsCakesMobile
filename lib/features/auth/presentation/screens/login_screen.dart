@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:denzels_cakes/l10n/app_localizations.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../../shared/widgets/loading_overlay.dart';
 import '../../data/auth_repository.dart';
@@ -27,6 +28,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final l10n = AppLocalizations.of(context)!;
+    
     setState(() {
       _isLoading = true;
     });
@@ -54,10 +57,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Login successful!'),
+          SnackBar(
+            content: Text(l10n.loginSuccessful),
             backgroundColor: AppTheme.successColor,
-            duration: Duration(seconds: 2),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -70,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // Show error message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Login failed: ${e.toString()}'),
+            content: Text('${l10n.loginFailed}: ${e.toString()}'),
             backgroundColor: AppTheme.errorColor,
             duration: const Duration(seconds: 3),
           ),
@@ -81,9 +84,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return LoadingOverlay(
       isLoading: _isLoading,
-      message: 'Signing you in...',
+      message: l10n.signingYouIn,
       child: Scaffold(
         body: Container(
         decoration: const BoxDecoration(
@@ -151,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         shaderCallback: (bounds) =>
                             AppTheme.primaryGradient.createShader(bounds),
                         child: Text(
-                          'Welcome Back to',
+                          l10n.welcomeBackTo,
                           style: Theme.of(context)
                               .textTheme
                               .headlineMedium
@@ -168,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         shaderCallback: (bounds) =>
                             AppTheme.primaryGradient.createShader(bounds),
                         child: Text(
-                          'Denzel\'s Cake Shop',
+                          l10n.denzelsCakeShop,
                           style: Theme.of(context)
                               .textTheme
                               .headlineLarge
@@ -183,7 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 8), // Reduced from 12
 
                       Text(
-                        'Sign in to order your favorite cakes and explore our delicious collection',
+                        l10n.signInToOrder,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                               color: AppTheme.textSecondary,
@@ -272,7 +277,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               controller: _passwordController,
                               obscureText: !_isPasswordVisible,
                               decoration: InputDecoration(
-                                labelText: 'Password',
+                                labelText: l10n.password,
                                 prefixIcon: const Icon(Icons.lock, size: 20),
                                 suffixIcon: IconButton(
                                   icon: Icon(
@@ -287,10 +292,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 contentPadding: const EdgeInsets.symmetric(
                                     horizontal: 16, vertical: 8),
                                 border: const OutlineInputBorder(),
+                                hintText: l10n.enterPassword,
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter your password';
+                                  return l10n.pleaseEnterPassword;
                                 }
                                 return null;
                               },
@@ -324,9 +330,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                                 Colors.white),
                                       ),
                                     )
-                                  : const Text(
-                                      'Sign In',
-                                      style: TextStyle(
+                                  : Text(
+                                      l10n.signIn,
+                                      style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -347,9 +353,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          "Don't have an account? ",
-                          style: TextStyle(
+                        Text(
+                          "${l10n.dontHaveAccount} ",
+                          style: const TextStyle(
                             color: AppTheme.textSecondary,
                             fontSize: 15,
                             fontWeight: FontWeight.w400,
@@ -364,8 +370,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: ShaderMask(
                               shaderCallback: (bounds) =>
                                   AppTheme.accentGradient.createShader(bounds),
-                              child: const Text(
-                                'Sign Up',
+                              child: Text(
+                                l10n.signUp,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 15,

@@ -17,6 +17,7 @@ import '../../../../core/models/country_model.dart';
 import '../../../profile/presentation/screens/payment_methods_screen.dart';
 import '../../../profile/presentation/screens/add_address_with_map_screen.dart';
 import 'payment_waiting_screen.dart';
+import 'package:denzels_cakes/l10n/app_localizations.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -124,9 +125,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       setState(() => _isLoading = false);
 
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to load data: $e'),
+            content: Text('${l10n.failedToLoadData}: $e'),
             backgroundColor: AppTheme.errorColor,
           ),
         );
@@ -154,9 +156,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
       // Show success message
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Address added successfully!'),
+          SnackBar(
+            content: Text(l10n.addressAddedSuccessfully),
             backgroundColor: AppTheme.successColor,
           ),
         );
@@ -166,11 +169,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (_isLoading) {
       return Scaffold(
         backgroundColor: AppTheme.backgroundColor,
         appBar: AppBar(
-          title: const Text('Checkout'),
+          title: Text(l10n.checkout),
           backgroundColor: AppTheme.backgroundColor,
           elevation: 0,
         ),
@@ -181,14 +185,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         ),
       );
     }
-
+    
     return LoadingOverlay(
       isLoading: _isPlacingOrder,
-      message: 'Placing your order...',
+      message: l10n.placingYourOrder,
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
         appBar: AppBar(
-          title: const Text('Checkout'),
+          title: Text(l10n.checkout),
           backgroundColor: AppTheme.backgroundColor,
           elevation: 0,
         ),
@@ -1659,8 +1663,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Choose Cake Color'),
+      builder: (context) {
+        final l10n = AppLocalizations.of(context)!;
+        return AlertDialog(
+        title: Text(l10n.chooseCakeColor),
         content: SizedBox(
           width: 350,
           height: 500,
@@ -1765,8 +1771,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             child: const Text('Done'),
           ),
         ],
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildHSVColorPicker(String itemId, Color currentColor) {
@@ -1950,9 +1956,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         });
       }
     } catch (e) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error picking images: $e'),
+          content: Text('${l10n.errorPickingImages}: $e'),
           backgroundColor: AppTheme.errorColor,
         ),
       );
@@ -2627,9 +2634,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       setState(() => _isPlacingOrder = false);
 
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to place order: $e'),
+            content: Text('${l10n.failedToPlaceOrder}: $e'),
             backgroundColor: AppTheme.errorColor,
           ),
         );

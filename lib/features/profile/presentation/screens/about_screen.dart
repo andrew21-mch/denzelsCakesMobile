@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../shared/theme/app_theme.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -10,7 +11,7 @@ class AboutScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text('About DenzelsCakes'),
+        title: Text(AppLocalizations.of(context)!.aboutDenzelsCakes),
         backgroundColor: AppTheme.surfaceColor,
         elevation: 0,
       ),
@@ -111,7 +112,7 @@ class AboutScreen extends StatelessWidget {
 
           // Version
           Text(
-            'Version 1.0.0',
+            '${AppLocalizations.of(context)!.version} 1.0.0',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppTheme.textSecondary,
                 ),
@@ -121,7 +122,7 @@ class AboutScreen extends StatelessWidget {
 
           // Tagline
           Text(
-            'Delicious cakes delivered fresh to your doorstep in Cameroon',
+            AppLocalizations.of(context)!.aboutTagline,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: AppTheme.textSecondary,
                   height: 1.5,
@@ -151,7 +152,7 @@ class AboutScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Our Story',
+            AppLocalizations.of(context)!.ourStory,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: AppTheme.textPrimary,
@@ -159,8 +160,7 @@ class AboutScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Founded in 2020, Denzel\'s Cakes began as a passion project to bring the finest, freshest cakes to the people of Cameroon. Our journey started in a small kitchen in Douala with a simple mission: to create memorable moments through exceptional cakes.\n\n'
-            'Today, we\'re proud to serve customers across Cameroon with our handcrafted cakes, made with love and the finest local ingredients. Every cake tells a story, and we\'re honored to be part of your special moments.',
+            AppLocalizations.of(context)!.ourStoryText,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppTheme.textSecondary,
                   height: 1.6,
@@ -189,7 +189,7 @@ class AboutScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'What We Offer',
+            AppLocalizations.of(context)!.whatWeOffer,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: AppTheme.textPrimary,
@@ -198,29 +198,28 @@ class AboutScreen extends StatelessWidget {
           const SizedBox(height: 16),
           _buildFeatureItem(
             icon: Icons.cake_outlined,
-            title: 'Fresh Cakes Daily',
-            description: 'Baked fresh every day with premium ingredients',
+            title: AppLocalizations.of(context)!.freshCakesDaily,
+            description: AppLocalizations.of(context)!.freshCakesDailyDesc,
           ),
           _buildFeatureItem(
             icon: Icons.delivery_dining,
-            title: 'Fast Delivery',
-            description:
-                'Same-day delivery across Yaoundé and surrounding areas',
+            title: AppLocalizations.of(context)!.fastDelivery,
+            description: AppLocalizations.of(context)!.fastDeliveryDesc,
           ),
           _buildFeatureItem(
             icon: Icons.palette,
-            title: 'Custom Designs',
-            description: 'Personalized cakes for your special occasions',
+            title: AppLocalizations.of(context)!.customDesigns,
+            description: AppLocalizations.of(context)!.customDesignsDesc,
           ),
           _buildFeatureItem(
             icon: Icons.payment,
-            title: 'Easy Payment',
-            description: 'Pay with cards or mobile money (MTN, Orange)',
+            title: AppLocalizations.of(context)!.easyPayment,
+            description: AppLocalizations.of(context)!.easyPaymentDesc,
           ),
           _buildFeatureItem(
             icon: Icons.support_agent,
-            title: '24/7 Support',
-            description: 'Customer support whenever you need us',
+            title: AppLocalizations.of(context)!.support247,
+            description: AppLocalizations.of(context)!.support247Desc,
           ),
         ],
       ),
@@ -297,7 +296,7 @@ class AboutScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Our Team',
+            AppLocalizations.of(context)!.ourTeam,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: AppTheme.textPrimary,
@@ -306,18 +305,18 @@ class AboutScreen extends StatelessWidget {
           const SizedBox(height: 16),
           _buildTeamMember(
             name: 'Marie Dubois',
-            role: 'Head Baker & Founder',
-            description: '15+ years of baking experience',
+            role: AppLocalizations.of(context)!.headBakerFounder,
+            description: AppLocalizations.of(context)!.yearsBakingExperience,
           ),
           _buildTeamMember(
             name: 'Jean Kamga',
-            role: 'Pastry Chef',
-            description: 'Specialist in custom cake designs',
+            role: AppLocalizations.of(context)!.pastryChef,
+            description: AppLocalizations.of(context)!.specialistCustomCakes,
           ),
           _buildTeamMember(
             name: 'Sarah Nkomo',
-            role: 'Customer Success',
-            description: 'Ensuring every customer is happy',
+            role: AppLocalizations.of(context)!.customerSuccess,
+            description: AppLocalizations.of(context)!.ensuringCustomerHappy,
           ),
         ],
       ),
@@ -395,7 +394,7 @@ class AboutScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Contact Us',
+            AppLocalizations.of(context)!.contactUs,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: AppTheme.textPrimary,
@@ -406,8 +405,8 @@ class AboutScreen extends StatelessWidget {
           // Location
           _buildContactItem(
             icon: Icons.location_on,
-            title: 'Location',
-            subtitle: 'Makepe, Douala\nCameroon\nOpposite Tradex Rhone Poulenc',
+            title: AppLocalizations.of(context)!.location,
+            subtitle: AppLocalizations.of(context)!.locationAddress,
           ),
 
           const SizedBox(height: 16),
@@ -415,7 +414,7 @@ class AboutScreen extends StatelessWidget {
           // Phone
           _buildContactItem(
             icon: Icons.phone,
-            title: 'Call Us',
+            title: AppLocalizations.of(context)!.callUs,
             subtitle: '683 252 520',
           ),
 
@@ -424,7 +423,7 @@ class AboutScreen extends StatelessWidget {
           // WhatsApp
           _buildContactItem(
             icon: Icons.message,
-            title: 'WhatsApp',
+            title: AppLocalizations.of(context)!.whatsapp,
             subtitle: '683 252 520',
           ),
 
@@ -433,7 +432,7 @@ class AboutScreen extends StatelessWidget {
           // Email
           _buildContactItem(
             icon: Icons.email,
-            title: 'Email',
+            title: AppLocalizations.of(context)!.email,
             subtitle: 'hello@denzelscakes.com',
           ),
         ],
@@ -506,7 +505,7 @@ class AboutScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Legal & Credits',
+            AppLocalizations.of(context)!.legalCredits,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: AppTheme.textPrimary,
@@ -515,7 +514,7 @@ class AboutScreen extends StatelessWidget {
           const SizedBox(height: 16),
 
           _buildLegalItem(
-            title: 'Privacy Policy',
+            title: AppLocalizations.of(context)!.privacyPolicy,
             onTap: () {
               HapticFeedback.lightImpact();
               _showPrivacyPolicy(context);
@@ -523,7 +522,7 @@ class AboutScreen extends StatelessWidget {
           ),
 
           _buildLegalItem(
-            title: 'Terms of Service',
+            title: AppLocalizations.of(context)!.termsOfService,
             onTap: () {
               HapticFeedback.lightImpact();
               _showTermsOfService(context);
@@ -531,7 +530,7 @@ class AboutScreen extends StatelessWidget {
           ),
 
           _buildLegalItem(
-            title: 'Open Source Licenses',
+            title: AppLocalizations.of(context)!.openSourceLicenses,
             onTap: () {
               HapticFeedback.lightImpact();
               _showLicenses(context);
@@ -543,7 +542,7 @@ class AboutScreen extends StatelessWidget {
           // Copyright
           Center(
             child: Text(
-              '© 2020 DenzelsCakes Cameroon\nAll rights reserved',
+              AppLocalizations.of(context)!.copyright,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: AppTheme.textTertiary,
                   ),
@@ -590,31 +589,21 @@ class AboutScreen extends StatelessWidget {
   }
 
   void _showPrivacyPolicy(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Privacy Policy'),
-        content: const SingleChildScrollView(
+        title: Text(l10n.privacyPolicyTitle),
+        content: SingleChildScrollView(
           child: Text(
-            'At DenzelsCakes, we respect your privacy and are committed to protecting your personal information.\n\n'
-            'Information We Collect:\n'
-            '• Contact information (name, email, phone)\n'
-            '• Delivery addresses\n'
-            '• Order history and preferences\n'
-            '• Payment information (securely processed)\n\n'
-            'How We Use Your Information:\n'
-            '• Process and fulfill your orders\n'
-            '• Communicate about your orders\n'
-            '• Improve our services\n'
-            '• Send promotional offers (with consent)\n\n'
-            'We never sell your personal information to third parties.',
-            style: TextStyle(height: 1.5),
+            l10n.privacyPolicyText,
+            style: const TextStyle(height: 1.5),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
+            child: Text(l10n.close),
           ),
         ],
       ),
@@ -622,34 +611,21 @@ class AboutScreen extends StatelessWidget {
   }
 
   void _showTermsOfService(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Terms of Service'),
-        content: const SingleChildScrollView(
+        title: Text(l10n.termsOfServiceTitle),
+        content: SingleChildScrollView(
           child: Text(
-            'Welcome to DenzelsCakes! By using our service, you agree to these terms.\n\n'
-            'Orders:\n'
-            '• All orders are subject to availability\n'
-            '• Custom cakes require 24-48 hours notice\n'
-            '• Prices are in FCFA and include applicable taxes\n\n'
-            'Delivery:\n'
-            '• Delivery times are estimates\n'
-            '• Delivery fees apply based on location\n'
-            '• We are not responsible for delays due to weather or traffic\n\n'
-            'Cancellations:\n'
-            '• Orders can be cancelled within 2 hours of placement\n'
-            '• Custom orders may have different cancellation policies\n\n'
-            'Quality Guarantee:\n'
-            '• We guarantee the freshness and quality of our cakes\n'
-            '• Contact us within 24 hours for any quality issues',
-            style: TextStyle(height: 1.5),
+            l10n.termsOfServiceText,
+            style: const TextStyle(height: 1.5),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
+            child: Text(l10n.close),
           ),
         ],
       ),

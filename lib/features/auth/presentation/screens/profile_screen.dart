@@ -18,6 +18,7 @@ import '../../../profile/presentation/screens/about_screen.dart';
 import '../../../profile/presentation/screens/reviews_screen.dart';
 import '../../../profile/presentation/screens/edit_profile_screen.dart';
 import '../../data/auth_repository.dart';
+import 'package:denzels_cakes/l10n/app_localizations.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -124,9 +125,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } catch (e) {
 // print('DEBUG: Error during logout: $e');
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to logout'),
+          SnackBar(
+            content: Text('${l10n.logout}: ${l10n.error}'),
             backgroundColor: AppTheme.errorColor,
           ),
         );
@@ -145,12 +147,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        final l10n = AppLocalizations.of(context)!;
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          title: const Text(
-            'Edit Profile',
+          title: Text(
+            l10n.editProfile,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: AppTheme.textPrimary,
@@ -161,16 +164,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               TextField(
                 controller: nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Name',
+                decoration: InputDecoration(
+                  labelText: l10n.fullName,
                   border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
+                decoration: InputDecoration(
+                  labelText: l10n.email,
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.emailAddress,
@@ -178,8 +181,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 16),
               TextField(
                 controller: phoneController,
-                decoration: const InputDecoration(
-                  labelText: 'Phone',
+                decoration: InputDecoration(
+                  labelText: l10n.phoneNumber,
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.phone,
@@ -189,8 +192,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text(
-                'Cancel',
+              child: Text(
+                l10n.cancel,
                 style: TextStyle(
                   color: AppTheme.textSecondary,
                   fontWeight: FontWeight.w600,
@@ -220,9 +223,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       });
 
                       Navigator.of(context).pop();
+                      final l10n = AppLocalizations.of(context)!;
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Profile updated successfully!'),
+                        SnackBar(
+                          content: Text(l10n.save + '!'),
                           backgroundColor: AppTheme.successColor,
                         ),
                       );
@@ -232,16 +236,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   } catch (e) {
 // print('DEBUG: Error updating profile: $e');
                     Navigator.of(context).pop();
+                    final l10n = AppLocalizations.of(context)!;
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Failed to update profile'),
+                      SnackBar(
+                        content: Text('${l10n.error}: $e'),
                         backgroundColor: AppTheme.errorColor,
                       ),
                     );
                   }
                 },
-                child: const Text(
-                  'Save',
+                child: Text(
+                  l10n.save,
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
@@ -257,9 +262,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return LoadingOverlay(
       isLoading: _isLoading,
-      message: 'Loading profile...',
+      message: l10n.loadingProfile,
       child: Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -346,7 +352,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(height: 16),
                         // User Name
                         Text(
-                          _currentUser?.name ?? 'Guest User',
+                          _currentUser?.name ?? AppLocalizations.of(context)!.guestUser,
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -364,7 +370,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            _currentUser?.email ?? 'guest@example.com',
+                            _currentUser?.email ?? AppLocalizations.of(context)!.guestEmail,
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.white.withValues(alpha: 0.9),
@@ -431,19 +437,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         children: [
                           SizedBox(
                             width: (MediaQuery.of(context).size.width - 72) / 3,
-                            child: _buildStatsCard('Orders', '$_ordersCount',
+                            child: _buildStatsCard(AppLocalizations.of(context)!.orders, '$_ordersCount',
                                 Icons.receipt_long, AppTheme.accentColor),
                           ),
                           const SizedBox(width: 12),
                           SizedBox(
                             width: (MediaQuery.of(context).size.width - 72) / 3,
-                            child: _buildStatsCard('Favorites',
+                            child: _buildStatsCard(AppLocalizations.of(context)!.favorites,
                                 '$_favoritesCount', Icons.favorite, Colors.red),
                           ),
                           const SizedBox(width: 12),
                           SizedBox(
                             width: (MediaQuery.of(context).size.width - 72) / 3,
-                            child: _buildStatsCard('Reviews', '$_reviewsCount',
+                            child: _buildStatsCard(AppLocalizations.of(context)!.reviews, '$_reviewsCount',
                                 Icons.star, Colors.amber),
                           ),
                         ],
@@ -453,13 +459,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 32),
 
                     // Account Section
-                    _buildSectionTitle('Account'),
+                    _buildSectionTitle(AppLocalizations.of(context)!.account),
                     const SizedBox(height: 16),
                     _buildModernProfileCard([
                       _buildModernProfileItem(
                         icon: Icons.person_outline,
-                        title: 'Edit Profile',
-                        subtitle: 'Update your personal information',
+                        title: AppLocalizations.of(context)!.editProfile,
+                        subtitle: AppLocalizations.of(context)!.updateYourPersonalInformation,
                         color: AppTheme.accentColor,
                         onTap: () {
                           Navigator.of(context)
@@ -475,8 +481,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       _buildModernProfileItem(
                         icon: Icons.location_on_outlined,
-                        title: 'Addresses',
-                        subtitle: 'Manage delivery addresses',
+                        title: AppLocalizations.of(context)!.addresses,
+                        subtitle: AppLocalizations.of(context)!.manageDeliveryAddresses,
                         color: Colors.green,
                         onTap: () {
                           Navigator.of(context).push(
@@ -488,8 +494,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       _buildModernProfileItem(
                         icon: Icons.payment_outlined,
-                        title: 'Payment Methods',
-                        subtitle: 'Manage cards and payment options',
+                        title: AppLocalizations.of(context)!.paymentMethods,
+                        subtitle: AppLocalizations.of(context)!.manageCardsAndPaymentOptions,
                         color: Colors.blue,
                         onTap: () {
                           Navigator.of(context).push(
@@ -505,13 +511,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 24),
 
                     // Orders Section
-                    _buildSectionTitle('Orders & Preferences'),
+                    _buildSectionTitle(AppLocalizations.of(context)!.ordersPreferences),
                     const SizedBox(height: 16),
                     _buildModernProfileCard([
                       _buildModernProfileItem(
                         icon: Icons.history,
-                        title: 'Order History',
-                        subtitle: 'View your past orders',
+                        title: AppLocalizations.of(context)!.orderHistory,
+                        subtitle: AppLocalizations.of(context)!.viewYourPastOrders,
                         color: AppTheme.primaryColor,
                         onTap: () {
                           Navigator.of(context).push(
@@ -523,8 +529,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       _buildModernProfileItem(
                         icon: Icons.favorite_outline,
-                        title: 'Favorites',
-                        subtitle: 'Your favorite cakes',
+                        title: AppLocalizations.of(context)!.favorites,
+                        subtitle: AppLocalizations.of(context)!.yourFavoriteCakes,
                         color: Colors.red,
                         onTap: () {
                           Navigator.of(context).pushNamed('/favorites');
@@ -532,8 +538,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       _buildModernProfileItem(
                         icon: Icons.rate_review_outlined,
-                        title: 'Reviews',
-                        subtitle: 'Your reviews and ratings',
+                        title: AppLocalizations.of(context)!.reviews,
+                        subtitle: AppLocalizations.of(context)!.yourReviewsAndRatings,
                         color: Colors.amber,
                         onTap: () {
                           Navigator.of(context).push(
@@ -548,13 +554,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 24),
 
                     // Support Section
-                    _buildSectionTitle('Support & Settings'),
+                    _buildSectionTitle(AppLocalizations.of(context)!.supportSettings),
                     const SizedBox(height: 16),
                     _buildModernProfileCard([
                       _buildModernProfileItem(
                         icon: Icons.help_outline,
-                        title: 'Help Center',
-                        subtitle: 'Get help and support',
+                        title: AppLocalizations.of(context)!.helpCenter,
+                        subtitle: AppLocalizations.of(context)!.getHelpAndSupport,
                         color: Colors.purple,
                         onTap: () {
                           Navigator.of(context).push(
@@ -566,8 +572,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       _buildModernProfileItem(
                         icon: Icons.phone_outlined,
-                        title: 'Contact Us',
-                        subtitle: 'Get in touch with us',
+                        title: AppLocalizations.of(context)!.contactUs,
+                        subtitle: AppLocalizations.of(context)!.getInTouchWithUs,
                         color: Colors.orange,
                         onTap: () {
                           Navigator.of(context).push(
@@ -579,8 +585,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       _buildModernProfileItem(
                         icon: Icons.notifications_outlined,
-                        title: 'Notifications',
-                        subtitle: 'Manage notification settings',
+                        title: AppLocalizations.of(context)!.notifications,
+                        subtitle: AppLocalizations.of(context)!.manageNotificationSettings,
                         color: Colors.indigo,
                         onTap: () {
                           Navigator.of(context).push(
@@ -593,8 +599,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       _buildModernProfileItem(
                         icon: Icons.language_outlined,
-                        title: 'Language',
-                        subtitle: 'Change app language',
+                        title: AppLocalizations.of(context)!.language,
+                        subtitle: AppLocalizations.of(context)!.changeAppLanguage,
                         color: Colors.teal,
                         onTap: () {
                           Navigator.of(context).push(
@@ -609,13 +615,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 24),
 
                     // Legal Section
-                    _buildSectionTitle('Legal & Privacy'),
+                    _buildSectionTitle(AppLocalizations.of(context)!.legalPrivacy),
                     const SizedBox(height: 16),
                     _buildModernProfileCard([
                       _buildModernProfileItem(
                         icon: Icons.privacy_tip_outlined,
-                        title: 'Privacy & Security',
-                        subtitle: 'Privacy settings and security',
+                        title: AppLocalizations.of(context)!.privacySecurity,
+                        subtitle: AppLocalizations.of(context)!.privacySettingsAndSecurity,
                         color: Colors.cyan,
                         onTap: () {
                           Navigator.of(context).push(
@@ -628,8 +634,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       _buildModernProfileItem(
                         icon: Icons.info_outline,
-                        title: 'About',
-                        subtitle: 'App version and information',
+                        title: AppLocalizations.of(context)!.about,
+                        subtitle: AppLocalizations.of(context)!.appVersionAndInformation,
                         color: Colors.grey,
                         onTap: () {
                           Navigator.of(context).push(
@@ -676,8 +682,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: const Text(
-                          'Logout',
+                child: Text(
+                l10n.logout,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -885,6 +891,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showLogoutDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -892,15 +899,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          title: const Text(
-            'Logout',
+          title: Text(
+            l10n.logout,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: AppTheme.textPrimary,
             ),
           ),
-          content: const Text(
-            'Are you sure you want to logout?',
+          content: Text(
+            l10n.logoutConfirmation,
             style: TextStyle(
               color: AppTheme.textSecondary,
             ),
@@ -908,8 +915,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text(
-                'Cancel',
+              child: Text(
+                l10n.cancel,
                 style: TextStyle(
                   color: AppTheme.textSecondary,
                   fontWeight: FontWeight.w600,
@@ -931,8 +938,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Navigator.of(context).pop();
                   _logout();
                 },
-                child: const Text(
-                  'Logout',
+                child: Text(
+                l10n.logout,
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,

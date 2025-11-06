@@ -3,6 +3,7 @@ import '../../../../shared/theme/app_theme.dart';
 import '../../../../shared/widgets/loading_overlay.dart';
 import '../../data/repositories/order_repository.dart';
 import '../../../../core/services/order_service.dart';
+import 'package:denzels_cakes/l10n/app_localizations.dart';
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
@@ -125,9 +126,10 @@ class _OrdersScreenState extends State<OrdersScreen>
       setState(() => _isLoading = false);
 
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to load orders'),
+          SnackBar(
+            content: Text(l10n.failedToLoadOrders),
             backgroundColor: AppTheme.errorColor,
           ),
         );
@@ -142,17 +144,18 @@ class _OrdersScreenState extends State<OrdersScreen>
 
   /// Show cancel order confirmation dialog
   void _showCancelDialog(Map<String, dynamic> order) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Cancel Order'),
+        title: Text(l10n.cancelOrder),
         content: Text(
-          'Are you sure you want to cancel order #${order['orderNumber']}?\n\nThis action cannot be undone.',
+          l10n.cancelOrderConfirmation(order['orderNumber']?.toString() ?? ''),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Keep Order'),
+            child: Text(l10n.keepOrder),
           ),
           ElevatedButton(
             onPressed: () {
@@ -162,8 +165,8 @@ class _OrdersScreenState extends State<OrdersScreen>
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
             ),
-            child: const Text(
-              'Cancel Order',
+            child: Text(
+              l10n.cancelOrder,
               style: TextStyle(color: Colors.white),
             ),
           ),
@@ -192,9 +195,10 @@ class _OrdersScreenState extends State<OrdersScreen>
 
       // Show success message
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Order #${order['orderNumber']} has been cancelled'),
+            content: Text(l10n.orderHasBeenCancelled(order['orderNumber']?.toString() ?? '')),
             backgroundColor: Colors.green,
           ),
         );
@@ -208,9 +212,10 @@ class _OrdersScreenState extends State<OrdersScreen>
 
       // Show error message
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to cancel order: $e'),
+            content: Text('${l10n.failedToCancelOrder}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -220,10 +225,11 @@ class _OrdersScreenState extends State<OrdersScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text('My Orders'),
+        title: Text(l10n.myOrders),
         backgroundColor: AppTheme.backgroundColor,
         elevation: 0,
         actions: [
@@ -237,16 +243,16 @@ class _OrdersScreenState extends State<OrdersScreen>
           labelColor: AppTheme.accentColor,
           unselectedLabelColor: AppTheme.textTertiary,
           indicatorColor: AppTheme.accentColor,
-          tabs: const [
-            Tab(text: 'Active'),
-            Tab(text: 'Completed'),
-            Tab(text: 'Cancelled'),
+          tabs: [
+            Tab(text: l10n.activeOrders),
+            Tab(text: l10n.completedOrders),
+            Tab(text: l10n.cancelledOrders),
           ],
         ),
       ),
       body: LoadingOverlay(
         isLoading: _isLoading,
-        message: 'Loading orders...',
+        message: l10n.loadingOrders,
         child: TabBarView(
           controller: _tabController,
           children: [
@@ -274,6 +280,7 @@ class _OrdersScreenState extends State<OrdersScreen>
   }
 
   Widget _buildEmptyState() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -285,7 +292,7 @@ class _OrdersScreenState extends State<OrdersScreen>
           ),
           const SizedBox(height: 16),
           Text(
-            'No orders found',
+            l10n.noOrdersYet,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: AppTheme.textSecondary,
                   fontWeight: FontWeight.bold,

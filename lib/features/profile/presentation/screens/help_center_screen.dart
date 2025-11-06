@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../shared/theme/app_theme.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class HelpCenterScreen extends StatefulWidget {
   const HelpCenterScreen({super.key});
@@ -109,7 +110,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text('Help Center'),
+        title: Text(AppLocalizations.of(context)!.helpCenter),
         backgroundColor: AppTheme.surfaceColor,
         elevation: 0,
       ),
@@ -122,7 +123,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search for help...',
+                hintText: AppLocalizations.of(context)!.searchForHelp,
                 prefixIcon:
                     const Icon(Icons.search, color: AppTheme.accentColor),
                 suffixIcon: _searchQuery.isNotEmpty
@@ -159,7 +160,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Quick Actions',
+                    AppLocalizations.of(context)!.quickActions,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: AppTheme.textPrimary,
@@ -171,8 +172,8 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                       Expanded(
                         child: _buildQuickActionCard(
                           icon: Icons.chat_outlined,
-                          title: 'Contact Support',
-                          subtitle: 'WhatsApp or Call',
+                          title: AppLocalizations.of(context)!.contactSupport,
+                          subtitle: AppLocalizations.of(context)!.whatsappOrCall,
                           onTap: () => _startLiveChat(),
                         ),
                       ),
@@ -180,7 +181,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                       Expanded(
                         child: _buildQuickActionCard(
                           icon: Icons.phone_outlined,
-                          title: 'Call Us',
+                          title: AppLocalizations.of(context)!.callUs,
                           subtitle: '683 252 520',
                           onTap: () => _callSupport(),
                         ),
@@ -201,7 +202,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                     children: [
                       if (_searchQuery.isEmpty)
                         Text(
-                          'Frequently Asked Questions',
+                          AppLocalizations.of(context)!.frequentlyAskedQuestions,
                           style:
                               Theme.of(context).textTheme.titleLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
@@ -345,14 +346,14 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'No results found',
+            AppLocalizations.of(context)!.noResultsFound,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: AppTheme.textSecondary,
                 ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Try searching with different keywords',
+            AppLocalizations.of(context)!.trySearchingWithDifferentKeywords,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppTheme.textTertiary,
                 ),
@@ -364,7 +365,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
               backgroundColor: AppTheme.accentColor,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Contact Support'),
+            child: Text(AppLocalizations.of(context)!.contactSupport),
           ),
         ],
       ),
@@ -372,32 +373,31 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
   }
 
   void _startLiveChat() {
+    final l10n = AppLocalizations.of(context)!;
     HapticFeedback.lightImpact();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Contact Support'),
-        content: const Text(
-          'Choose how you\'d like to contact our support team:',
-        ),
+        title: Text(l10n.contactSupport),
+        content: Text(l10n.chooseHowToContact),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
               _openWhatsApp();
             },
-            child: const Text('WhatsApp'),
+            child: Text(l10n.whatsapp),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
               _callSupport();
             },
-            child: const Text('Call'),
+            child: Text(l10n.callUs),
           ),
         ],
       ),

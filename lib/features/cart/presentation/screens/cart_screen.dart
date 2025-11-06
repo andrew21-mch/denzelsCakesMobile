@@ -4,6 +4,7 @@ import '../../../../shared/theme/app_theme.dart';
 import '../../../../shared/widgets/loading_overlay.dart';
 import '../../../../core/services/cart_service.dart';
 import '../../../../core/models/cart_model.dart';
+import 'package:denzels_cakes/l10n/app_localizations.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -40,22 +41,28 @@ class _CartScreenState extends State<CartScreen> {
 
   Future<void> _updateQuantity(String itemId, int newQuantity) async {
     final success = await CartService.updateQuantity(itemId, newQuantity);
-    if (success) {
-      _loadCart();
-      _showSnackBar('Cart updated');
-    } else {
-      _showSnackBar('Failed to update cart', isError: true);
+    if (mounted) {
+      final l10n = AppLocalizations.of(context)!;
+      if (success) {
+        _loadCart();
+        _showSnackBar(l10n.cartUpdated);
+      } else {
+        _showSnackBar(l10n.failedToUpdateCart, isError: true);
+      }
     }
   }
 
   Future<void> _removeItem(String itemId) async {
     final success = await CartService.removeFromCart(itemId);
-    if (success) {
-      HapticFeedback.lightImpact();
-      _loadCart();
-      _showSnackBar('Item removed from cart');
-    } else {
-      _showSnackBar('Failed to remove item', isError: true);
+    if (mounted) {
+      final l10n = AppLocalizations.of(context)!;
+      if (success) {
+        HapticFeedback.lightImpact();
+        _loadCart();
+        _showSnackBar(l10n.itemRemovedFromCart);
+      } else {
+        _showSnackBar(l10n.failedToRemoveItem, isError: true);
+      }
     }
   }
 
@@ -63,12 +70,15 @@ class _CartScreenState extends State<CartScreen> {
     final confirmed = await _showClearCartDialog();
     if (confirmed == true) {
       final success = await CartService.clearCart();
-      if (success) {
-        HapticFeedback.lightImpact();
-        _loadCart();
-        _showSnackBar('Cart cleared');
-      } else {
-        _showSnackBar('Failed to clear cart', isError: true);
+      if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
+        if (success) {
+          HapticFeedback.lightImpact();
+          _loadCart();
+          _showSnackBar(l10n.cartCleared);
+        } else {
+          _showSnackBar(l10n.failedToClearCart, isError: true);
+        }
       }
     }
   }
@@ -87,21 +97,21 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Future<bool?> _showClearCartDialog() {
+    final l10n = AppLocalizations.of(context)!;
     return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Clear Cart'),
-        content: const Text(
-            'Are you sure you want to remove all items from your cart?'),
+        title: Text(l10n.clearCart),
+        content: Text(l10n.clearCartConfirmation),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: TextButton.styleFrom(foregroundColor: AppTheme.errorColor),
-            child: const Text('Clear'),
+            child: Text(l10n.clear),
           ),
         ],
       ),
@@ -110,6 +120,7 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -125,7 +136,7 @@ class _CartScreenState extends State<CartScreen> {
               Expanded(
                 child: LoadingOverlay(
                   isLoading: _isLoading,
-                  message: 'Loading cart...',
+                  message: l10n.loadingCart,
                   child: _cart.isEmpty
                       ? _buildEmptyCart()
                       : _buildCartContent(),
@@ -140,6 +151,7 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildHeader() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(20),
       child: Row(
@@ -151,7 +163,7 @@ class _CartScreenState extends State<CartScreen> {
           ),
           Expanded(
             child: Text(
-              'Shopping Cart',
+              l10n.shoppingCart,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: AppTheme.textPrimary,
@@ -173,6 +185,7 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildEmptyCart() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
@@ -194,7 +207,7 @@ class _CartScreenState extends State<CartScreen> {
             ),
             const SizedBox(height: 32),
             Text(
-              'Your cart is empty',
+              l10n.emptyCart,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: AppTheme.textPrimary,
@@ -202,7 +215,7 @@ class _CartScreenState extends State<CartScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Browse our delicious cakes and add them to your cart',
+              l10n.browseCakesAndAdd,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppTheme.textSecondary,
                   ),
@@ -220,8 +233,8 @@ class _CartScreenState extends State<CartScreen> {
                   borderRadius: BorderRadius.circular(25),
                 ),
               ),
-              child: const Text(
-                'Start Shopping',
+              child: Text(
+                l10n.startShopping,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -256,6 +269,7 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildCartSummary() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       padding: const EdgeInsets.all(20),
@@ -276,7 +290,7 @@ class _CartScreenState extends State<CartScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Subtotal (${_cart.itemCount} items)',
+                '${l10n.subtotal} (${l10n.subtotalItems(_cart.itemCount)})',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppTheme.textSecondary,
                     ),
@@ -295,7 +309,7 @@ class _CartScreenState extends State<CartScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Tax (10%)',
+                l10n.tax,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppTheme.textSecondary,
                     ),
@@ -314,7 +328,7 @@ class _CartScreenState extends State<CartScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Total',
+                l10n.total,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: AppTheme.textPrimary,
@@ -335,6 +349,7 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildCartItem(CartItem item, int index) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -406,13 +421,13 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Size: ${item.selectedSize}',
+                      '${l10n.size}: ${item.selectedSize}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: AppTheme.textSecondary,
                           ),
                     ),
                     Text(
-                      'Flavor: ${item.selectedFlavor}',
+                      '${l10n.flavor}: ${item.selectedFlavor}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: AppTheme.textSecondary,
                           ),
@@ -508,6 +523,7 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildCheckoutButton() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -539,7 +555,7 @@ class _CartScreenState extends State<CartScreen> {
               const Icon(Icons.shopping_bag_outlined, size: 20),
               const SizedBox(width: 8),
               Text(
-                'Checkout • ${CartService.formatCurrency(_cart.total)}',
+                '${l10n.checkoutWithTotal} • ${CartService.formatCurrency(_cart.total)}',
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

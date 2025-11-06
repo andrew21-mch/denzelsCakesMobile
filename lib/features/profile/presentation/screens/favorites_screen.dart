@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../../shared/widgets/loading_overlay.dart';
 import '../../../../core/services/favorites_service.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
@@ -48,7 +49,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text('My Favorites'),
+        title: Text(AppLocalizations.of(context)!.myFavorites),
         backgroundColor: AppTheme.surfaceColor,
         elevation: 0,
         actions: [
@@ -60,13 +61,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             PopupMenuButton<String>(
               onSelected: _handleMenuAction,
               itemBuilder: (context) => [
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'clear_all',
                   child: Row(
                     children: [
-                      Icon(Icons.clear_all, size: 20),
-                      SizedBox(width: 8),
-                      Text('Clear All'),
+                      const Icon(Icons.clear_all, size: 20),
+                      const SizedBox(width: 8),
+                      Text(AppLocalizations.of(context)!.clearAll),
                     ],
                   ),
                 ),
@@ -76,7 +77,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       ),
       body: LoadingOverlay(
         isLoading: _isLoading,
-        message: 'Loading favorites...',
+        message: AppLocalizations.of(context)!.loadingFavorites,
         child: _error != null
             ? _buildErrorState()
             : _favorites.isEmpty
@@ -98,14 +99,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Failed to load favorites',
+            AppLocalizations.of(context)!.failedToLoadFavorites,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: AppTheme.textSecondary,
                 ),
           ),
           const SizedBox(height: 8),
           Text(
-            _error ?? 'Unknown error occurred',
+            _error ?? AppLocalizations.of(context)!.unknownErrorOccurred,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppTheme.textTertiary,
                 ),
@@ -118,7 +119,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               backgroundColor: AppTheme.accentColor,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Retry'),
+            child: Text(AppLocalizations.of(context)!.retry),
           ),
         ],
       ),
@@ -137,14 +138,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'No favorites yet',
+            AppLocalizations.of(context)!.noFavoritesYet,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: AppTheme.textSecondary,
                 ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Start adding cakes to your favorites\nto see them here',
+            AppLocalizations.of(context)!.startAddingCakesToFavorites,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppTheme.textTertiary,
                 ),
@@ -158,7 +159,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               backgroundColor: AppTheme.accentColor,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Browse Cakes'),
+            child: Text(AppLocalizations.of(context)!.browseCakes),
           ),
         ],
       ),
@@ -194,9 +195,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           color: AppTheme.surfaceColor,
           borderRadius: BorderRadius.circular(16),
         ),
-        child: const Text(
-          'Invalid favorite item',
-          style: TextStyle(color: AppTheme.textSecondary),
+        child: Text(
+          AppLocalizations.of(context)!.invalidFavoriteItem,
+          style: const TextStyle(color: AppTheme.textSecondary),
         ),
       );
     }
@@ -212,18 +213,18 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         ),
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
-        child: const Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.delete,
               color: Colors.white,
               size: 28,
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
-              'Remove',
-              style: TextStyle(
+              AppLocalizations.of(context)!.remove,
+              style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
               ),
@@ -255,7 +256,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               Navigator.of(context).pushNamed('/cake/$cakeId');
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Unable to view cake details')),
+                SnackBar(content: Text(AppLocalizations.of(context)!.unableToViewCakeDetails)),
               );
             }
           },
@@ -287,7 +288,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        cake['title'] ?? 'Unknown Cake',
+                        cake['title'] ?? AppLocalizations.of(context)!.unknownCake,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -296,7 +297,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        cake['description'] ?? 'No description available',
+                        cake['description'] ?? AppLocalizations.of(context)!.noDescriptionAvailable,
                         style: const TextStyle(
                           color: AppTheme.textSecondary,
                           fontSize: 13,
@@ -353,7 +354,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                             ),
                           ),
                           Text(
-                            'Added ${_getTimeAgo(favorite['createdAt'])}',
+                            '${AppLocalizations.of(context)!.added} ${_getTimeAgo(context, favorite['createdAt'])}',
                             style: const TextStyle(
                               color: AppTheme.textTertiary,
                               fontSize: 11,
@@ -374,7 +375,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         Icons.favorite,
                         color: Colors.red,
                       ),
-                      tooltip: 'Remove from favorites',
+                      tooltip: AppLocalizations.of(context)!.removeFromFavorites,
                     ),
                     IconButton(
                       onPressed: () => _addToCart(cake),
@@ -382,7 +383,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         Icons.add_shopping_cart,
                         color: AppTheme.accentColor,
                       ),
-                      tooltip: 'Add to cart',
+                      tooltip: AppLocalizations.of(context)!.addToCart,
                     ),
                   ],
                 ),
@@ -405,16 +406,16 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   }
 
   void _showClearAllDialog() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Clear All Favorites'),
-        content: const Text(
-            'Are you sure you want to remove all cakes from your favorites?'),
+        title: Text(l10n.clearAllFavorites),
+        content: Text(l10n.clearAllFavoritesConfirmation),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () async {
@@ -428,8 +429,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('All favorites cleared'),
+                    SnackBar(
+                      content: Text(l10n.allFavoritesCleared),
                       backgroundColor: AppTheme.errorColor,
                     ),
                   );
@@ -437,17 +438,17 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               } catch (e) {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Failed to clear favorites'),
+                    SnackBar(
+                      content: Text(l10n.failedToClearFavorites),
                       backgroundColor: AppTheme.errorColor,
                     ),
                   );
                 }
               }
             },
-            child: const Text(
-              'Clear All',
-              style: TextStyle(color: AppTheme.errorColor),
+            child: Text(
+              l10n.clearAll,
+              style: const TextStyle(color: AppTheme.errorColor),
             ),
           ),
         ],
@@ -462,6 +463,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     final cakeId = cake['_id'] ?? '';
     final cakeName = cake['title'] ?? 'Unknown Cake';
 
+    final l10n = AppLocalizations.of(context)!;
     // Optimistically remove from UI
     setState(() {
       _favorites.removeAt(index);
@@ -473,9 +475,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$cakeName removed from favorites'),
+            content: Text(l10n.removedFromFavorites(cakeName)),
             action: SnackBarAction(
-              label: 'Undo',
+              label: l10n.undo,
               onPressed: () async {
                 try {
                   await FavoritesService.addToFavorites(cakeId);
@@ -483,7 +485,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 } catch (e) {
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Failed to undo removal')),
+                      SnackBar(content: Text(l10n.failedToUndoRemoval)),
                     );
                   }
                 }
@@ -500,20 +502,21 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to remove from favorites')),
+          SnackBar(content: Text(l10n.failedToRemoveFromFavorites)),
         );
       }
     }
   }
 
   void _addToCart(Map<String, dynamic> cake) {
+    final l10n = AppLocalizations.of(context)!;
     HapticFeedback.lightImpact();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${cake['title'] ?? 'Cake'} added to cart!'),
+        content: Text(l10n.addedToCart(cake['title'] ?? 'Cake')),
         backgroundColor: AppTheme.successColor,
         action: SnackBarAction(
-          label: 'View Cart',
+          label: l10n.viewCart,
           textColor: Colors.white,
           onPressed: () {
             Navigator.of(context).pushNamed('/cart');
@@ -523,7 +526,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     );
   }
 
-  String _getTimeAgo(dynamic dateValue) {
+  String _getTimeAgo(BuildContext context, dynamic dateValue) {
     try {
       DateTime? date;
 
@@ -533,24 +536,25 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         date = dateValue;
       }
 
+      final l10n = AppLocalizations.of(context)!;
       if (date == null) {
-        return 'recently';
+        return l10n.recently;
       }
 
       final now = DateTime.now();
       final difference = now.difference(date);
 
       if (difference.inDays > 0) {
-        return '${difference.inDays}d ago';
+        return '${difference.inDays}d ${l10n.ago}';
       } else if (difference.inHours > 0) {
-        return '${difference.inHours}h ago';
+        return '${difference.inHours}h ${l10n.ago}';
       } else if (difference.inMinutes > 0) {
-        return '${difference.inMinutes}m ago';
+        return '${difference.inMinutes}m ${l10n.ago}';
       } else {
-        return 'Just now';
+        return l10n.justNow;
       }
     } catch (e) {
-      return 'recently';
+      return AppLocalizations.of(context)!.recently;
     }
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../../shared/widgets/loading_overlay.dart';
 import '../../data/auth_repository.dart';
+import 'package:denzels_cakes/l10n/app_localizations.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -63,9 +64,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         }
 
         // Show success message
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Registration successful!'),
+          SnackBar(
+            content: Text(l10n.registrationSuccessful),
             backgroundColor: AppTheme.successColor,
             duration: Duration(seconds: 2),
           ),
@@ -78,9 +80,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       if (mounted) {
         // Show error message
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Registration failed: ${e.toString()}'),
+            content: Text('${l10n.registrationFailed}: ${e.toString()}'),
             backgroundColor: AppTheme.errorColor,
             duration: const Duration(seconds: 3),
           ),
@@ -91,9 +94,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return LoadingOverlay(
       isLoading: _isLoading,
-      message: 'Creating your account...',
+      message: l10n.creatingYourAccount,
       child: Scaffold(
         body: Container(
         decoration: const BoxDecoration(
@@ -154,7 +158,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       shaderCallback: (bounds) =>
                           AppTheme.primaryGradient.createShader(bounds),
                       child: Text(
-                        'Join Denzel\'s Cakes',
+                        l10n.joinDenzelsCakes,
                         style:
                             Theme.of(context).textTheme.headlineLarge?.copyWith(
                                   color: Colors.white,
@@ -190,7 +194,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       children: [
                         // Create Account Title
                         Text(
-                          'Create Account',
+                          l10n.createAccount,
                           textAlign: TextAlign.center,
                           style: Theme.of(context)
                               .textTheme
@@ -208,8 +212,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           height: 48,
                           child: TextFormField(
                             controller: _nameController,
-                            decoration: const InputDecoration(
-                              labelText: 'Full Name',
+                            decoration: InputDecoration(
+                              labelText: l10n.fullName,
                               prefixIcon: Icon(Icons.person, size: 20),
                               contentPadding: EdgeInsets.symmetric(
                                   horizontal: 16, vertical: 8),
@@ -217,7 +221,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter your name';
+                                return l10n.pleaseEnterYourName;
                               }
                               return null;
                             },
@@ -247,7 +251,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
-                                      'Email',
+                                      l10n.email,
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         color: _useEmail
@@ -274,7 +278,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
-                                      'Phone',
+                                      l10n.phone,
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         color: !_useEmail
@@ -300,8 +304,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ? TextFormField(
                                   controller: _emailController,
                                   keyboardType: TextInputType.emailAddress,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Email Address',
+                                  decoration: InputDecoration(
+                                    labelText: l10n.emailAddress,
                                     prefixIcon: Icon(Icons.email, size: 20),
                                     contentPadding: EdgeInsets.symmetric(
                                         horizontal: 16, vertical: 8),
@@ -309,12 +313,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return 'Please enter your email';
+                                      return l10n.pleaseEnterYourEmail;
                                     }
                                     if (!RegExp(
                                             r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
                                         .hasMatch(value)) {
-                                      return 'Please enter a valid email';
+                                      return l10n.pleaseEnterValidEmail;
                                     }
                                     return null;
                                   },
@@ -322,8 +326,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               : TextFormField(
                                   controller: _phoneController,
                                   keyboardType: TextInputType.phone,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Phone Number',
+                                  decoration: InputDecoration(
+                                    labelText: l10n.phoneNumber,
                                     prefixIcon: Icon(Icons.phone, size: 20),
                                     contentPadding: EdgeInsets.symmetric(
                                         horizontal: 16, vertical: 8),
@@ -332,12 +336,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return 'Please enter your phone number';
+                                      return l10n.pleaseEnterYourPhoneNumber;
                                     }
                                     // International phone validation (more flexible)
                                     if (!RegExp(r'^(\+?[\d\s\-\(\)]{8,20})$')
                                         .hasMatch(value.trim())) {
-                                      return 'Please enter a valid phone number';
+                                      return l10n.pleaseEnterValidPhoneNumber;
                                     }
                                     return null;
                                   },
@@ -353,7 +357,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             controller: _passwordController,
                             obscureText: !_isPasswordVisible,
                             decoration: InputDecoration(
-                              labelText: 'Password',
+                              labelText: l10n.password,
                               prefixIcon: const Icon(Icons.lock, size: 20),
                               suffixIcon: IconButton(
                                 icon: Icon(
@@ -374,7 +378,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter a password';
+                                return l10n.pleaseEnterPassword;
                               }
                               return null;
                             },
@@ -390,7 +394,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             controller: _confirmPasswordController,
                             obscureText: !_isConfirmPasswordVisible,
                             decoration: InputDecoration(
-                              labelText: 'Confirm Password',
+                              labelText: l10n.confirmPassword,
                               prefixIcon:
                                   const Icon(Icons.lock_outline, size: 20),
                               suffixIcon: IconButton(
@@ -413,10 +417,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please confirm your password';
+                                return l10n.pleaseEnterPassword;
                               }
                               if (value != _passwordController.text) {
-                                return 'Passwords do not match';
+                                return l10n.passwordsDoNotMatch;
                               }
                               return null;
                             },
@@ -447,8 +451,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           Colors.white),
                                     ),
                                   )
-                                : const Text(
-                                    'Create Account',
+                                : Text(
+                                    l10n.createAccount,
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,
@@ -464,8 +468,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text(
-                              'Already have an account? ',
+                            Text(
+                              '${l10n.alreadyHaveAccount} ',
                               style: TextStyle(
                                 color: AppTheme.textSecondary,
                                 fontSize: 14,
@@ -476,8 +480,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 Navigator.of(context)
                                     .pushReplacementNamed('/login');
                               },
-                              child: const Text(
-                                'Sign In',
+                              child: Text(
+                                l10n.signIn,
                                 style: TextStyle(
                                   color: AppTheme.accentColor,
                                   fontSize: 14,

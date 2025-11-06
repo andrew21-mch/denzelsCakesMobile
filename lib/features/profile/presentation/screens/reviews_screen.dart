@@ -6,6 +6,7 @@ import '../../../../core/models/review_model.dart';
 import '../../../../core/services/review_service.dart';
 import '../../../catalog/data/repositories/cake_repository.dart';
 import '../../../catalog/data/models/cake_model.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class ReviewsScreen extends StatefulWidget {
   const ReviewsScreen({super.key});
@@ -66,7 +67,7 @@ class _ReviewsScreenState extends State<ReviewsScreen>
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text('My Reviews'),
+        title: Text(AppLocalizations.of(context)!.myReviews),
         backgroundColor: AppTheme.surfaceColor,
         elevation: 0,
         bottom: TabBar(
@@ -77,11 +78,11 @@ class _ReviewsScreenState extends State<ReviewsScreen>
           onTap: (index) => HapticFeedback.lightImpact(),
           tabs: [
             Tab(
-              text: 'My Reviews (${_myReviews.length})',
+              text: AppLocalizations.of(context)!.myReviewsCount(_myReviews.length),
               icon: const Icon(Icons.rate_review),
             ),
             Tab(
-              text: 'Pending (${_pendingReviews.length})',
+              text: AppLocalizations.of(context)!.pendingCount(_pendingReviews.length),
               icon: const Icon(Icons.pending_actions),
             ),
           ],
@@ -89,7 +90,7 @@ class _ReviewsScreenState extends State<ReviewsScreen>
       ),
       body: LoadingOverlay(
         isLoading: _isLoading,
-        message: 'Loading reviews...',
+        message: AppLocalizations.of(context)!.loadingReviews,
         child: _error != null
             ? _buildErrorState()
             : TabBarView(
@@ -120,9 +121,9 @@ class _ReviewsScreenState extends State<ReviewsScreen>
             color: AppTheme.textSecondary,
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Failed to load reviews',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.failedToLoadReviews,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
               color: AppTheme.textPrimary,
@@ -143,7 +144,7 @@ class _ReviewsScreenState extends State<ReviewsScreen>
               backgroundColor: AppTheme.accentColor,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Retry'),
+            child: Text(AppLocalizations.of(context)!.retry),
           ),
         ],
       ),
@@ -154,8 +155,8 @@ class _ReviewsScreenState extends State<ReviewsScreen>
     if (_myReviews.isEmpty) {
       return _buildEmptyState(
         icon: Icons.rate_review_outlined,
-        title: 'No reviews yet',
-        subtitle: 'Your reviews will appear here after you rate your orders',
+        title: AppLocalizations.of(context)!.noReviewsYet,
+        subtitle: AppLocalizations.of(context)!.reviewsWillAppearHere,
       );
     }
 
@@ -173,8 +174,8 @@ class _ReviewsScreenState extends State<ReviewsScreen>
     if (_pendingReviews.isEmpty) {
       return _buildEmptyState(
         icon: Icons.pending_actions_outlined,
-        title: 'No pending reviews',
-        subtitle: 'Orders waiting for your review will appear here',
+        title: AppLocalizations.of(context)!.noPendingReviews,
+        subtitle: AppLocalizations.of(context)!.ordersWaitingForReview,
       );
     }
 
@@ -380,7 +381,7 @@ class _ReviewsScreenState extends State<ReviewsScreen>
                   _showWriteReviewDialog(order, index);
                 },
                 icon: const Icon(Icons.rate_review),
-                label: const Text('Write Review'),
+                label: Text(AppLocalizations.of(context)!.writeReview),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.accentColor,
                   foregroundColor: Colors.white,
@@ -475,7 +476,7 @@ class _ReviewsScreenState extends State<ReviewsScreen>
                               Navigator.of(context).pop();
                               _editReview(review);
                             },
-                            child: const Text('Edit Review'),
+                            child: Text(AppLocalizations.of(context)!.editReview),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -486,7 +487,7 @@ class _ReviewsScreenState extends State<ReviewsScreen>
                               backgroundColor: AppTheme.accentColor,
                               foregroundColor: Colors.white,
                             ),
-                            child: const Text('Close'),
+                            child: Text(AppLocalizations.of(context)!.close),
                           ),
                         ),
                       ],
@@ -509,13 +510,13 @@ class _ReviewsScreenState extends State<ReviewsScreen>
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: Text('Review ${order.cakeName}'),
+          title: Text('${AppLocalizations.of(context)!.review} ${order.cakeName}'),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Rating'),
+                Text(AppLocalizations.of(context)!.rating),
                 const SizedBox(height: 8),
                 Row(
                   children: List.generate(5, (index) {
@@ -550,7 +551,7 @@ class _ReviewsScreenState extends State<ReviewsScreen>
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             ElevatedButton(
               onPressed: () {
@@ -561,7 +562,7 @@ class _ReviewsScreenState extends State<ReviewsScreen>
                 backgroundColor: AppTheme.accentColor,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Submit'),
+              child: Text(AppLocalizations.of(context)!.submit),
             ),
           ],
         ),
@@ -606,8 +607,8 @@ class _ReviewsScreenState extends State<ReviewsScreen>
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Review submitted successfully!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.reviewSubmittedSuccessfully),
             backgroundColor: AppTheme.accentColor,
           ),
         );
@@ -616,7 +617,7 @@ class _ReviewsScreenState extends State<ReviewsScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to submit review: ${e.toString()}'),
+            content: Text('${AppLocalizations.of(context)!.failedToSubmitReview}: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -627,8 +628,8 @@ class _ReviewsScreenState extends State<ReviewsScreen>
   void _editReview(Map<String, dynamic> review) {
     // Implementation for editing review
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Edit review feature coming soon!'),
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.editReviewFeatureComingSoon),
       ),
     );
   }
@@ -696,7 +697,7 @@ class _WriteGeneralReviewDialogState extends State<_WriteGeneralReviewDialog> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to load cakes: ${e.toString()}'),
+            content: Text('${AppLocalizations.of(context)!.failedToLoadCakes}: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -730,9 +731,9 @@ class _WriteGeneralReviewDialogState extends State<_WriteGeneralReviewDialog> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               children: [
-                const Text(
-                  'Write Review',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context)!.writeReview,
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: AppTheme.textPrimary,
@@ -780,7 +781,7 @@ class _WriteGeneralReviewDialogState extends State<_WriteGeneralReviewDialog> {
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<CakeStyle>(
                           value: _selectedCake,
-                          hint: const Text('Choose a cake to review'),
+                          hint: Text(AppLocalizations.of(context)!.chooseCakeToReview),
                           isExpanded: true,
                           items: _cakes.map((cake) {
                             return DropdownMenuItem<CakeStyle>(
@@ -800,9 +801,9 @@ class _WriteGeneralReviewDialogState extends State<_WriteGeneralReviewDialog> {
                   const SizedBox(height: 24),
 
                   // Rating
-                  const Text(
-                    'Rating',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context)!.rating,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: AppTheme.textPrimary,
@@ -869,7 +870,7 @@ class _WriteGeneralReviewDialogState extends State<_WriteGeneralReviewDialog> {
                                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             )
-                          : const Text('Submit Review'),
+                          : Text(AppLocalizations.of(context)!.submitReview),
                     ),
                   ),
                 ],
@@ -905,8 +906,8 @@ class _WriteGeneralReviewDialogState extends State<_WriteGeneralReviewDialog> {
       if (mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Review submitted successfully!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.reviewSubmittedSuccessfully),
             backgroundColor: AppTheme.successColor,
           ),
         );
@@ -919,7 +920,7 @@ class _WriteGeneralReviewDialogState extends State<_WriteGeneralReviewDialog> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to submit review: ${e.toString()}'),
+            content: Text('${AppLocalizations.of(context)!.failedToSubmitReview}: ${e.toString()}'),
             backgroundColor: AppTheme.errorColor,
           ),
         );

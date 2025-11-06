@@ -1,6 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../shared/theme/app_theme.dart';
+import '../../../../core/services/locale_service.dart';
+
+// Import the locale updater from main
+class LocaleUpdater {
+  static Function(Locale)? updateLocaleCallback;
+  
+  static void updateLocale(Locale locale) {
+    updateLocaleCallback?.call(locale);
+  }
+}
 
 class LanguageScreen extends StatefulWidget {
   const LanguageScreen({super.key});
@@ -10,7 +20,8 @@ class LanguageScreen extends StatefulWidget {
 }
 
 class _LanguageScreenState extends State<LanguageScreen> {
-  String _selectedLanguage = 'English';
+  String _selectedLanguageCode = 'en';
+  bool _isLoading = true;
 
   final List<Map<String, dynamic>> _languages = [
     {
@@ -30,7 +41,39 @@ class _LanguageScreenState extends State<LanguageScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _loadCurrentLanguage();
+  }
+
+  Future<void> _loadCurrentLanguage() async {
+    final locale = await LocaleService.getLocale();
+    setState(() {
+      _selectedLanguageCode = locale.languageCode;
+      _isLoading = false;
+    });
+  }
+
+  String get _selectedLanguage {
+    return _languages.firstWhere(
+      (lang) => lang['code'] == _selectedLanguageCode,
+      orElse: () => _languages[0],
+    )['name'] as String;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: AppTheme.backgroundColor,
+        appBar: AppBar(
+          title: const Text('Language'),
+          backgroundColor: AppTheme.surfaceColor,
+          elevation: 0,
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
@@ -74,7 +117,8 @@ class _LanguageScreenState extends State<LanguageScreen> {
 
   Widget _buildCurrentLanguageSection() {
     final currentLang = _languages.firstWhere(
-      (lang) => lang['name'] == _selectedLanguage,
+      (lang) => lang['code'] == _selectedLanguageCode,
+      orElse: () => _languages[0],
     );
 
     return Container(
@@ -241,13 +285,13 @@ class _LanguageScreenState extends State<LanguageScreen> {
   }
 
   Widget _buildLanguageOption(Map<String, dynamic> language) {
-    final isSelected = language['name'] == _selectedLanguage;
+    final isSelected = language['code'] == _selectedLanguageCode;
 
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
         setState(() {
-          _selectedLanguage = language['name'];
+          _selectedLanguageCode = language['code'] as String;
         });
       },
       child: Container(
@@ -362,27 +406,23 @@ class _LanguageScreenState extends State<LanguageScreen> {
   //   );
   // }
 
-  void _saveLanguageSettings() {
+  Future<void> _saveLanguageSettings() async {
     HapticFeedback.mediumImpact();
+
+    // Get the locale from selected language code
+    final newLocale = LocaleService.getLocaleFromCode(_selectedLanguageCode);
+    
+    // Save to storage
+    await LocaleService.setLocale(newLocale);
+    
+    // Update locale in app state
+    LocaleUpdater.updateLocale(newLocale);
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Language changed to $_selectedLanguage'),
         backgroundColor: AppTheme.successColor,
-        action: SnackBarAction(
-          label: 'Restart App',
-          textColor: Colors.white,
-          onPressed: () {
-            // In a real app, this would restart the app
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content:
-                    Text('App restart required for changes to take effect'),
-                duration: Duration(seconds: 3),
-              ),
-            );
-          },
-        ),
+        duration: const Duration(seconds: 2),
       ),
     );
 
@@ -407,7 +447,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
             onPressed: () {
               Navigator.of(context).pop();
               setState(() {
-                _selectedLanguage = 'English'; // Simulate auto-detection
+                _selectedLanguageCode = 'en'; // Simulate auto-detection
               });
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
