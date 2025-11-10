@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logger/logger.dart';
 import '../services/api_service.dart';
 import '../constants/app_constants.dart';
@@ -8,10 +9,14 @@ class FirebaseMessagingService {
   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   static final Logger _logger = Logger();
   static String? _fcmToken;
+  static FlutterLocalNotificationsPlugin? _localNotifications;
 
   /// Initialize Firebase messaging
   static Future<void> initialize() async {
     try {
+      // Initialize local notifications
+      await _initializeLocalNotifications();
+
       // Request permission for notifications
       NotificationSettings settings = await _messaging.requestPermission(
         alert: true,
@@ -47,6 +52,66 @@ class FirebaseMessagingService {
       _logger.e('Failed to initialize Firebase messaging: $e');
       _logger.i('App will continue without push notifications');
     }
+  }
+
+  /// Initialize local notifications plugin
+  static Future<void> _initializeLocalNotifications() async {
+    try {
+      _localNotifications = FlutterLocalNotificationsPlugin();
+
+      // Android initialization settings
+      const AndroidInitializationSettings androidSettings =
+          AndroidInitializationSettings('@mipmap/ic_launcher');
+
+      // iOS initialization settings
+      const DarwinInitializationSettings iosSettings =
+          DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
+      );
+
+      // Initialization settings
+      const InitializationSettings initSettings = InitializationSettings(
+        android: androidSettings,
+        iOS: iosSettings,
+      );
+
+      // Initialize the plugin
+      await _localNotifications!.initialize(
+        initSettings,
+        onDidReceiveNotificationResponse: (NotificationResponse response) {
+          _logger.i('Local notification tapped: ${response.id}');
+          // Handle notification tap
+        },
+      );
+
+      // Create notification channel for Android
+      await _createNotificationChannel();
+
+      _logger.i('Local notifications initialized successfully');
+    } catch (e) {
+      _logger.e('Failed to initialize local notifications: $e');
+    }
+  }
+
+  /// Create notification channel for Android
+  static Future<void> _createNotificationChannel() async {
+    if (_localNotifications == null) return;
+
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'denzels_cakes_notifications', // id
+      'Denzel\'s Cakes Notifications', // name
+      description: 'Notifications for orders, updates, and messages',
+      importance: Importance.high,
+      playSound: true,
+      enableVibration: true,
+    );
+
+    await _localNotifications!
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
   }
 
   /// Get FCM token with timeout
@@ -127,12 +192,62 @@ class FirebaseMessagingService {
   }
 
   /// Show local notification
-  static void _showLocalNotification(RemoteMessage message) {
-    // This will show a notification even when app is in foreground
-    _logger.i('Showing local notification: ${message.notification?.title}');
+  static Future<void> _showLocalNotification(RemoteMessage message) async {
+    if (_localNotifications == null) {
+      _logger.w('Local notifications not initialized');
+      return;
+    }
 
-    // You can implement local notifications here if needed
-    // For now, just log it
+    try {
+      final notification = message.notification;
+      final data = message.data;
+
+      if (notification == null) {
+        _logger.w('No notification data in message');
+        return;
+      }
+
+      _logger.i('Showing local notification: ${notification.title}');
+
+      // Android notification details
+      const AndroidNotificationDetails androidDetails =
+          AndroidNotificationDetails(
+        'denzels_cakes_notifications',
+        'Denzel\'s Cakes Notifications',
+        channelDescription: 'Notifications for orders, updates, and messages',
+        importance: Importance.high,
+        priority: Priority.high,
+        showWhen: true,
+        enableVibration: true,
+        playSound: true,
+      );
+
+      // iOS notification details
+      const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      );
+
+      // Notification details
+      const NotificationDetails details = NotificationDetails(
+        android: androidDetails,
+        iOS: iosDetails,
+      );
+
+      // Show the notification
+      await _localNotifications!.show(
+        message.hashCode, // Use message hash as ID to avoid duplicates
+        notification.title ?? 'Denzel\'s Cakes',
+        notification.body ?? '',
+        details,
+        payload: data.toString(),
+      );
+
+      _logger.i('✅ Local notification shown successfully');
+    } catch (e) {
+      _logger.e('Failed to show local notification: $e');
+    }
   }
 
   /// Handle notification tap
