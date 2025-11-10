@@ -18,6 +18,7 @@ import 'features/catalog/presentation/screens/cake_detail_screen.dart';
 import 'features/cart/presentation/screens/cart_screen.dart';
 import 'features/checkout/presentation/screens/checkout_screen.dart';
 import 'features/orders/presentation/screens/orders_screen.dart';
+import 'features/orders/presentation/screens/custom_order_screen.dart';
 import 'features/search/presentation/screens/search_screen.dart';
 import 'features/auth/presentation/screens/profile_screen.dart';
 import 'features/profile/presentation/screens/edit_profile_screen.dart';
@@ -165,6 +166,7 @@ class _CakeShopAppState extends State<CakeShopApp> {
         '/cart': (context) => const CartScreen(),
         '/checkout': (context) => const CheckoutScreen(),
         '/orders': (context) => const OrdersScreen(),
+        '/custom-order': (context) => const CustomOrderScreen(),
         '/search': (context) => const SearchScreen(),
         '/training': (context) => const TrainingScreen(),
         '/profile': (context) => const ProfileScreen(),

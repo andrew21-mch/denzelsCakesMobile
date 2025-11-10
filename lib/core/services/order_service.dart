@@ -56,6 +56,46 @@ class OrderService {
     return response.data['data'];
   }
 
+  /// Create a custom order (without cakeStyleId)
+  static Future<Map<String, dynamic>> createCustomOrder({
+    required String cakeType,
+    required String size,
+    required String flavor,
+    required String title,
+    required double unitPrice,
+    required String paymentMethod,
+    required Map<String, dynamic> guestDetails,
+    required Map<String, dynamic> deliveryDetails,
+    String? customerNotes,
+    List<String>? imageUrls,
+  }) async {
+    final orderData = {
+      'items': [
+        {
+          // No cakeStyleId for custom cakes
+          'title': title,
+          'size': size,
+          'flavor': flavor,
+          'quantity': 1,
+          'unitPrice': unitPrice,
+          'customMessage': customerNotes ?? '',
+          'customizations': {
+            'cakeType': cakeType,
+            'specialInstructions': customerNotes ?? '',
+          },
+          'images': imageUrls ?? [],
+        }
+      ],
+      'paymentMethod': paymentMethod,
+      'guestDetails': guestDetails,
+      'deliveryDetails': deliveryDetails,
+      'customerNotes': customerNotes ?? '',
+    };
+
+    final response = await ApiService.post(_baseUrl, data: orderData);
+    return response.data['data'];
+  }
+
   /// Get user's orders
   static Future<List<Map<String, dynamic>>> getUserOrders({
     int page = 1,

@@ -132,7 +132,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get orderDate => 'Date de commande';
 
   @override
-  String get deliveryAddress => 'Adresse de livraison';
+  String get deliveryAddress => 'Adresse de Livraison';
 
   @override
   String get paymentMethod => 'Méthode de paiement';
@@ -434,7 +434,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get selectDeliveryDate => 'Sélectionner la date de livraison';
 
   @override
-  String get selectDeliveryTime => 'Sélectionner l\'heure de livraison';
+  String get selectDeliveryTime => 'Sélectionner l\'heure';
 
   @override
   String get specialInstructions => 'Instructions spéciales';
@@ -1419,4 +1419,121 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get categoryGeneralCelebration => 'Célébration générale';
+
+  @override
+  String get customOrder => 'Commande Personnalisée';
+
+  @override
+  String get placeCustomOrder => 'Passer une Commande Personnalisée';
+
+  @override
+  String get orderCustomCake => 'Commander un Gâteau Personnalisé';
+
+  @override
+  String get cakeType => 'Type de Gâteau';
+
+  @override
+  String get selectCakeType => 'Sélectionner le type de gâteau';
+
+  @override
+  String get cakeSize => 'Taille du Gâteau';
+
+  @override
+  String get selectCakeSize => 'Sélectionner la taille';
+
+  @override
+  String get cakeFlavor => 'Saveur';
+
+  @override
+  String get selectFlavor => 'Sélectionner la saveur';
+
+  @override
+  String get eventDate => 'Date de l\'Événement';
+
+  @override
+  String get selectEventDate => 'Sélectionner la date';
+
+  @override
+  String get cakeDescription => 'Description du Gâteau';
+
+  @override
+  String get describeYourCake =>
+      'Décrivez le design, les couleurs, les décorations ou toute exigence spéciale...';
+
+  @override
+  String get enterDeliveryAddress => 'Entrer l\'adresse de livraison';
+
+  @override
+  String get deliveryType => 'Type de Livraison';
+
+  @override
+  String get delivery => 'Livraison';
+
+  @override
+  String get pickup => 'Retrait';
+
+  @override
+  String get preferredDeliveryTime => 'Heure de Livraison Préférée';
+
+  @override
+  String get morning => 'Matin (8h - 12h)';
+
+  @override
+  String get afternoon => 'Après-midi (12h - 17h)';
+
+  @override
+  String get evening => 'Soir (17h - 20h)';
+
+  @override
+  String get estimatedBudget => 'Budget Estimé (FCFA)';
+
+  @override
+  String get enterBudget => 'Entrer le budget estimé';
+
+  @override
+  String get additionalNotes => 'Notes Supplémentaires';
+
+  @override
+  String get anyOtherInformation =>
+      'Toute autre information que nous devrions savoir...';
+
+  @override
+  String get smallCake => 'Petit (1-5 personnes)';
+
+  @override
+  String get mediumCake => 'Moyen (6-15 personnes)';
+
+  @override
+  String get largeCake => 'Grand (16-30 personnes)';
+
+  @override
+  String get extraLargeCake => 'Très Grand (30+ personnes)';
+
+  @override
+  String get customOrderSubmitted =>
+      'Commande personnalisée soumise avec succès!';
+
+  @override
+  String get weWillContactYou =>
+      'Nous vous contacterons dans les 2-4 heures pour confirmer les détails de votre commande et fournir un devis final.';
+
+  @override
+  String get accountCreatedMessage =>
+      'Un nouveau compte a été créé pour vous. Vous pouvez utiliser \"Mot de passe oublié\" pour définir votre mot de passe.';
+
+  @override
+  String get orderLinkedToAccount =>
+      'Votre commande a été liée à votre compte existant.';
+
+  @override
+  String get cakeDetails => 'Détails du Gâteau';
+
+  @override
+  String get deliveryInformation => 'Informations de Livraison';
+
+  @override
+  String get additionalInformation => 'Informations Supplémentaires';
+
+  @override
+  String get submitOrder => 'Soumettre la Commande';
 }

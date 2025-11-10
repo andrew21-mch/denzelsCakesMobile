@@ -417,6 +417,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               _buildCartButton(),
                               const SizedBox(width: 8),
                               _buildActionButton(
+                                Icons.edit_note,
+                                () => Navigator.of(context).pushNamed('/custom-order'),
+                                tooltip: l10n.placeCustomOrder,
+                              ),
+                              const SizedBox(width: 8),
+                              _buildActionButton(
                                 Icons.person_outlined,
                                 () =>
                                     Navigator.of(context).pushNamed('/profile'),
@@ -493,6 +499,88 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 .pushNamed('/search', arguments: query);
                           }
                         },
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Custom Order Quick Action
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20.0, vertical: 12),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pushNamed('/custom-order');
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.accentGradient,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: AppTheme.shadowColor,
+                              blurRadius: 12,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.edit_note,
+                                color: Colors.white,
+                                size: 28,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.cake,
+                                        color: Colors.white,
+                                        size: 18,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        l10n.placeCustomOrder,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    l10n.orderCustomCake,
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.9),
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(
+                              Icons.arrow_forward_ios,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -754,12 +842,28 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.of(context).pushNamed('/custom-order');
+        },
+        backgroundColor: AppTheme.accentColor,
+        icon: const Icon(Icons.edit_note, color: Colors.white),
+        label: Text(
+          l10n.placeCustomOrder,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        tooltip: l10n.placeCustomOrder,
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: _buildBottomNavigationBar(context),
     ),
     );
   }
 
-  Widget _buildActionButton(IconData icon, VoidCallback onPressed) {
+  Widget _buildActionButton(IconData icon, VoidCallback onPressed, {String? tooltip}) {
     return Container(
       width: 44,
       height: 44,
@@ -774,9 +878,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
         ],
       ),
-      child: IconButton(
-        icon: Icon(icon, color: AppTheme.textPrimary, size: 22),
-        onPressed: onPressed,
+      child: Tooltip(
+        message: tooltip ?? '',
+        child: IconButton(
+          icon: Icon(icon, color: AppTheme.textPrimary, size: 22),
+          onPressed: onPressed,
+        ),
       ),
     );
   }

@@ -12,6 +12,7 @@ import '../../features/search/presentation/screens/search_screen.dart';
 import '../../features/cart/presentation/screens/cart_screen.dart';
 import '../../features/checkout/presentation/screens/checkout_screen.dart';
 import '../../features/orders/presentation/screens/orders_screen.dart';
+import '../../features/orders/presentation/screens/custom_order_screen.dart';
 import '../../features/training/presentation/screens/training_screen.dart';
 import '../../features/profile/presentation/screens/add_address_with_map_screen.dart';
 import '../../core/services/storage_service.dart';
@@ -29,6 +30,7 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String orders = '/orders';
   static const String orderDetail = '/orders/:id';
+  static const String customOrder = '/custom-order';
   static const String training = '/training';
   static const String addAddress = '/add-address';
 }
@@ -51,6 +53,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         AppRoutes.home,
         AppRoutes.search,
         AppRoutes.training,
+        AppRoutes.customOrder, // Custom orders can be placed by guests
       ];
 
       // Check if current route is public
@@ -138,6 +141,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.orders,
         name: 'orders',
         builder: (context, state) => const OrdersScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.customOrder,
+        name: 'customOrder',
+        builder: (context, state) => const CustomOrderScreen(),
       ),
 
       // Training routes

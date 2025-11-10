@@ -431,7 +431,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectDeliveryDate => 'Select Delivery Date';
 
   @override
-  String get selectDeliveryTime => 'Select Delivery Time';
+  String get selectDeliveryTime => 'Select delivery time';
 
   @override
   String get specialInstructions => 'Special Instructions';
@@ -1400,4 +1400,119 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categoryGeneralCelebration => 'General Celebration';
+
+  @override
+  String get customOrder => 'Custom Order';
+
+  @override
+  String get placeCustomOrder => 'Place Custom Order';
+
+  @override
+  String get orderCustomCake => 'Order Custom Cake';
+
+  @override
+  String get cakeType => 'Cake Type';
+
+  @override
+  String get selectCakeType => 'Select cake type';
+
+  @override
+  String get cakeSize => 'Cake Size';
+
+  @override
+  String get selectCakeSize => 'Select cake size';
+
+  @override
+  String get cakeFlavor => 'Flavor';
+
+  @override
+  String get selectFlavor => 'Select flavor';
+
+  @override
+  String get eventDate => 'Event Date';
+
+  @override
+  String get selectEventDate => 'Select event date';
+
+  @override
+  String get cakeDescription => 'Cake Description';
+
+  @override
+  String get describeYourCake =>
+      'Describe your cake design, colors, decorations, or any special requirements...';
+
+  @override
+  String get enterDeliveryAddress => 'Enter delivery address';
+
+  @override
+  String get deliveryType => 'Delivery Type';
+
+  @override
+  String get delivery => 'Delivery';
+
+  @override
+  String get pickup => 'Pickup';
+
+  @override
+  String get preferredDeliveryTime => 'Preferred Delivery Time';
+
+  @override
+  String get morning => 'Morning (8 AM - 12 PM)';
+
+  @override
+  String get afternoon => 'Afternoon (12 PM - 5 PM)';
+
+  @override
+  String get evening => 'Evening (5 PM - 8 PM)';
+
+  @override
+  String get estimatedBudget => 'Estimated Budget (FCFA)';
+
+  @override
+  String get enterBudget => 'Enter estimated budget';
+
+  @override
+  String get additionalNotes => 'Additional Notes';
+
+  @override
+  String get anyOtherInformation => 'Any other information we should know...';
+
+  @override
+  String get smallCake => 'Small (1-5 people)';
+
+  @override
+  String get mediumCake => 'Medium (6-15 people)';
+
+  @override
+  String get largeCake => 'Large (16-30 people)';
+
+  @override
+  String get extraLargeCake => 'Extra Large (30+ people)';
+
+  @override
+  String get customOrderSubmitted => 'Custom order submitted successfully!';
+
+  @override
+  String get weWillContactYou =>
+      'We will contact you within 2-4 hours to confirm your order details and provide a final quote.';
+
+  @override
+  String get accountCreatedMessage =>
+      'A new account has been created for you. You can use \"Forgot Password\" to set your password.';
+
+  @override
+  String get orderLinkedToAccount =>
+      'Your order has been linked to your existing account.';
+
+  @override
+  String get cakeDetails => 'Cake Details';
+
+  @override
+  String get deliveryInformation => 'Delivery Information';
+
+  @override
+  String get additionalInformation => 'Additional Information';
+
+  @override
+  String get submitOrder => 'Submit Order';
 }

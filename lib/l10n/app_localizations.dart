@@ -935,7 +935,7 @@ abstract class AppLocalizations {
   /// No description provided for @selectDeliveryTime.
   ///
   /// In en, this message translates to:
-  /// **'Select Delivery Time'**
+  /// **'Select delivery time'**
   String get selectDeliveryTime;
 
   /// No description provided for @specialInstructions.
@@ -2779,6 +2779,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'General Celebration'**
   String get categoryGeneralCelebration;
+
+  /// No description provided for @customOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Order'**
+  String get customOrder;
+
+  /// No description provided for @placeCustomOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Place Custom Order'**
+  String get placeCustomOrder;
+
+  /// No description provided for @orderCustomCake.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Custom Cake'**
+  String get orderCustomCake;
+
+  /// No description provided for @cakeType.
+  ///
+  /// In en, this message translates to:
+  /// **'Cake Type'**
+  String get cakeType;
+
+  /// No description provided for @selectCakeType.
+  ///
+  /// In en, this message translates to:
+  /// **'Select cake type'**
+  String get selectCakeType;
+
+  /// No description provided for @cakeSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Cake Size'**
+  String get cakeSize;
+
+  /// No description provided for @selectCakeSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Select cake size'**
+  String get selectCakeSize;
+
+  /// No description provided for @cakeFlavor.
+  ///
+  /// In en, this message translates to:
+  /// **'Flavor'**
+  String get cakeFlavor;
+
+  /// No description provided for @selectFlavor.
+  ///
+  /// In en, this message translates to:
+  /// **'Select flavor'**
+  String get selectFlavor;
+
+  /// No description provided for @eventDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Event Date'**
+  String get eventDate;
+
+  /// No description provided for @selectEventDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select event date'**
+  String get selectEventDate;
+
+  /// No description provided for @cakeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Cake Description'**
+  String get cakeDescription;
+
+  /// No description provided for @describeYourCake.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe your cake design, colors, decorations, or any special requirements...'**
+  String get describeYourCake;
+
+  /// No description provided for @enterDeliveryAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter delivery address'**
+  String get enterDeliveryAddress;
+
+  /// No description provided for @deliveryType.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery Type'**
+  String get deliveryType;
+
+  /// No description provided for @delivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get delivery;
+
+  /// No description provided for @pickup.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup'**
+  String get pickup;
+
+  /// No description provided for @preferredDeliveryTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferred Delivery Time'**
+  String get preferredDeliveryTime;
+
+  /// No description provided for @morning.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning (8 AM - 12 PM)'**
+  String get morning;
+
+  /// No description provided for @afternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Afternoon (12 PM - 5 PM)'**
+  String get afternoon;
+
+  /// No description provided for @evening.
+  ///
+  /// In en, this message translates to:
+  /// **'Evening (5 PM - 8 PM)'**
+  String get evening;
+
+  /// No description provided for @estimatedBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated Budget (FCFA)'**
+  String get estimatedBudget;
+
+  /// No description provided for @enterBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter estimated budget'**
+  String get enterBudget;
+
+  /// No description provided for @additionalNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Additional Notes'**
+  String get additionalNotes;
+
+  /// No description provided for @anyOtherInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Any other information we should know...'**
+  String get anyOtherInformation;
+
+  /// No description provided for @smallCake.
+  ///
+  /// In en, this message translates to:
+  /// **'Small (1-5 people)'**
+  String get smallCake;
+
+  /// No description provided for @mediumCake.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium (6-15 people)'**
+  String get mediumCake;
+
+  /// No description provided for @largeCake.
+  ///
+  /// In en, this message translates to:
+  /// **'Large (16-30 people)'**
+  String get largeCake;
+
+  /// No description provided for @extraLargeCake.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra Large (30+ people)'**
+  String get extraLargeCake;
+
+  /// No description provided for @customOrderSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom order submitted successfully!'**
+  String get customOrderSubmitted;
+
+  /// No description provided for @weWillContactYou.
+  ///
+  /// In en, this message translates to:
+  /// **'We will contact you within 2-4 hours to confirm your order details and provide a final quote.'**
+  String get weWillContactYou;
+
+  /// No description provided for @accountCreatedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'A new account has been created for you. You can use \"Forgot Password\" to set your password.'**
+  String get accountCreatedMessage;
+
+  /// No description provided for @orderLinkedToAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order has been linked to your existing account.'**
+  String get orderLinkedToAccount;
+
+  /// No description provided for @cakeDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Cake Details'**
+  String get cakeDetails;
+
+  /// No description provided for @deliveryInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery Information'**
+  String get deliveryInformation;
+
+  /// No description provided for @additionalInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Additional Information'**
+  String get additionalInformation;
+
+  /// No description provided for @submitOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Order'**
+  String get submitOrder;
 }
 
 class _AppLocalizationsDelegate
