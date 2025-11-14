@@ -36,7 +36,8 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
   final List<String> _flavors = ['Vanilla', 'Chocolate', 'Strawberry'];
   final List<String> _tags = [];
   bool _isAvailable = true;
-  String? _targetGender; // New field for gender specification
+  String? _targetAgeGroup; // Age group: adults or kids
+  String? _targetGender; // Gender: male/female for adults, boy/girl for kids
   String? _selectedCategory; // Selected category
 
   @override
@@ -379,23 +380,55 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-              initialValue: _targetGender,
+              value: _targetAgeGroup,
               decoration: const InputDecoration(
-                labelText: 'Target Gender (Optional)',
-                hintText: 'Select target gender',
-                prefixIcon: Icon(Icons.person, color: AppTheme.accentColor),
+                labelText: 'Target Age Group (Optional)',
+                hintText: 'Select age group',
+                prefixIcon: Icon(Icons.group, color: AppTheme.accentColor),
               ),
               items: const [
                 DropdownMenuItem(value: null, child: Text('Not specified')),
-                DropdownMenuItem(value: 'male', child: Text('Male')),
-                DropdownMenuItem(value: 'female', child: Text('Female')),
+                DropdownMenuItem(value: 'adults', child: Text('Adults')),
+                DropdownMenuItem(value: 'kids', child: Text('Kids')),
               ],
               onChanged: (value) {
                 setState(() {
-                  _targetGender = value;
+                  _targetAgeGroup = value;
+                  // Reset gender when age group changes
+                  _targetGender = null;
                 });
               },
             ),
+            const SizedBox(height: 16),
+            if (_targetAgeGroup != null)
+              DropdownButtonFormField<String>(
+                value: _targetGender,
+                decoration: InputDecoration(
+                  labelText: _targetAgeGroup == 'adults'
+                      ? 'Target Gender (Optional)'
+                      : 'Target Gender (Optional)',
+                  hintText: _targetAgeGroup == 'adults'
+                      ? 'Select gender'
+                      : 'Select gender',
+                  prefixIcon: const Icon(Icons.person, color: AppTheme.accentColor),
+                ),
+                items: _targetAgeGroup == 'adults'
+                    ? const [
+                        DropdownMenuItem(value: null, child: Text('Not specified')),
+                        DropdownMenuItem(value: 'male', child: Text('Male')),
+                        DropdownMenuItem(value: 'female', child: Text('Female')),
+                      ]
+                    : const [
+                        DropdownMenuItem(value: null, child: Text('Not specified')),
+                        DropdownMenuItem(value: 'boy', child: Text('Boy')),
+                        DropdownMenuItem(value: 'girl', child: Text('Girl')),
+                      ],
+                onChanged: (value) {
+                  setState(() {
+                    _targetGender = value;
+                  });
+                },
+              ),
           ],
         ),
       ),
@@ -1073,6 +1106,7 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
         'prepTimeMinutes': prepTime,
         'servingsEstimate': servings,
         'isAvailable': _isAvailable,
+        'targetAgeGroup': _targetAgeGroup,
         'targetGender': _targetGender,
       };
 

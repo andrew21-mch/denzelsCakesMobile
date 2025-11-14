@@ -5,6 +5,8 @@ class FilterOptions {
   final String? sortBy;
   final String? sortOrder;
   final bool? isAvailable;
+  final String? targetAgeGroup;
+  final String? targetGender;
 
   const FilterOptions({
     this.minPrice,
@@ -13,6 +15,8 @@ class FilterOptions {
     this.sortBy,
     this.sortOrder,
     this.isAvailable,
+    this.targetAgeGroup,
+    this.targetGender,
   });
 
   FilterOptions copyWith({
@@ -22,6 +26,8 @@ class FilterOptions {
     String? sortBy,
     String? sortOrder,
     bool? isAvailable,
+    String? targetAgeGroup,
+    String? targetGender,
   }) {
     return FilterOptions(
       minPrice: minPrice ?? this.minPrice,
@@ -30,6 +36,8 @@ class FilterOptions {
       sortBy: sortBy ?? this.sortBy,
       sortOrder: sortOrder ?? this.sortOrder,
       isAvailable: isAvailable ?? this.isAvailable,
+      targetAgeGroup: targetAgeGroup ?? this.targetAgeGroup,
+      targetGender: targetGender ?? this.targetGender,
     );
   }
 
@@ -42,6 +50,8 @@ class FilterOptions {
     if (sortBy != null) params['sortBy'] = sortBy;
     if (sortOrder != null) params['sortOrder'] = sortOrder;
     if (isAvailable != null) params['isAvailable'] = isAvailable;
+    if (targetAgeGroup != null) params['targetAgeGroup'] = targetAgeGroup;
+    if (targetGender != null) params['targetGender'] = targetGender;
 
     return params;
   }
@@ -52,7 +62,9 @@ class FilterOptions {
         (tags != null && tags!.isNotEmpty) ||
         sortBy != null ||
         sortOrder != null ||
-        isAvailable != null;
+        isAvailable != null ||
+        targetAgeGroup != null ||
+        targetGender != null;
   }
 
   FilterOptions clear() {
@@ -61,7 +73,7 @@ class FilterOptions {
 
   @override
   String toString() {
-    return 'FilterOptions(minPrice: $minPrice, maxPrice: $maxPrice, tags: $tags, sortBy: $sortBy, sortOrder: $sortOrder, isAvailable: $isAvailable)';
+    return 'FilterOptions(minPrice: $minPrice, maxPrice: $maxPrice, tags: $tags, sortBy: $sortBy, sortOrder: $sortOrder, isAvailable: $isAvailable, targetAgeGroup: $targetAgeGroup, targetGender: $targetGender)';
   }
 
   @override
@@ -74,7 +86,9 @@ class FilterOptions {
         other.tags == tags &&
         other.sortBy == sortBy &&
         other.sortOrder == sortOrder &&
-        other.isAvailable == isAvailable;
+        other.isAvailable == isAvailable &&
+        other.targetAgeGroup == targetAgeGroup &&
+        other.targetGender == targetGender;
   }
 
   @override
@@ -84,7 +98,9 @@ class FilterOptions {
         tags.hashCode ^
         sortBy.hashCode ^
         sortOrder.hashCode ^
-        isAvailable.hashCode;
+        isAvailable.hashCode ^
+        targetAgeGroup.hashCode ^
+        targetGender.hashCode;
   }
 }
 

@@ -10,6 +10,7 @@ import '../../../../core/services/cart_service.dart';
 import '../../../../core/services/cache_service.dart';
 import 'package:denzels_cakes/l10n/app_localizations.dart';
 import '../../../../core/utils/category_utils.dart';
+import '../../../search/data/models/filter_options.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -35,6 +36,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   // Filter state
   String? _selectedCategory;
+  FilterOptions _currentFilters = const FilterOptions();
+  String? _selectedAgeGroup;
+  String? _selectedGender;
 
   // Cart state
   int _cartItemCount = 0;
@@ -271,6 +275,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     });
   }
 
+  void _updateFilters() {
+    setState(() {
+      _currentFilters = FilterOptions(
+        targetAgeGroup: _selectedAgeGroup,
+        targetGender: _selectedGender,
+      );
+    });
+    // Trigger search with new filters if there's a search query
+    if (_searchController.text.trim().isNotEmpty) {
+      _performRealTimeSearch();
+    }
+  }
+
   Future<void> _performRealTimeSearch() async {
     final query = _searchController.text.trim();
     
@@ -279,6 +296,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         _isSearching = false;
         _filteredCakes = _featuredCakes;
         _selectedCategory = null;
+        _selectedAgeGroup = null;
+        _selectedGender = null;
+        _currentFilters = const FilterOptions();
       });
       return;
     }
@@ -288,7 +308,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     });
 
     try {
-      final searchResults = await CakeRepository.searchCakes(query: query, limit: 20);
+      final searchResults = await CakeRepository.searchCakesWithFilters(
+        query: query,
+        filters: _currentFilters.hasActiveFilters ? _currentFilters : null,
+        limit: 20,
+      );
       setState(() {
         _filteredCakes = searchResults.data;
         _isSearching = false;
@@ -442,64 +466,180 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         horizontal: 20.0,
                         vertical:
                             12), // Increased vertical padding from 4 to 12
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: AppTheme.shadowColor,
-                            blurRadius: 15,
-                            offset: Offset(0, 6),
+                    child: Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: AppTheme.shadowColor,
+                                blurRadius: 15,
+                                offset: Offset(0, 6),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: TextField(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          hintText: l10n.searchForCakes,
-                          hintStyle:
-                              const TextStyle(color: AppTheme.textTertiary),
-                          prefixIcon: const Icon(Icons.search,
-                              color: AppTheme.accentColor, size: 24),
-                          suffixIcon: _isSearching
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: Padding(
-                                    padding: EdgeInsets.all(12),
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          AppTheme.accentColor),
+                          child: TextField(
+                            controller: _searchController,
+                            decoration: InputDecoration(
+                              hintText: l10n.searchForCakes,
+                              hintStyle:
+                                  const TextStyle(color: AppTheme.textTertiary),
+                              prefixIcon: const Icon(Icons.search,
+                                  color: AppTheme.accentColor, size: 24),
+                              suffixIcon: _isSearching
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: Padding(
+                                        padding: EdgeInsets.all(12),
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor: AlwaysStoppedAnimation<Color>(
+                                              AppTheme.accentColor),
+                                        ),
+                                      ),
+                                    )
+                                  : _searchController.text.isNotEmpty
+                                      ? IconButton(
+                                          icon: const Icon(Icons.clear,
+                                              color: AppTheme.textSecondary),
+                                          onPressed: () {
+                                            setState(() {
+                                              _searchController.clear();
+                                              _selectedAgeGroup = null;
+                                              _selectedGender = null;
+                                              _currentFilters = const FilterOptions();
+                                            });
+                                          },
+                                        )
+                                      : null,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                borderSide: BorderSide.none,
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 16),
+                            ),
+                            onSubmitted: (query) {
+                              if (query.isNotEmpty) {
+                                Navigator.of(context)
+                                    .pushNamed('/search', arguments: query);
+                              }
+                            },
+                          ),
+                        ),
+                        // Filter Row
+                        if (_searchController.text.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: AppTheme.primaryColor.withValues(alpha: 0.3),
                                     ),
                                   ),
-                                )
-                              : _searchController.text.isNotEmpty
-                                  ? IconButton(
-                                      icon: const Icon(Icons.clear,
-                                          color: AppTheme.textSecondary),
-                                      onPressed: () {
-                                        _searchController.clear();
+                                  child: DropdownButtonHideUnderline(
+                                    child: DropdownButton<String>(
+                                      value: _selectedAgeGroup,
+                                      hint: Row(
+                                        children: const [
+                                          Icon(Icons.group, size: 18, color: AppTheme.textSecondary),
+                                          SizedBox(width: 8),
+                                          Text('Age Group', style: TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
+                                        ],
+                                      ),
+                                      items: const [
+                                        DropdownMenuItem(value: null, child: Text('All')),
+                                        DropdownMenuItem(value: 'adults', child: Text('Adults')),
+                                        DropdownMenuItem(value: 'kids', child: Text('Kids')),
+                                      ],
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _selectedAgeGroup = value;
+                                          _selectedGender = null; // Reset gender when age group changes
+                                          _updateFilters();
+                                        });
                                       },
-                                    )
-                                  : null,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            borderSide: BorderSide.none,
+                                      isExpanded: true,
+                                      icon: const Icon(Icons.arrow_drop_down, color: AppTheme.accentColor),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              if (_selectedAgeGroup != null) ...[
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                                      ),
+                                    ),
+                                    child: DropdownButtonHideUnderline(
+                                      child: DropdownButton<String>(
+                                        value: _selectedGender,
+                                        hint: const Row(
+                                          children: [
+                                            Icon(Icons.person, size: 18, color: AppTheme.textSecondary),
+                                            SizedBox(width: 8),
+                                            Text('Gender', style: TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
+                                          ],
+                                        ),
+                                        items: _selectedAgeGroup == 'adults'
+                                            ? const [
+                                                DropdownMenuItem(value: null, child: Text('All')),
+                                                DropdownMenuItem(value: 'male', child: Text('Male')),
+                                                DropdownMenuItem(value: 'female', child: Text('Female')),
+                                              ]
+                                            : const [
+                                                DropdownMenuItem(value: null, child: Text('All')),
+                                                DropdownMenuItem(value: 'boy', child: Text('Boy')),
+                                                DropdownMenuItem(value: 'girl', child: Text('Girl')),
+                                              ],
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _selectedGender = value;
+                                            _updateFilters();
+                                          });
+                                        },
+                                        isExpanded: true,
+                                        icon: const Icon(Icons.arrow_drop_down, color: AppTheme.accentColor),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              if (_currentFilters.hasActiveFilters) ...[
+                                const SizedBox(width: 8),
+                                IconButton(
+                                  icon: const Icon(Icons.clear, color: AppTheme.textSecondary),
+                                  onPressed: () {
+                                    setState(() {
+                                      _selectedAgeGroup = null;
+                                      _selectedGender = null;
+                                      _currentFilters = const FilterOptions();
+                                    });
+                                    _performRealTimeSearch();
+                                  },
+                                  tooltip: 'Clear filters',
+                                ),
+                              ],
+                            ],
                           ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 16),
-                        ),
-                        onSubmitted: (query) {
-                          if (query.isNotEmpty) {
-                            Navigator.of(context)
-                                .pushNamed('/search', arguments: query);
-                          }
-                        },
-                      ),
+                        ],
+                      ],
                     ),
                   ),
                 ),

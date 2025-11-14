@@ -176,6 +176,10 @@ class _FilterDialogState extends State<FilterDialog> {
                         // Tags/Categories
                         _buildTagsSection(),
                         const SizedBox(height: 24),
+
+                        // Age Group & Gender
+                        _buildAgeGroupGenderSection(),
+                        const SizedBox(height: 24),
                       ],
                     ),
                   ),
@@ -341,6 +345,85 @@ class _FilterDialogState extends State<FilterDialog> {
             );
           }).toList(),
         ),
+      ],
+    );
+  }
+
+  Widget _buildAgeGroupGenderSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Age Group & Gender',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+              ),
+        ),
+        const SizedBox(height: 12),
+        
+        // Age Group
+        DropdownButtonFormField<String>(
+          value: _currentFilters.targetAgeGroup,
+          decoration: const InputDecoration(
+            labelText: 'Age Group',
+            hintText: 'Select age group',
+            border: OutlineInputBorder(),
+            filled: true,
+            fillColor: Colors.white,
+          ),
+          items: const [
+            DropdownMenuItem(value: null, child: Text('All')),
+            DropdownMenuItem(value: 'adults', child: Text('Adults')),
+            DropdownMenuItem(value: 'kids', child: Text('Kids')),
+          ],
+          onChanged: (value) {
+            setState(() {
+              _currentFilters = _currentFilters.copyWith(
+                targetAgeGroup: value,
+                // Reset gender when age group changes
+                targetGender: null,
+              );
+            });
+          },
+        ),
+        
+        const SizedBox(height: 16),
+        
+        // Gender (only show if age group is selected)
+        if (_currentFilters.targetAgeGroup != null)
+          DropdownButtonFormField<String>(
+            value: _currentFilters.targetGender,
+            decoration: InputDecoration(
+              labelText: _currentFilters.targetAgeGroup == 'adults'
+                  ? 'Gender'
+                  : 'Gender',
+              hintText: _currentFilters.targetAgeGroup == 'adults'
+                  ? 'Select gender'
+                  : 'Select gender',
+              border: const OutlineInputBorder(),
+              filled: true,
+              fillColor: Colors.white,
+            ),
+            items: _currentFilters.targetAgeGroup == 'adults'
+                ? const [
+                    DropdownMenuItem(value: null, child: Text('All')),
+                    DropdownMenuItem(value: 'male', child: Text('Male')),
+                    DropdownMenuItem(value: 'female', child: Text('Female')),
+                  ]
+                : const [
+                    DropdownMenuItem(value: null, child: Text('All')),
+                    DropdownMenuItem(value: 'boy', child: Text('Boy')),
+                    DropdownMenuItem(value: 'girl', child: Text('Girl')),
+                  ],
+            onChanged: (value) {
+              setState(() {
+                _currentFilters = _currentFilters.copyWith(
+                  targetGender: value,
+                );
+              });
+            },
+          ),
       ],
     );
   }
