@@ -55,27 +55,62 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text('Add New Cake'),
+        title: const Text(
+          'Add New Cake',
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.5,
+          ),
+        ),
         backgroundColor: AppTheme.surfaceColor,
         elevation: 0,
+        shadowColor: AppTheme.shadowColor,
+        surfaceTintColor: Colors.transparent,
         actions: [
-          TextButton(
-            onPressed: _isLoading ? null : _saveCake,
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
             child: _isLoading
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(AppTheme.accentColor),
+                ? const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(AppTheme.accentColor),
+                      ),
                     ),
                   )
-                : const Text(
-                    'Save',
-                    style: TextStyle(
-                      color: AppTheme.accentColor,
-                      fontWeight: FontWeight.bold,
+                : TextButton(
+                    onPressed: _saveCake,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.primaryGradient,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: AppTheme.shadowColor,
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const Text(
+                        'Save',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                        ),
+                      ),
                     ),
                   ),
           ),
@@ -87,7 +122,7 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
           children: [
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 children: [
                   _buildImageSection(),
                   const SizedBox(height: 20),
@@ -123,33 +158,48 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
                 child: SizedBox(
                   width: double.infinity,
                   height: 50,
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _saveCake,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.accentColor,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 2,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: AppTheme.accentGradient,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.shadowColor,
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
                     ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _saveCake,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        foregroundColor: Colors.white,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : const Text(
+                              'Save Cake',
+                              style: TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.5,
+                              ),
                             ),
-                          )
-                        : const Text(
-                            'Save Cake',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                    ),
                   ),
                 ),
               ),
@@ -161,92 +211,153 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
   }
 
   Widget _buildImageSection() {
-    return Card(
-      color: AppTheme.surfaceColor,
-      elevation: 2,
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: const [
+          BoxShadow(
+            color: AppTheme.shadowColor,
+            blurRadius: 15,
+            offset: Offset(0, 6),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Cake Images',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textPrimary,
-              ),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.photo_library,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'Cake Images',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textPrimary,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             SizedBox(
-              height: 100,
+              height: 120,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: [
                   ..._selectedImages.map(
                     (image) => Container(
-                      width: 100,
-                      height: 100,
-                      margin: const EdgeInsets.only(right: 12),
+                      width: 120,
+                      height: 120,
+                      margin: const EdgeInsets.only(right: 16),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        image: DecorationImage(
-                          image: FileImage(image),
-                          fit: BoxFit.cover,
-                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.shadowColor,
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      child: Stack(
-                        children: [
-                          Positioned(
-                            top: 4,
-                            right: 4,
-                            child: GestureDetector(
-                              onTap: () => _removeImage(image),
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: const BoxDecoration(
-                                  color: Colors.red,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.close,
-                                  color: Colors.white,
-                                  size: 16,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Stack(
+                          children: [
+                            Image.file(
+                              image,
+                              width: 120,
+                              height: 120,
+                              fit: BoxFit.cover,
+                            ),
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: GestureDetector(
+                                onTap: () => _removeImage(image),
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.withValues(alpha: 0.9),
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.2),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Icon(
+                                    Icons.close,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
                   GestureDetector(
                     onTap: _pickImages,
                     child: Container(
-                      width: 100,
-                      height: 100,
+                      width: 120,
+                      height: 120,
                       decoration: BoxDecoration(
-                        color: AppTheme.backgroundColor,
-                        borderRadius: BorderRadius.circular(8),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            AppTheme.paleBlue,
+                            AppTheme.lightBlue,
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: AppTheme.accentColor,
                           width: 2,
-                          style: BorderStyle.solid,
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.shadowColor,
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
                       child: const Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.add_photo_alternate,
+                            Icons.add_photo_alternate_rounded,
                             color: AppTheme.accentColor,
-                            size: 32,
+                            size: 40,
                           ),
+                          SizedBox(height: 8),
                           Text(
                             'Add Photo',
                             style: TextStyle(
                               color: AppTheme.accentColor,
-                              fontSize: 12,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
@@ -256,12 +367,32 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Add up to 5 high-quality images of your cake',
-              style: TextStyle(
-                color: AppTheme.textPrimary.withValues(alpha: 0.6),
-                fontSize: 12,
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppTheme.paleBlue,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: AppTheme.accentColor,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Add up to 5 high-quality images of your cake',
+                      style: TextStyle(
+                        color: AppTheme.textSecondary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -271,29 +402,70 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
   }
 
   Widget _buildBasicInfoSection() {
-    return Card(
-      color: AppTheme.surfaceColor,
-      elevation: 2,
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.shadowColor,
+            blurRadius: 15,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Basic Information',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textPrimary,
-              ),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.info_outline,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'Basic Information',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textPrimary,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             TextFormField(
               controller: _titleController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Cake Title *',
                 hintText: 'e.g., Chocolate Deluxe Cake',
-                prefixIcon: Icon(Icons.cake, color: AppTheme.accentColor),
+                prefixIcon: Container(
+                  margin: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppTheme.paleBlue,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.cake,
+                    color: AppTheme.accentColor,
+                    size: 20,
+                  ),
+                ),
+                filled: true,
+                fillColor: AppTheme.surfaceColor,
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -305,11 +477,20 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _descriptionController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Description *',
                 hintText: 'Describe your delicious cake...',
-                prefixIcon:
-                    Icon(Icons.description, color: AppTheme.accentColor),
+                prefixIcon: Container(
+                  margin: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppTheme.paleBlue,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.description, color: AppTheme.accentColor, size: 20),
+                ),
+                filled: true,
+                fillColor: AppTheme.surfaceColor,
               ),
               maxLines: 3,
               validator: (value) {
@@ -322,12 +503,21 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _basePriceController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Base Price *',
                 hintText: '0.00',
-                prefixIcon:
-                    Icon(Icons.attach_money, color: AppTheme.accentColor),
+                prefixIcon: Container(
+                  margin: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppTheme.paleBlue,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.attach_money, color: AppTheme.accentColor, size: 20),
+                ),
                 prefixText: 'XAF ',
+                filled: true,
+                fillColor: AppTheme.surfaceColor,
               ),
               keyboardType: TextInputType.number,
               validator: (value) {
@@ -343,10 +533,20 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _prepTimeController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Prep Time (min) *',
                 hintText: '60',
-                prefixIcon: Icon(Icons.timer, color: AppTheme.accentColor),
+                prefixIcon: Container(
+                  margin: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppTheme.paleBlue,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.timer, color: AppTheme.accentColor, size: 20),
+                ),
+                filled: true,
+                fillColor: AppTheme.surfaceColor,
               ),
               keyboardType: TextInputType.number,
               validator: (value) {
@@ -362,10 +562,20 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _servingsController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Servings Estimate *',
                 hintText: '8',
-                prefixIcon: Icon(Icons.people, color: AppTheme.accentColor),
+                prefixIcon: Container(
+                  margin: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppTheme.paleBlue,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.people, color: AppTheme.accentColor, size: 20),
+                ),
+                filled: true,
+                fillColor: AppTheme.surfaceColor,
               ),
               keyboardType: TextInputType.number,
               validator: (value) {
@@ -381,10 +591,20 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               value: _targetAgeGroup,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Target Age Group (Optional)',
                 hintText: 'Select age group',
-                prefixIcon: Icon(Icons.group, color: AppTheme.accentColor),
+                prefixIcon: Container(
+                  margin: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppTheme.paleBlue,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.group, color: AppTheme.accentColor, size: 20),
+                ),
+                filled: true,
+                fillColor: AppTheme.surfaceColor,
               ),
               items: const [
                 DropdownMenuItem(value: null, child: Text('Not specified')),
@@ -410,7 +630,17 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
                   hintText: _targetAgeGroup == 'adults'
                       ? 'Select gender'
                       : 'Select gender',
-                  prefixIcon: const Icon(Icons.person, color: AppTheme.accentColor),
+                  prefixIcon: Container(
+                    margin: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppTheme.paleBlue,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.person, color: AppTheme.accentColor, size: 20),
+                  ),
+                  filled: true,
+                  fillColor: AppTheme.surfaceColor,
                 ),
                 items: _targetAgeGroup == 'adults'
                     ? const [
@@ -436,31 +666,74 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
   }
 
   Widget _buildSizesSection() {
-    return Card(
-      color: AppTheme.surfaceColor,
-      elevation: 2,
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.shadowColor,
+            blurRadius: 15,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Available Sizes',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
-                  ),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.primaryGradient,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.straighten,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Available Sizes',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.textPrimary,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
                 ),
-                TextButton.icon(
-                  onPressed: _addSize,
-                  icon: const Icon(Icons.add, color: AppTheme.accentColor),
-                  label: const Text(
-                    'Add Size',
-                    style: TextStyle(color: AppTheme.accentColor),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.shadowColor,
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: TextButton.icon(
+                    onPressed: _addSize,
+                    icon: const Icon(Icons.add, color: Colors.white, size: 18),
+                    label: const Text(
+                      'Add Size',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -482,10 +755,21 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
   Widget _buildSizeItem(int index, Map<String, dynamic> size) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundColor,
-        borderRadius: BorderRadius.circular(8),
+        color: AppTheme.paleBlue,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppTheme.lightBlue,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.shadowColor.withValues(alpha: 0.3),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -528,10 +812,16 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
               ),
             ),
           ),
-          IconButton(
-            onPressed: () => _removeSize(index),
-            icon: const Icon(Icons.delete, color: Colors.red),
-            iconSize: 20,
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.red.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: IconButton(
+              onPressed: () => _removeSize(index),
+              icon: const Icon(Icons.delete, color: Colors.red),
+              iconSize: 20,
+            ),
           ),
         ],
       ),
@@ -539,46 +829,118 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
   }
 
   Widget _buildFlavorsSection() {
-    return Card(
-      color: AppTheme.surfaceColor,
-      elevation: 2,
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.shadowColor,
+            blurRadius: 15,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Available Flavors',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
-                  ),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.primaryGradient,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.local_dining,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Available Flavors',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.textPrimary,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
                 ),
-                TextButton.icon(
-                  onPressed: _addFlavor,
-                  icon: const Icon(Icons.add, color: AppTheme.accentColor),
-                  label: const Text(
-                    'Add Flavor',
-                    style: TextStyle(color: AppTheme.accentColor),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.shadowColor,
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: TextButton.icon(
+                    onPressed: _addFlavor,
+                    icon: const Icon(Icons.add, color: Colors.white, size: 18),
+                    label: const Text(
+                      'Add Flavor',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: 10,
+              runSpacing: 10,
               children: _flavors
                   .map(
-                    (flavor) => Chip(
-                      label: Text(flavor),
-                      backgroundColor: AppTheme.backgroundColor,
-                      deleteIcon: const Icon(Icons.close, size: 18),
-                      onDeleted: () => _removeFlavor(flavor),
+                    (flavor) => Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            AppTheme.paleBlue,
+                            AppTheme.lightBlue,
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: AppTheme.accentColor.withValues(alpha: 0.3),
+                          width: 1.5,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.shadowColor.withValues(alpha: 0.2),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Chip(
+                        label: Text(
+                          flavor,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                        backgroundColor: Colors.transparent,
+                        deleteIcon: const Icon(Icons.close, size: 18, color: AppTheme.accentColor),
+                        onDeleted: () => _removeFlavor(flavor),
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                      ),
                     ),
                   )
                   .toList(),
@@ -594,23 +956,50 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
     // Get all categories from CategoryUtils
     final categories = CategoryUtils.getAllCategoryKeys();
 
-    return Card(
-      color: AppTheme.surfaceColor,
-      elevation: 2,
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.shadowColor,
+            blurRadius: 15,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              l10n.category + ' *',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textPrimary,
-              ),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.category,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  l10n.category + ' *',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textPrimary,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             DropdownButtonFormField<String>(
               value: (_selectedCategory != null && categories.contains(_selectedCategory))
                   ? _selectedCategory
@@ -618,10 +1007,17 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
               decoration: InputDecoration(
                 labelText: l10n.selectCategory,
                 hintText: l10n.chooseCategoryForCake,
-                prefixIcon: const Icon(Icons.category, color: AppTheme.accentColor),
-                border: const OutlineInputBorder(),
+                prefixIcon: Container(
+                  margin: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppTheme.paleBlue,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.category, color: AppTheme.accentColor, size: 20),
+                ),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: AppTheme.surfaceColor,
               ),
               items: categories.map((category) {
                 return DropdownMenuItem(
@@ -663,58 +1059,140 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
   }
 
   Widget _buildTagsSection() {
-    return Card(
-      color: AppTheme.surfaceColor,
-      elevation: 2,
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.shadowColor,
+            blurRadius: 15,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Tags (Optional)',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
-                  ),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.primaryGradient,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.label,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Tags (Optional)',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.textPrimary,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
                 ),
-                TextButton.icon(
-                  onPressed: _addTag,
-                  icon: const Icon(Icons.add, color: AppTheme.accentColor),
-                  label: const Text(
-                    'Add Tag',
-                    style: TextStyle(color: AppTheme.accentColor),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.shadowColor,
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: TextButton.icon(
+                    onPressed: _addTag,
+                    icon: const Icon(Icons.add, color: Colors.white, size: 18),
+                    label: const Text(
+                      'Add Tag',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             if (_tags.isNotEmpty)
               Wrap(
-                spacing: 8,
-                runSpacing: 8,
+                spacing: 10,
+                runSpacing: 10,
                 children: _tags
                     .map(
-                      (tag) => Chip(
-                        label: Text(tag),
-                        backgroundColor:
-                            AppTheme.accentColor.withValues(alpha: 0.1),
-                        deleteIcon: const Icon(Icons.close, size: 18),
-                        onDeleted: () => _removeTag(tag),
+                      (tag) => Container(
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.accentGradient,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.shadowColor,
+                              blurRadius: 6,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Chip(
+                          label: Text(
+                            tag,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          backgroundColor: Colors.transparent,
+                          deleteIcon: const Icon(Icons.close, size: 18, color: Colors.white),
+                          onDeleted: () => _removeTag(tag),
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                        ),
                       ),
                     )
                     .toList(),
               )
             else
-              Text(
-                'Add tags like "Birthday", "Wedding", "Gluten-Free" to help customers find your cake',
-                style: TextStyle(
-                  color: AppTheme.textPrimary.withValues(alpha: 0.6),
-                  fontSize: 14,
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.paleBlue,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: AppTheme.accentColor,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Add tags like "Birthday", "Wedding", "Gluten-Free" to help customers find your cake',
+                        style: TextStyle(
+                          color: AppTheme.textSecondary,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
           ],
@@ -724,40 +1202,90 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
   }
 
   Widget _buildAvailabilitySection() {
-    return Card(
-      color: AppTheme.surfaceColor,
-      elevation: 2,
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.shadowColor,
+            blurRadius: 15,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Availability',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textPrimary,
-              ),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.check_circle_outline,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'Availability',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textPrimary,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
-            SwitchListTile(
-              title: const Text('Available for Order'),
-              subtitle: Text(
-                _isAvailable
-                    ? 'Customers can order this cake'
-                    : 'This cake is currently unavailable',
-                style: TextStyle(
-                  color: AppTheme.textPrimary.withValues(alpha: 0.6),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: _isAvailable ? AppTheme.paleBlue : AppTheme.backgroundColor,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: _isAvailable ? AppTheme.accentColor : AppTheme.borderColor,
+                  width: 2,
                 ),
               ),
-              value: _isAvailable,
-              activeThumbColor: AppTheme.accentColor,
-              onChanged: (value) {
-                setState(() {
-                  _isAvailable = value;
-                });
-              },
+              child: SwitchListTile(
+                title: const Text(
+                  'Available for Order',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    _isAvailable
+                        ? 'Customers can order this cake'
+                        : 'This cake is currently unavailable',
+                    style: TextStyle(
+                      color: AppTheme.textSecondary,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+                value: _isAvailable,
+                activeColor: AppTheme.accentColor,
+                activeTrackColor: AppTheme.accentColor.withValues(alpha: 0.5),
+                onChanged: (value) {
+                  setState(() {
+                    _isAvailable = value;
+                  });
+                },
+                contentPadding: EdgeInsets.zero,
+              ),
             ),
           ],
         ),

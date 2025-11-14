@@ -46,6 +46,7 @@ dependencies:
   connectivity_plus: ^5.0.2
   url_launcher: ^6.2.2
   image_picker: ^1.0.4
+  file_picker: ^6.1.1
   
   # Maps & Location
   google_maps_flutter: ^2.5.0
