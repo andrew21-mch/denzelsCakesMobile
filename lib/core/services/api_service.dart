@@ -283,9 +283,22 @@ class _ErrorInterceptor extends Interceptor {
       case DioExceptionType.cancel:
         message = 'Request was cancelled.';
         break;
+      case DioExceptionType.connectionError:
+        message = 'Failed to connect to server. Please check your internet connection and try again.';
+        break;
       case DioExceptionType.unknown:
         if (err.error is SocketException) {
-          message = 'No internet connection. Please check your network.';
+          final socketError = err.error as SocketException;
+          if (socketError.message.contains('Failed host lookup') || 
+              socketError.message.contains('Name resolution failed')) {
+            message = 'Cannot reach server. Please check your internet connection or contact support if the problem persists.';
+          } else {
+            message = 'No internet connection. Please check your network.';
+          }
+        } else if (err.message != null && 
+                   (err.message!.contains('Failed host lookup') || 
+                    err.message!.contains('Name resolution failed'))) {
+          message = 'Cannot reach server. Please check your internet connection or contact support if the problem persists.';
         } else {
           message = 'An unexpected error occurred.';
         }

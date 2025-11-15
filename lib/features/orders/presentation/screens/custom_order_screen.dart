@@ -38,6 +38,8 @@ class _CustomOrderScreenState extends State<CustomOrderScreen> {
 
   String _deliveryType = 'delivery';
   DateTime? _selectedEventDate;
+  String? _targetAgeGroup; // Age group specification for the order
+  String? _targetGender; // Gender specification for the order
   bool _isSubmitting = false;
   bool _isSearchingAddress = false;
   List<Placemark> _addressSuggestions = [];
@@ -449,9 +451,7 @@ class _CustomOrderScreenState extends State<CustomOrderScreen> {
         paymentMethod: 'cash', // Default, can be updated later
         guestDetails: guestDetails,
         deliveryDetails: deliveryDetails,
-        customerNotes: _descriptionController.text.isNotEmpty
-            ? _descriptionController.text
-            : null,
+        customerNotes: _buildCustomerNotes(),
         imageUrls: imageUrls.isNotEmpty ? imageUrls : null,
       );
 
@@ -585,6 +585,10 @@ class _CustomOrderScreenState extends State<CustomOrderScreen> {
                   validator: (value) =>
                       value == null || value.isEmpty ? 'Please select event date' : null,
                 ),
+                const SizedBox(height: 16),
+
+                // Age Group & Gender
+                _buildAgeGroupGenderSection(),
                 const SizedBox(height: 16),
 
                 // Description
@@ -886,6 +890,148 @@ class _CustomOrderScreenState extends State<CustomOrderScreen> {
         ),
       ],
     );
+  }
+
+  Widget _buildAgeGroupGenderSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Age Group & Gender (Optional)',
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Specify the target age group and gender for this order',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppTheme.textSecondary,
+              ),
+        ),
+        const SizedBox(height: 12),
+        
+        // Age Group
+        DropdownButtonFormField<String>(
+          value: _targetAgeGroup,
+          decoration: InputDecoration(
+            labelText: 'Age Group',
+            hintText: 'Select age group',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            filled: true,
+            fillColor: AppTheme.backgroundColor,
+            prefixIcon: const Icon(Icons.group, color: AppTheme.accentColor),
+          ),
+          items: const [
+            DropdownMenuItem(value: null, child: Text('Not specified')),
+            DropdownMenuItem(value: 'adults', child: Text('Adults')),
+            DropdownMenuItem(value: 'kids', child: Text('Kids')),
+          ],
+          onChanged: (value) {
+            setState(() {
+              _targetAgeGroup = value;
+              // Reset gender when age group changes to ensure compatibility
+              _targetGender = null;
+            });
+          },
+        ),
+        
+        // Gender (only show if age group is selected)
+        if (_targetAgeGroup != null) ...[
+          const SizedBox(height: 16),
+          Builder(
+            builder: (context) {
+              // Validate gender value against current age group
+              // If the current gender value is not valid for the current age group, use null
+              String? validGender = _targetGender;
+              if (_targetAgeGroup == 'adults') {
+                // For adults, only 'male' and 'female' are valid
+                if (_targetGender != null && _targetGender != 'male' && _targetGender != 'female') {
+                  validGender = null;
+                }
+              } else {
+                // For kids, only 'boy' and 'girl' are valid
+                if (_targetGender != null && _targetGender != 'boy' && _targetGender != 'girl') {
+                  validGender = null;
+                }
+              }
+              
+              return DropdownButtonFormField<String>(
+                value: validGender,
+                decoration: InputDecoration(
+                  labelText: 'Gender',
+                  hintText: 'Select gender',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  filled: true,
+                  fillColor: AppTheme.backgroundColor,
+                  prefixIcon: const Icon(Icons.person, color: AppTheme.accentColor),
+                ),
+                items: _targetAgeGroup == 'adults'
+                    ? const [
+                        DropdownMenuItem(value: null, child: Text('Not specified')),
+                        DropdownMenuItem(value: 'male', child: Text('Male')),
+                        DropdownMenuItem(value: 'female', child: Text('Female')),
+                      ]
+                    : const [
+                        DropdownMenuItem(value: null, child: Text('Not specified')),
+                        DropdownMenuItem(value: 'boy', child: Text('Boy')),
+                        DropdownMenuItem(value: 'girl', child: Text('Girl')),
+                      ],
+                onChanged: (value) {
+                  setState(() {
+                    _targetGender = value;
+                  });
+                },
+              );
+            },
+          ),
+        ],
+      ],
+    );
+  }
+
+  String _buildCustomerNotes() {
+    final notes = <String>[];
+    
+    // Add description if provided
+    if (_descriptionController.text.isNotEmpty) {
+      notes.add(_descriptionController.text);
+    }
+    
+    // Add age group and gender if provided
+    if (_targetAgeGroup != null || _targetGender != null) {
+      final ageGroupGender = <String>[];
+      if (_targetAgeGroup != null) {
+        ageGroupGender.add('Age Group: ${_targetAgeGroup == 'adults' ? 'Adults' : 'Kids'}');
+      }
+      if (_targetGender != null) {
+        ageGroupGender.add('Gender: ${_getGenderDisplayName(_targetGender!)}');
+      }
+      if (ageGroupGender.isNotEmpty) {
+        notes.add(ageGroupGender.join(', '));
+      }
+    }
+    
+    return notes.isEmpty ? '' : notes.join('\n\n');
+  }
+
+  String _getGenderDisplayName(String gender) {
+    switch (gender) {
+      case 'male':
+        return 'Male';
+      case 'female':
+        return 'Female';
+      case 'boy':
+        return 'Boy';
+      case 'girl':
+        return 'Girl';
+      default:
+        return 'Not specified';
+    }
   }
 
   Widget _buildImageSection() {

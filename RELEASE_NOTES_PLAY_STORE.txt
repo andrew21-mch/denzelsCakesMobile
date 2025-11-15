@@ -1,0 +1,19 @@
+<en-GB>
+Enhanced filtering, improved customization, and new account management features for a better cake ordering experience.
+
+What's New:
+• Filter cakes by age group and gender
+• Improved color picker with quick presets
+• Account deletion now available
+• Better tablet support and UI fixes
+</en-GB>
+
+<fr-FR>
+Filtrage amélioré, personnalisation améliorée et nouvelles fonctionnalités de gestion de compte pour une meilleure expérience de commande de gâteaux.
+
+Nouveautés :
+• Filtrer les gâteaux par groupe d'âge et genre
+• Sélecteur de couleurs amélioré avec préréglages rapides
+• Suppression de compte maintenant disponible
+• Meilleure prise en charge des tablettes et corrections d'interface
+</fr-FR>

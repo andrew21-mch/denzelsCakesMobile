@@ -882,11 +882,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       : _errorMessage != null
                           ? SliverToBoxAdapter(
                               child: Container(
-                                height: 120, // Further reduced from 140
-                                margin: const EdgeInsets.symmetric(
-                                    vertical: 8), // Reduced from 10
-                                padding:
-                                    const EdgeInsets.all(12), // Reduced from 14
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(20),
@@ -898,63 +895,70 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                     ),
                                   ],
                                 ),
-                                child: Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    mainAxisSize: MainAxisSize
-                                        .min, // Ensure minimum space
-                                    children: [
-                                      Container(
-                                        width: 40, // Reduced from 50
-                                        height: 40, // Reduced from 50
-                                        decoration: BoxDecoration(
-                                          color: AppTheme.errorColor
-                                              .withValues(alpha: 0.1),
-                                          borderRadius: BorderRadius.circular(
-                                              20), // Reduced from 25
-                                        ),
-                                        child: const Icon(
-                                          Icons.error_outline,
-                                          size: 24, // Reduced from 28
-                                          color: AppTheme.errorColor,
-                                        ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 40,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.errorColor
+                                            .withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(20),
                                       ),
-                                      const SizedBox(
-                                          height: 8), // Reduced from 12
-                                      Text(
-                                        l10n.failedToLoadCakes,
-                                        style: const TextStyle(
-                                          color: AppTheme.textPrimary,
-                                          fontSize: 13, // Reduced from 14
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                      child: const Icon(
+                                        Icons.error_outline,
+                                        size: 24,
+                                        color: AppTheme.errorColor,
                                       ),
-                                      const SizedBox(
-                                          height: 4), // Reduced from 6
-                                      Container(
-                                        height: 32, // Fixed height for button
-                                        decoration: BoxDecoration(
-                                          gradient: AppTheme.primaryGradient,
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                        child: ElevatedButton(
-                                          onPressed: _loadData,
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.transparent,
-                                            shadowColor: Colors.transparent,
-                                            minimumSize: const Size(60, 32),
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 16),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      l10n.failedToLoadCakes,
+                                      style: const TextStyle(
+                                        color: AppTheme.textPrimary,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Container(
+                                      constraints: const BoxConstraints(
+                                        minHeight: 32,
+                                        maxHeight: 40,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        gradient: AppTheme.primaryGradient,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: ElevatedButton(
+                                        onPressed: _loadData,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.transparent,
+                                          shadowColor: Colors.transparent,
+                                          minimumSize: const Size(80, 32),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 8,
                                           ),
-                                          child: Text(
-                                            l10n.tryAgain,
-                                            style: const TextStyle(fontSize: 12),
+                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        ),
+                                        child: Text(
+                                          l10n.tryAgain,
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
                                           ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             )
@@ -1049,14 +1053,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 48,
-                height: 48,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [color, color.withValues(alpha: 0.7)],
@@ -1075,17 +1079,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 child: Icon(
                   icon,
                   color: Colors.white,
-                  size: 22,
+                  size: 20,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Flexible(
                 child: SizedBox(
                   width: double.infinity,
                   child: Text(
                     localizedTitle,
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: AppTheme.textPrimary,
                       height: 1.2,

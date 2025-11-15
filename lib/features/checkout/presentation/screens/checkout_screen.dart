@@ -32,6 +32,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   String _selectedPayment = 'card';
 
   final _instructionsController = TextEditingController();
+  String? _targetAgeGroup; // Age group specification for the order
   String? _targetGender; // Gender specification for the order
 
   // Cake customization state - per item
@@ -1063,9 +1064,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
                 const SizedBox(height: 16),
 
-                // Gender Specification
+                // Age Group & Gender Specification
                 Text(
-                  'Gender Specification (Optional)',
+                  'Age Group & Gender (Optional)',
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: AppTheme.textPrimary,
@@ -1073,16 +1074,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Specify the target gender for this order',
+                  'Specify the target age group and gender for this order',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppTheme.textSecondary,
                       ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
+                
+                // Age Group
                 DropdownButtonFormField<String>(
-                  value: _targetGender,
+                  value: _targetAgeGroup,
                   decoration: InputDecoration(
-                    hintText: 'Select target gender for this order',
+                    labelText: 'Age Group',
+                    hintText: 'Select age group',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: const BorderSide(color: AppTheme.borderColor),
@@ -1094,19 +1098,80 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     filled: true,
                     fillColor: Colors.white,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    prefixIcon: const Icon(Icons.person, color: AppTheme.accentColor),
+                    prefixIcon: const Icon(Icons.group, color: AppTheme.accentColor),
                   ),
                   items: const [
                     DropdownMenuItem(value: null, child: Text('Not specified')),
-                    DropdownMenuItem(value: 'male', child: Text('Male')),
-                    DropdownMenuItem(value: 'female', child: Text('Female')),
+                    DropdownMenuItem(value: 'adults', child: Text('Adults')),
+                    DropdownMenuItem(value: 'kids', child: Text('Kids')),
                   ],
                   onChanged: (value) {
                     setState(() {
-                      _targetGender = value;
+                      _targetAgeGroup = value;
+                      // Reset gender when age group changes to ensure compatibility
+                      _targetGender = null;
                     });
                   },
                 ),
+                
+                // Gender (only show if age group is selected)
+                if (_targetAgeGroup != null) ...[
+                  const SizedBox(height: 16),
+                  Builder(
+                    builder: (context) {
+                      // Validate gender value against current age group
+                      // If the current gender value is not valid for the current age group, use null
+                      String? validGender = _targetGender;
+                      if (_targetAgeGroup == 'adults') {
+                        // For adults, only 'male' and 'female' are valid
+                        if (_targetGender != null && _targetGender != 'male' && _targetGender != 'female') {
+                          validGender = null;
+                        }
+                      } else {
+                        // For kids, only 'boy' and 'girl' are valid
+                        if (_targetGender != null && _targetGender != 'boy' && _targetGender != 'girl') {
+                          validGender = null;
+                        }
+                      }
+                      
+                      return DropdownButtonFormField<String>(
+                        value: validGender,
+                        decoration: InputDecoration(
+                          labelText: 'Gender',
+                          hintText: 'Select gender',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(color: AppTheme.borderColor),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(color: AppTheme.accentColor, width: 2),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          prefixIcon: const Icon(Icons.person, color: AppTheme.accentColor),
+                        ),
+                        items: _targetAgeGroup == 'adults'
+                            ? const [
+                                DropdownMenuItem(value: null, child: Text('Not specified')),
+                                DropdownMenuItem(value: 'male', child: Text('Male')),
+                                DropdownMenuItem(value: 'female', child: Text('Female')),
+                              ]
+                            : const [
+                                DropdownMenuItem(value: null, child: Text('Not specified')),
+                                DropdownMenuItem(value: 'boy', child: Text('Boy')),
+                                DropdownMenuItem(value: 'girl', child: Text('Girl')),
+                              ],
+                        onChanged: (value) {
+                          setState(() {
+                            _targetGender = value;
+                          });
+                        },
+                      );
+                    },
+                  ),
+                ],
               ],
             ),
           ),
@@ -1665,245 +1730,326 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       context: context,
       builder: (context) {
         final l10n = AppLocalizations.of(context)!;
-        return AlertDialog(
-        title: Text(l10n.chooseCakeColor),
-        content: SizedBox(
-          width: 350,
-          height: 500,
-          child: Column(
-            children: [
-              // Current color display
-              Container(
-                width: double.infinity,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: currentColor,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey.shade300),
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            // Read current color from state - this will update when setDialogState is called
+            final currentCustomizations = _itemCustomizations[itemId] ?? {};
+            final displayColor = currentCustomizations['selectedColor'] as Color? ?? currentColor;
+            
+            return AlertDialog(
+              title: Text(l10n.chooseCakeColor),
+              content: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.9,
+                  maxHeight: 600,
                 ),
-                child: Center(
-                  child: Text(
-                    'Current Color',
-                    style: TextStyle(
-                      color: _getContrastColor(currentColor),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Current color display
+                      Container(
+                        width: double.infinity,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: displayColor,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade300, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: displayColor.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Selected Color',
+                            style: TextStyle(
+                              color: _getContrastColor(displayColor),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 20),
+                      
+                      // Quick color buttons - Show first
+                      Text(
+                        'Popular Colors',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.textPrimary,
+                            ),
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: _quickColors.map((color) {
+                          final isSelected = _colorsMatch(displayColor, color);
+                          return GestureDetector(
+                            onTap: () {
+                              setDialogState(() {
+                                _itemCustomizations[itemId] = {
+                                  ...customizations,
+                                  'selectedColor': color,
+                                };
+                              });
+                            },
+                            child: Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: color,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: isSelected ? Colors.black : Colors.grey.shade300,
+                                  width: isSelected ? 3 : 1,
+                                ),
+                                boxShadow: isSelected
+                                    ? [
+                                        BoxShadow(
+                                          color: color.withValues(alpha: 0.5),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ]
+                                    : null,
+                              ),
+                              child: isSelected
+                                  ? const Icon(
+                                      Icons.check,
+                                      color: Colors.white,
+                                      size: 20,
+                                    )
+                                  : null,
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      
+                      const SizedBox(height: 24),
+                      
+                      // Advanced color picker
+                      Text(
+                        'Customize Color',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.textPrimary,
+                            ),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildHSVColorPicker(itemId, displayColor, setDialogState),
+                    ],
                   ),
                 ),
               ),
-              
-              const SizedBox(height: 16),
-              
-              // HSV Color Picker
-              Expanded(
-                child: _buildHSVColorPicker(itemId, currentColor),
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // Quick color buttons
-              Text(
-                'Quick Colors:',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _quickColors.map((color) {
-                  final isSelected = currentColor == color;
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _itemCustomizations[itemId] = {
-                          ...customizations,
-                          'selectedColor': color,
-                        };
-                      });
-                    },
-                    child: Container(
-                      width: 30,
-                      height: 30,
-                      decoration: BoxDecoration(
-                        color: color,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: isSelected ? Colors.black : Colors.grey.shade300,
-                          width: isSelected ? 3 : 1,
-                        ),
-                      ),
-                      child: isSelected
-                          ? const Icon(
-                              Icons.check,
-                              color: Colors.white,
-                              size: 16,
-                            )
-                          : null,
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                _itemCustomizations[itemId] = {
-                  ...customizations,
-                  'selectedColor': null,
-                };
-              });
-              Navigator.of(context).pop();
-            },
-            child: const Text('Clear'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Done'),
-          ),
-        ],
-      );
-    });
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _itemCustomizations[itemId] = {
+                        ...customizations,
+                        'selectedColor': null,
+                      };
+                    });
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Clear'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.accentColor,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Done'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+  
+  bool _colorsMatch(Color a, Color b) {
+    return a.red == b.red && a.green == b.green && a.blue == b.blue;
   }
 
-  Widget _buildHSVColorPicker(String itemId, Color currentColor) {
+  Widget _buildHSVColorPicker(String itemId, Color currentColor, StateSetter setDialogState) {
     final customizations = _itemCustomizations[itemId] ?? {};
     
     // Convert to HSV
     final hsv = HSVColor.fromColor(currentColor);
     
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        // Hue slider
-        Text('Hue: ${hsv.hue.round()}°'),
-        Slider(
-          value: hsv.hue,
-          min: 0,
-          max: 360,
-          divisions: 360,
-          onChanged: (value) {
-            final newColor = HSVColor.fromAHSV(
-              hsv.alpha,
-              value,
-              hsv.saturation,
-              hsv.value,
-            ).toColor();
-            setState(() {
-              _itemCustomizations[itemId] = {
-                ...customizations,
-                'selectedColor': newColor,
-              };
-            });
-          },
+        // Hue slider with gradient
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Color',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                  ),
+                  Text(
+                    '${hsv.hue.round()}°',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppTheme.accentColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  activeTrackColor: HSVColor.fromAHSV(1.0, hsv.hue, 1.0, 1.0).toColor(),
+                  inactiveTrackColor: Colors.grey.shade300,
+                  thumbColor: HSVColor.fromAHSV(1.0, hsv.hue, 1.0, 1.0).toColor(),
+                  overlayColor: HSVColor.fromAHSV(1.0, hsv.hue, 1.0, 1.0).toColor().withValues(alpha: 0.2),
+                ),
+                child: Slider(
+                  value: hsv.hue,
+                  min: 0,
+                  max: 360,
+                  divisions: 360,
+                  onChanged: (value) {
+                    final newColor = HSVColor.fromAHSV(
+                      hsv.alpha,
+                      value,
+                      hsv.saturation,
+                      hsv.value,
+                    ).toColor();
+                    setDialogState(() {
+                      _itemCustomizations[itemId] = {
+                        ...customizations,
+                        'selectedColor': newColor,
+                      };
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
+        
+        const SizedBox(height: 12),
         
         // Saturation slider
-        Text('Saturation: ${(hsv.saturation * 100).round()}%'),
-        Slider(
-          value: hsv.saturation,
-          min: 0,
-          max: 1,
-          divisions: 100,
-          onChanged: (value) {
-            final newColor = HSVColor.fromAHSV(
-              hsv.alpha,
-              hsv.hue,
-              value,
-              hsv.value,
-            ).toColor();
-            setState(() {
-              _itemCustomizations[itemId] = {
-                ...customizations,
-                'selectedColor': newColor,
-              };
-            });
-          },
-        ),
-        
-        // Value (brightness) slider
-        Text('Brightness: ${(hsv.value * 100).round()}%'),
-        Slider(
-          value: hsv.value,
-          min: 0,
-          max: 1,
-          divisions: 100,
-          onChanged: (value) {
-            final newColor = HSVColor.fromAHSV(
-              hsv.alpha,
-              hsv.hue,
-              hsv.saturation,
-              value,
-            ).toColor();
-            setState(() {
-              _itemCustomizations[itemId] = {
-                ...customizations,
-                'selectedColor': newColor,
-              };
-            });
-          },
-        ),
-        
-        const SizedBox(height: 16),
-        
-        // Color preview grid
-        Text(
-          'Color Preview:',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Intensity',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                  ),
+                  Text(
+                    '${(hsv.saturation * 100).round()}%',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppTheme.accentColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                ],
               ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          height: 100,
-          child: GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 8,
-              crossAxisSpacing: 4,
-              mainAxisSpacing: 4,
-            ),
-            itemCount: 24,
-            itemBuilder: (context, index) {
-              final hue = (index * 15) % 360;
-              final color = HSVColor.fromAHSV(1.0, hue.toDouble(), hsv.saturation, hsv.value).toColor();
-              final isSelected = currentColor == color;
-              
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
+              const SizedBox(height: 4),
+              Slider(
+                value: hsv.saturation,
+                min: 0,
+                max: 1,
+                divisions: 100,
+                onChanged: (value) {
+                  final newColor = HSVColor.fromAHSV(
+                    hsv.alpha,
+                    hsv.hue,
+                    value,
+                    hsv.value,
+                  ).toColor();
+                  setDialogState(() {
                     _itemCustomizations[itemId] = {
                       ...customizations,
-                      'selectedColor': color,
+                      'selectedColor': newColor,
                     };
                   });
                 },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(
-                      color: isSelected ? Colors.black : Colors.grey.shade300,
-                      width: isSelected ? 2 : 1,
-                    ),
+              ),
+            ],
+          ),
+        ),
+        
+        const SizedBox(height: 12),
+        
+        // Value (brightness) slider
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Brightness',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
                   ),
-                  child: isSelected
-                      ? const Icon(
-                          Icons.check,
-                          color: Colors.white,
-                          size: 12,
-                        )
-                      : null,
-                ),
-              );
-            },
+                  Text(
+                    '${(hsv.value * 100).round()}%',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppTheme.accentColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Slider(
+                value: hsv.value,
+                min: 0,
+                max: 1,
+                divisions: 100,
+                onChanged: (value) {
+                  final newColor = HSVColor.fromAHSV(
+                    hsv.alpha,
+                    hsv.hue,
+                    hsv.saturation,
+                    value,
+                  ).toColor();
+                  setDialogState(() {
+                    _itemCustomizations[itemId] = {
+                      ...customizations,
+                      'selectedColor': newColor,
+                    };
+                  });
+                },
+              ),
+            ],
           ),
         ),
       ],
@@ -2040,13 +2186,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
           ],
 
-          // Gender Specification (if provided)
-          if (_targetGender != null) ...[
+          // Age Group & Gender Specification (if provided)
+          if (_targetAgeGroup != null || _targetGender != null) ...[
             const SizedBox(height: 16),
             _buildSummarySection(
-              'Gender Specification',
-              _getGenderDisplayName(_targetGender!),
-              Icons.person,
+              'Age Group & Gender',
+              _getAgeGroupGenderDisplayText(),
+              Icons.group,
             ),
           ],
 
@@ -2575,9 +2721,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         paymentMethod: paymentMethod,
         deliveryInstructions: _instructionsController.text.trim(),
         expectedDeliveryDate: null, // Delivery date is handled in cart
-        customerNotes: _targetGender != null
-            ? 'Gender: ${_getGenderDisplayName(_targetGender!)}'
-            : '',
+        customerNotes: _buildCustomerNotes(),
       );
 
 // print('DEBUG: Initiating payment with method: ${paymentMethod.name}');
@@ -2645,12 +2789,38 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
   }
 
+  String _buildCustomerNotes() {
+    final notes = <String>[];
+    if (_targetAgeGroup != null) {
+      notes.add('Age Group: ${_targetAgeGroup == 'adults' ? 'Adults' : 'Kids'}');
+    }
+    if (_targetGender != null) {
+      notes.add('Gender: ${_getGenderDisplayName(_targetGender!)}');
+    }
+    return notes.isEmpty ? '' : notes.join(', ');
+  }
+
+  String _getAgeGroupGenderDisplayText() {
+    final parts = <String>[];
+    if (_targetAgeGroup != null) {
+      parts.add(_targetAgeGroup == 'adults' ? 'Adults' : 'Kids');
+    }
+    if (_targetGender != null) {
+      parts.add(_getGenderDisplayName(_targetGender!));
+    }
+    return parts.isEmpty ? 'Not specified' : parts.join(' • ');
+  }
+
   String _getGenderDisplayName(String gender) {
     switch (gender) {
       case 'male':
         return 'Male';
       case 'female':
         return 'Female';
+      case 'boy':
+        return 'Boy';
+      case 'girl':
+        return 'Girl';
       default:
         return 'Not specified';
     }

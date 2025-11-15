@@ -162,11 +162,11 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
                     decoration: BoxDecoration(
                       gradient: AppTheme.accentGradient,
                       borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
+                      boxShadow: const [
                         BoxShadow(
                           color: AppTheme.shadowColor,
                           blurRadius: 12,
-                          offset: const Offset(0, 6),
+                          offset: Offset(0, 6),
                         ),
                       ],
                     ),
@@ -267,11 +267,11 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
                       margin: const EdgeInsets.only(right: 16),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
+                        boxShadow: const [
                           BoxShadow(
                             color: AppTheme.shadowColor,
                             blurRadius: 8,
-                            offset: const Offset(0, 4),
+                            offset: Offset(0, 4),
                           ),
                         ],
                       ),
@@ -321,8 +321,9 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
                     child: Container(
                       width: 120,
                       height: 120,
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
@@ -335,29 +336,35 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
                           color: AppTheme.accentColor,
                           width: 2,
                         ),
-                        boxShadow: [
+                        boxShadow: const [
                           BoxShadow(
                             color: AppTheme.shadowColor,
                             blurRadius: 8,
-                            offset: const Offset(0, 4),
+                            offset: Offset(0, 4),
                           ),
                         ],
                       ),
                       child: const Column(
                         mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
                             Icons.add_photo_alternate_rounded,
                             color: AppTheme.accentColor,
-                            size: 40,
+                            size: 36,
                           ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Add Photo',
-                            style: TextStyle(
-                              color: AppTheme.accentColor,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
+                          SizedBox(height: 6),
+                          Flexible(
+                            child: Text(
+                              'Add Photo',
+                              style: TextStyle(
+                                color: AppTheme.accentColor,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -374,14 +381,14 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
                 color: AppTheme.paleBlue,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Row(
+              child: const Row(
                 children: [
                   Icon(
                     Icons.info_outline,
                     color: AppTheme.accentColor,
                     size: 18,
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Add up to 5 high-quality images of your cake',
@@ -406,11 +413,11 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
       decoration: BoxDecoration(
         color: AppTheme.surfaceColor,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: AppTheme.shadowColor,
             blurRadius: 15,
-            offset: const Offset(0, 6),
+            offset: Offset(0, 6),
           ),
         ],
       ),
@@ -670,11 +677,11 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
       decoration: BoxDecoration(
         color: AppTheme.surfaceColor,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: AppTheme.shadowColor,
             blurRadius: 15,
-            offset: const Offset(0, 6),
+            offset: Offset(0, 6),
           ),
         ],
       ),
@@ -716,11 +723,11 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
                   decoration: BoxDecoration(
                     gradient: AppTheme.primaryGradient,
                     borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
+                    boxShadow: const [
                       BoxShadow(
                         color: AppTheme.shadowColor,
                         blurRadius: 8,
-                        offset: const Offset(0, 4),
+                        offset: Offset(0, 4),
                       ),
                     ],
                   ),
@@ -833,11 +840,11 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
       decoration: BoxDecoration(
         color: AppTheme.surfaceColor,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: AppTheme.shadowColor,
             blurRadius: 15,
-            offset: const Offset(0, 6),
+            offset: Offset(0, 6),
           ),
         ],
       ),
@@ -879,11 +886,11 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
                   decoration: BoxDecoration(
                     gradient: AppTheme.primaryGradient,
                     borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
+                    boxShadow: const [
                       BoxShadow(
                         color: AppTheme.shadowColor,
                         blurRadius: 8,
-                        offset: const Offset(0, 4),
+                        offset: Offset(0, 4),
                       ),
                     ],
                   ),
@@ -909,7 +916,7 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
                   .map(
                     (flavor) => Container(
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           colors: [
                             AppTheme.paleBlue,
                             AppTheme.lightBlue,
@@ -960,11 +967,11 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
       decoration: BoxDecoration(
         color: AppTheme.surfaceColor,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: AppTheme.shadowColor,
             blurRadius: 15,
-            offset: const Offset(0, 6),
+            offset: Offset(0, 6),
           ),
         ],
       ),
@@ -1045,7 +1052,7 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
               const SizedBox(height: 8),
               Text(
                 '${l10n.selected}: ${CategoryUtils.getLocalizedCategory(_selectedCategory!, l10n)}',
-                style: TextStyle(
+                style: const TextStyle(
                   color: AppTheme.accentColor,
                   fontWeight: FontWeight.w500,
                   fontSize: 14,
@@ -1063,11 +1070,11 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
       decoration: BoxDecoration(
         color: AppTheme.surfaceColor,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: AppTheme.shadowColor,
             blurRadius: 15,
-            offset: const Offset(0, 6),
+            offset: Offset(0, 6),
           ),
         ],
       ),
@@ -1109,11 +1116,11 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
                   decoration: BoxDecoration(
                     gradient: AppTheme.primaryGradient,
                     borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
+                    boxShadow: const [
                       BoxShadow(
                         color: AppTheme.shadowColor,
                         blurRadius: 8,
-                        offset: const Offset(0, 4),
+                        offset: Offset(0, 4),
                       ),
                     ],
                   ),
@@ -1142,11 +1149,11 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
                         decoration: BoxDecoration(
                           gradient: AppTheme.accentGradient,
                           borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
+                          boxShadow: const [
                             BoxShadow(
                               color: AppTheme.shadowColor,
                               blurRadius: 6,
-                              offset: const Offset(0, 3),
+                              offset: Offset(0, 3),
                             ),
                           ],
                         ),
@@ -1174,14 +1181,14 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
                   color: AppTheme.paleBlue,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
                     Icon(
                       Icons.info_outline,
                       color: AppTheme.accentColor,
                       size: 18,
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Add tags like "Birthday", "Wedding", "Gluten-Free" to help customers find your cake',
@@ -1206,11 +1213,11 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
       decoration: BoxDecoration(
         color: AppTheme.surfaceColor,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: AppTheme.shadowColor,
             blurRadius: 15,
-            offset: const Offset(0, 6),
+            offset: Offset(0, 6),
           ),
         ],
       ),
@@ -1270,7 +1277,7 @@ class _AddCakeScreenState extends State<AddCakeScreen> {
                     _isAvailable
                         ? 'Customers can order this cake'
                         : 'This cake is currently unavailable',
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: AppTheme.textSecondary,
                       fontSize: 13,
                     ),
