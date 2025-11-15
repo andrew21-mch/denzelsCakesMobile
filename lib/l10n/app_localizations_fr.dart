@@ -669,13 +669,47 @@ class AppLocalizationsFr extends AppLocalizations {
       'Sélectionner le genre cible pour cette commande';
 
   @override
+  String get ageGroupAndGender => 'Groupe d\'âge et genre';
+
+  @override
+  String get ageGroupAndGenderOptional => 'Groupe d\'âge et genre (Optionnel)';
+
+  @override
+  String get specifyAgeGroupAndGender =>
+      'Spécifiez le groupe d\'âge et le genre cibles pour cette commande';
+
+  @override
+  String get ageGroup => 'Groupe d\'âge';
+
+  @override
+  String get selectAgeGroup => 'Sélectionnez un groupe d\'âge';
+
+  @override
+  String get gender => 'Genre';
+
+  @override
+  String get selectGender => 'Sélectionnez un genre';
+
+  @override
   String get notSpecified => 'Non spécifié';
 
   @override
-  String get male => 'Mâle';
+  String get adults => 'Adultes';
 
   @override
-  String get female => 'Femelle';
+  String get kids => 'Enfants';
+
+  @override
+  String get male => 'Homme';
+
+  @override
+  String get female => 'Femme';
+
+  @override
+  String get boy => 'Garçon';
+
+  @override
+  String get girl => 'Fille';
 
   @override
   String get cakeCustomizations => 'Personnalisations de gâteau';

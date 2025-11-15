@@ -1382,11 +1382,65 @@ abstract class AppLocalizations {
   /// **'Select target gender for this order'**
   String get selectTargetGender;
 
+  /// No description provided for @ageGroupAndGender.
+  ///
+  /// In en, this message translates to:
+  /// **'Age Group & Gender'**
+  String get ageGroupAndGender;
+
+  /// No description provided for @ageGroupAndGenderOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Age Group & Gender (Optional)'**
+  String get ageGroupAndGenderOptional;
+
+  /// No description provided for @specifyAgeGroupAndGender.
+  ///
+  /// In en, this message translates to:
+  /// **'Specify the target age group and gender for this order'**
+  String get specifyAgeGroupAndGender;
+
+  /// No description provided for @ageGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Age Group'**
+  String get ageGroup;
+
+  /// No description provided for @selectAgeGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Select age group'**
+  String get selectAgeGroup;
+
+  /// No description provided for @gender.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender'**
+  String get gender;
+
+  /// No description provided for @selectGender.
+  ///
+  /// In en, this message translates to:
+  /// **'Select gender'**
+  String get selectGender;
+
   /// No description provided for @notSpecified.
   ///
   /// In en, this message translates to:
   /// **'Not specified'**
   String get notSpecified;
+
+  /// No description provided for @adults.
+  ///
+  /// In en, this message translates to:
+  /// **'Adults'**
+  String get adults;
+
+  /// No description provided for @kids.
+  ///
+  /// In en, this message translates to:
+  /// **'Kids'**
+  String get kids;
 
   /// No description provided for @male.
   ///
@@ -1399,6 +1453,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Female'**
   String get female;
+
+  /// No description provided for @boy.
+  ///
+  /// In en, this message translates to:
+  /// **'Boy'**
+  String get boy;
+
+  /// No description provided for @girl.
+  ///
+  /// In en, this message translates to:
+  /// **'Girl'**
+  String get girl;
 
   /// No description provided for @cakeCustomizations.
   ///

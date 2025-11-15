@@ -970,6 +970,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _buildCustomizationStep() {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -1066,7 +1067,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
                 // Age Group & Gender Specification
                 Text(
-                  'Age Group & Gender (Optional)',
+                  l10n.ageGroupAndGenderOptional,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: AppTheme.textPrimary,
@@ -1074,7 +1075,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Specify the target age group and gender for this order',
+                  l10n.specifyAgeGroupAndGender,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppTheme.textSecondary,
                       ),
@@ -1085,8 +1086,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 DropdownButtonFormField<String>(
                   value: _targetAgeGroup,
                   decoration: InputDecoration(
-                    labelText: 'Age Group',
-                    hintText: 'Select age group',
+                    labelText: l10n.ageGroup,
+                    hintText: l10n.selectAgeGroup,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: const BorderSide(color: AppTheme.borderColor),
@@ -1100,10 +1101,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     prefixIcon: const Icon(Icons.group, color: AppTheme.accentColor),
                   ),
-                  items: const [
-                    DropdownMenuItem(value: null, child: Text('Not specified')),
-                    DropdownMenuItem(value: 'adults', child: Text('Adults')),
-                    DropdownMenuItem(value: 'kids', child: Text('Kids')),
+                  items: [
+                    DropdownMenuItem(value: null, child: Text(l10n.notSpecified)),
+                    DropdownMenuItem(value: 'adults', child: Text(l10n.adults)),
+                    DropdownMenuItem(value: 'kids', child: Text(l10n.kids)),
                   ],
                   onChanged: (value) {
                     setState(() {
@@ -1137,8 +1138,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       return DropdownButtonFormField<String>(
                         value: validGender,
                         decoration: InputDecoration(
-                          labelText: 'Gender',
-                          hintText: 'Select gender',
+                          labelText: l10n.gender,
+                          hintText: l10n.selectGender,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: const BorderSide(color: AppTheme.borderColor),
@@ -1153,15 +1154,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           prefixIcon: const Icon(Icons.person, color: AppTheme.accentColor),
                         ),
                         items: _targetAgeGroup == 'adults'
-                            ? const [
-                                DropdownMenuItem(value: null, child: Text('Not specified')),
-                                DropdownMenuItem(value: 'male', child: Text('Male')),
-                                DropdownMenuItem(value: 'female', child: Text('Female')),
+                            ? [
+                                DropdownMenuItem(value: null, child: Text(l10n.notSpecified)),
+                                DropdownMenuItem(value: 'male', child: Text(l10n.male)),
+                                DropdownMenuItem(value: 'female', child: Text(l10n.female)),
                               ]
-                            : const [
-                                DropdownMenuItem(value: null, child: Text('Not specified')),
-                                DropdownMenuItem(value: 'boy', child: Text('Boy')),
-                                DropdownMenuItem(value: 'girl', child: Text('Girl')),
+                            : [
+                                DropdownMenuItem(value: null, child: Text(l10n.notSpecified)),
+                                DropdownMenuItem(value: 'boy', child: Text(l10n.boy)),
+                                DropdownMenuItem(value: 'girl', child: Text(l10n.girl)),
                               ],
                         onChanged: (value) {
                           setState(() {
@@ -2113,6 +2114,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _buildReviewStep() {
+    final l10n = AppLocalizations.of(context)!;
     final selectedAddress = _addresses.isNotEmpty
         ? _addresses.firstWhere(
             (addr) => (addr.id ?? addr.type) == _selectedAddress,
@@ -2190,7 +2192,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           if (_targetAgeGroup != null || _targetGender != null) ...[
             const SizedBox(height: 16),
             _buildSummarySection(
-              'Age Group & Gender',
+              l10n.ageGroupAndGender,
               _getAgeGroupGenderDisplayText(),
               Icons.group,
             ),
@@ -2792,28 +2794,30 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   String _getAgeGroupGenderDisplayText() {
+    final l10n = AppLocalizations.of(context)!;
     final parts = <String>[];
     if (_targetAgeGroup != null) {
-      parts.add(_targetAgeGroup == 'adults' ? 'Adults' : 'Kids');
+      parts.add(_targetAgeGroup == 'adults' ? l10n.adults : l10n.kids);
     }
     if (_targetGender != null) {
       parts.add(_getGenderDisplayName(_targetGender!));
     }
-    return parts.isEmpty ? 'Not specified' : parts.join(' • ');
+    return parts.isEmpty ? l10n.notSpecified : parts.join(' • ');
   }
 
   String _getGenderDisplayName(String gender) {
+    final l10n = AppLocalizations.of(context)!;
     switch (gender) {
       case 'male':
-        return 'Male';
+        return l10n.male;
       case 'female':
-        return 'Female';
+        return l10n.female;
       case 'boy':
-        return 'Boy';
+        return l10n.boy;
       case 'girl':
-        return 'Girl';
+        return l10n.girl;
       default:
-        return 'Not specified';
+        return l10n.notSpecified;
     }
   }
 

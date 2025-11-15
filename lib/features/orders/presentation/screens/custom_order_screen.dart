@@ -895,18 +895,19 @@ class _CustomOrderScreenState extends State<CustomOrderScreen> {
   }
 
   Widget _buildAgeGroupGenderSection() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Age Group & Gender (Optional)',
+          l10n.ageGroupAndGenderOptional,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
         ),
         const SizedBox(height: 8),
         Text(
-          'Specify the target age group and gender for this order',
+          l10n.specifyAgeGroupAndGender,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: AppTheme.textSecondary,
               ),
@@ -917,8 +918,8 @@ class _CustomOrderScreenState extends State<CustomOrderScreen> {
         DropdownButtonFormField<String>(
           value: _targetAgeGroup,
           decoration: InputDecoration(
-            labelText: 'Age Group',
-            hintText: 'Select age group',
+            labelText: l10n.ageGroup,
+            hintText: l10n.selectAgeGroup,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -926,10 +927,10 @@ class _CustomOrderScreenState extends State<CustomOrderScreen> {
             fillColor: AppTheme.backgroundColor,
             prefixIcon: const Icon(Icons.group, color: AppTheme.accentColor),
           ),
-          items: const [
-            DropdownMenuItem(value: null, child: Text('Not specified')),
-            DropdownMenuItem(value: 'adults', child: Text('Adults')),
-            DropdownMenuItem(value: 'kids', child: Text('Kids')),
+          items: [
+            DropdownMenuItem(value: null, child: Text(l10n.notSpecified)),
+            DropdownMenuItem(value: 'adults', child: Text(l10n.adults)),
+            DropdownMenuItem(value: 'kids', child: Text(l10n.kids)),
           ],
           onChanged: (value) {
             setState(() {
@@ -962,9 +963,9 @@ class _CustomOrderScreenState extends State<CustomOrderScreen> {
               
               return DropdownButtonFormField<String>(
                 value: validGender,
-                decoration: InputDecoration(
-                  labelText: 'Gender',
-                  hintText: 'Select gender',
+            decoration: InputDecoration(
+              labelText: l10n.gender,
+              hintText: l10n.selectGender,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -972,17 +973,17 @@ class _CustomOrderScreenState extends State<CustomOrderScreen> {
                   fillColor: AppTheme.backgroundColor,
                   prefixIcon: const Icon(Icons.person, color: AppTheme.accentColor),
                 ),
-                items: _targetAgeGroup == 'adults'
-                    ? const [
-                        DropdownMenuItem(value: null, child: Text('Not specified')),
-                        DropdownMenuItem(value: 'male', child: Text('Male')),
-                        DropdownMenuItem(value: 'female', child: Text('Female')),
-                      ]
-                    : const [
-                        DropdownMenuItem(value: null, child: Text('Not specified')),
-                        DropdownMenuItem(value: 'boy', child: Text('Boy')),
-                        DropdownMenuItem(value: 'girl', child: Text('Girl')),
-                      ],
+            items: _targetAgeGroup == 'adults'
+                ? [
+                    DropdownMenuItem(value: null, child: Text(l10n.notSpecified)),
+                    DropdownMenuItem(value: 'male', child: Text(l10n.male)),
+                    DropdownMenuItem(value: 'female', child: Text(l10n.female)),
+                  ]
+                : [
+                    DropdownMenuItem(value: null, child: Text(l10n.notSpecified)),
+                    DropdownMenuItem(value: 'boy', child: Text(l10n.boy)),
+                    DropdownMenuItem(value: 'girl', child: Text(l10n.girl)),
+                  ],
                 onChanged: (value) {
                   setState(() {
                     _targetGender = value;

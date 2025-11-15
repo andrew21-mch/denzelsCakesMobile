@@ -665,13 +665,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectTargetGender => 'Select target gender for this order';
 
   @override
+  String get ageGroupAndGender => 'Age Group & Gender';
+
+  @override
+  String get ageGroupAndGenderOptional => 'Age Group & Gender (Optional)';
+
+  @override
+  String get specifyAgeGroupAndGender =>
+      'Specify the target age group and gender for this order';
+
+  @override
+  String get ageGroup => 'Age Group';
+
+  @override
+  String get selectAgeGroup => 'Select age group';
+
+  @override
+  String get gender => 'Gender';
+
+  @override
+  String get selectGender => 'Select gender';
+
+  @override
   String get notSpecified => 'Not specified';
+
+  @override
+  String get adults => 'Adults';
+
+  @override
+  String get kids => 'Kids';
 
   @override
   String get male => 'Male';
 
   @override
   String get female => 'Female';
+
+  @override
+  String get boy => 'Boy';
+
+  @override
+  String get girl => 'Girl';
 
   @override
   String get cakeCustomizations => 'Cake Customizations';
