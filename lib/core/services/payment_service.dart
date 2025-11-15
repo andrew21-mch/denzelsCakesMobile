@@ -27,6 +27,8 @@ class PaymentRequest {
   final String? deliveryInstructions;
   final DateTime? expectedDeliveryDate;
   final Map<String, dynamic>? paymentDetails;
+  final String? targetAgeGroup;
+  final String? targetGender;
 
   const PaymentRequest({
     required this.items,
@@ -36,6 +38,8 @@ class PaymentRequest {
     this.deliveryInstructions,
     this.expectedDeliveryDate,
     this.paymentDetails,
+    this.targetAgeGroup,
+    this.targetGender,
   });
 
   Map<String, dynamic> toJson() {
@@ -63,6 +67,8 @@ class PaymentRequest {
           'scheduledDate': expectedDeliveryDate!.toIso8601String(),
       },
       'customerNotes': customerNotes,
+      if (targetAgeGroup != null) 'targetAgeGroup': targetAgeGroup,
+      if (targetGender != null) 'targetGender': targetGender,
       if (paymentDetails != null) 'paymentDetails': paymentDetails,
     };
   }

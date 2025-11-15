@@ -68,6 +68,8 @@ class OrderService {
     required Map<String, dynamic> deliveryDetails,
     String? customerNotes,
     List<String>? imageUrls,
+    String? targetAgeGroup,
+    String? targetGender,
   }) async {
     final orderData = {
       'items': [
@@ -90,6 +92,8 @@ class OrderService {
       'guestDetails': guestDetails,
       'deliveryDetails': deliveryDetails,
       'customerNotes': customerNotes ?? '',
+      if (targetAgeGroup != null) 'targetAgeGroup': targetAgeGroup,
+      if (targetGender != null) 'targetGender': targetGender,
     };
 
     final response = await ApiService.post(_baseUrl, data: orderData);

@@ -2721,7 +2721,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         paymentMethod: paymentMethod,
         deliveryInstructions: _instructionsController.text.trim(),
         expectedDeliveryDate: null, // Delivery date is handled in cart
-        customerNotes: _buildCustomerNotes(),
+        customerNotes: _instructionsController.text.trim().isNotEmpty ? _instructionsController.text.trim() : null,
+        targetAgeGroup: _targetAgeGroup,
+        targetGender: _targetGender,
       );
 
 // print('DEBUG: Initiating payment with method: ${paymentMethod.name}');
@@ -2787,17 +2789,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         );
       }
     }
-  }
-
-  String _buildCustomerNotes() {
-    final notes = <String>[];
-    if (_targetAgeGroup != null) {
-      notes.add('Age Group: ${_targetAgeGroup == 'adults' ? 'Adults' : 'Kids'}');
-    }
-    if (_targetGender != null) {
-      notes.add('Gender: ${_getGenderDisplayName(_targetGender!)}');
-    }
-    return notes.isEmpty ? '' : notes.join(', ');
   }
 
   String _getAgeGroupGenderDisplayText() {

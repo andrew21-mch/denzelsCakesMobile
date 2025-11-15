@@ -451,8 +451,10 @@ class _CustomOrderScreenState extends State<CustomOrderScreen> {
         paymentMethod: 'cash', // Default, can be updated later
         guestDetails: guestDetails,
         deliveryDetails: deliveryDetails,
-        customerNotes: _buildCustomerNotes(),
+        customerNotes: _descriptionController.text.isNotEmpty ? _descriptionController.text : null,
         imageUrls: imageUrls.isNotEmpty ? imageUrls : null,
+        targetAgeGroup: _targetAgeGroup,
+        targetGender: _targetGender,
       );
 
       if (mounted) {
@@ -994,46 +996,6 @@ class _CustomOrderScreenState extends State<CustomOrderScreen> {
     );
   }
 
-  String _buildCustomerNotes() {
-    final notes = <String>[];
-    
-    // Add description if provided
-    if (_descriptionController.text.isNotEmpty) {
-      notes.add(_descriptionController.text);
-    }
-    
-    // Add age group and gender if provided
-    if (_targetAgeGroup != null || _targetGender != null) {
-      final ageGroupGender = <String>[];
-      if (_targetAgeGroup != null) {
-        ageGroupGender.add('Age Group: ${_targetAgeGroup == 'adults' ? 'Adults' : 'Kids'}');
-      }
-      if (_targetGender != null) {
-        ageGroupGender.add('Gender: ${_getGenderDisplayName(_targetGender!)}');
-      }
-      if (ageGroupGender.isNotEmpty) {
-        notes.add(ageGroupGender.join(', '));
-      }
-    }
-    
-    return notes.isEmpty ? '' : notes.join('\n\n');
-  }
-
-  String _getGenderDisplayName(String gender) {
-    switch (gender) {
-      case 'male':
-        return 'Male';
-      case 'female':
-        return 'Female';
-      case 'boy':
-        return 'Boy';
-      case 'girl':
-        return 'Girl';
-      default:
-        return 'Not specified';
-    }
-  }
-
   Widget _buildImageSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1114,7 +1076,7 @@ class _CustomOrderScreenState extends State<CustomOrderScreen> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            side: BorderSide(color: AppTheme.accentColor),
+            side: const BorderSide(color: AppTheme.accentColor),
           ),
         ),
         if (_isUploadingImages)
