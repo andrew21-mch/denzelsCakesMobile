@@ -17,6 +17,7 @@ import 'features/catalog/presentation/screens/home_screen.dart';
 import 'features/catalog/presentation/screens/cake_detail_screen.dart';
 import 'features/cart/presentation/screens/cart_screen.dart';
 import 'features/checkout/presentation/screens/checkout_screen.dart';
+import 'features/checkout/presentation/screens/payment_success_screen.dart';
 import 'features/orders/presentation/screens/orders_screen.dart';
 import 'features/orders/presentation/screens/custom_order_screen.dart';
 import 'features/search/presentation/screens/search_screen.dart';
@@ -206,6 +207,17 @@ class _CakeShopAppState extends State<CakeShopApp> {
                 onSave: (address) {
                   Navigator.of(context).pop(address);
                 },
+              ),
+              settings: settings,
+            );
+          }
+          if (settings.name == '/payment-success') {
+            final args = settings.arguments as Map<String, dynamic>?;
+            return MaterialPageRoute(
+              builder: (context) => PaymentSuccessScreen(
+                orderId: args?['orderId'] as String? ?? '',
+                amount: (args?['amount'] as num?)?.toDouble() ?? 0,
+                paymentMethod: args?['paymentMethod'] as String? ?? '',
               ),
               settings: settings,
             );
