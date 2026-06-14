@@ -44,6 +44,7 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
   bool _isLoading = false;
   bool _loadingCountries = true;
   bool _loadingLocation = false;
+  bool _locationPinned = false;
 
   // List of countries from backend
   List<Country> _countries = [];
@@ -61,14 +62,27 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
 
     _selectedType = address?.type ?? 'home';
 
-    // Load countries and get current location
+    if (address?.latitude != null && address?.longitude != null) {
+      _selectedLocation = LatLng(address!.latitude!, address.longitude!);
+      _locationPinned = true;
+      _markers = {
+        Marker(
+          markerId: const MarkerId('selected_location'),
+          position: _selectedLocation,
+          draggable: true,
+          onDragEnd: _onMarkerDragEnd,
+        ),
+      };
+    }
+
+    // Load countries only — location is optional and requested on demand
     _loadCountries();
-    _getCurrentLocation();
   }
 
   Future<void> _loadCountries() async {
     try {
       final countries = await CountryService.getCountries();
+      if (!mounted) return;
       setState(() {
         _countries = countries;
         _loadingCountries = false;
@@ -89,6 +103,7 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
         }
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _loadingCountries = false;
       });
@@ -106,11 +121,31 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Location access was declined. You can tap the map or enter your address manually.',
+                ),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
           return;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Location is off. Tap the map to pick a spot or type your address below.',
+              ),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
         return;
       }
 
@@ -119,8 +154,10 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
         desiredAccuracy: LocationAccuracy.high,
       );
 
+      if (!mounted) return;
       setState(() {
         _selectedLocation = LatLng(position.latitude, position.longitude);
+        _locationPinned = true;
         _markers = {
           Marker(
             markerId: const MarkerId('selected_location'),
@@ -145,10 +182,20 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
       _getAddressFromCoordinates(_selectedLocation);
     } catch (e) {
 // print('Error getting location: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not get your location: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } finally {
-      setState(() {
-        _loadingLocation = false;
-      });
+      if (mounted) {
+        setState(() {
+          _loadingLocation = false;
+        });
+      }
     }
   }
 
@@ -222,6 +269,7 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
   void _onMarkerDragEnd(LatLng newLocation) {
     setState(() {
       _selectedLocation = newLocation;
+      _locationPinned = true;
     });
     _getAddressFromCoordinates(newLocation);
   }
@@ -229,6 +277,7 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
   void _onMapTap(LatLng location) {
     setState(() {
       _selectedLocation = location;
+      _locationPinned = true;
       _markers = {
         Marker(
           markerId: const MarkerId('selected_location'),
@@ -274,8 +323,8 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
         country:
             _selectedCountry?.code ?? 'CM', // Force country code, default to CM
         isDefault: widget.initialAddress?.isDefault ?? false,
-        latitude: _selectedLocation.latitude,  // Save map coordinates
-        longitude: _selectedLocation.longitude, // Save map coordinates
+        latitude: _locationPinned ? _selectedLocation.latitude : null,
+        longitude: _locationPinned ? _selectedLocation.longitude : null,
       );
 
       widget.onSave(address);
@@ -330,7 +379,7 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
                       },
                       onTap: _onMapTap,
                       markers: _markers,
-                      myLocationEnabled: true,
+                      myLocationEnabled: false,
                       myLocationButtonEnabled: false,
                       mapType: MapType.normal,
                     ),
@@ -364,7 +413,7 @@ class _AddAddressWithMapScreenState extends State<AddAddressWithMapScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Tap on the map to select location or fill details manually',
+                      'Tap the map to pin a spot, use the location button, or fill in your address manually',
                       style: TextStyle(
                         color: Colors.grey,
                         fontSize: 14,

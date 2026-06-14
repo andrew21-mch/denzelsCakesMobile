@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logger/logger.dart';
+import '../../firebase_options.dart';
 import '../services/api_service.dart';
 import '../constants/app_constants.dart';
 
@@ -286,7 +287,9 @@ class FirebaseMessagingService {
 /// Background message handler (must be top-level function)
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   final logger = Logger();
   logger.i('Handling background message: ${message.messageId}');
 }

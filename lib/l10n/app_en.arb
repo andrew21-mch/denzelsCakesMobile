@@ -186,6 +186,7 @@
   "deliciousCakesAwait": "Delicious cakes await!",
   "searchForCakes": "Search for delicious cakes...",
   "featuredCakes": "Featured Cakes",
+  "allCakes": "All Cakes",
   "cakesCategory": "{category} Cakes",
   "@cakesCategory": {
     "description": "Category-specific cake title",

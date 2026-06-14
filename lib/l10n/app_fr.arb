@@ -180,6 +180,7 @@
   "deliciousCakesAwait": "De délicieux gâteaux vous attendent!",
   "searchForCakes": "Rechercher de délicieux gâteaux...",
   "featuredCakes": "Gâteaux en vedette",
+  "allCakes": "Tous les gâteaux",
   "cakesCategory": "{category} Gâteaux",
   "@cakesCategory": {
     "description": "Titre de gâteau spécifique à une catégorie",

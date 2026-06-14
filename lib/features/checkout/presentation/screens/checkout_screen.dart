@@ -1282,8 +1282,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Widget _buildDeliveryDateTimeSection(String itemId) {
     final customizations = _itemCustomizations[itemId] ?? {};
-    final deliveryDate = customizations['deliveryDate'] as DateTime?;
-    final deliveryTime = customizations['deliveryTime'] as TimeOfDay?;
+    final deliveryDate = _parseDateTime(customizations['deliveryDate']);
+    final deliveryTime = _parseTimeOfDay(customizations['deliveryTime']);
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1371,7 +1371,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Widget _buildColorSelectionSection(String itemId) {
     final customizations = _itemCustomizations[itemId] ?? {};
-    final selectedColor = customizations['selectedColor'] as Color?;
+    final selectedColor = _parseColor(customizations['selectedColor']);
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1659,7 +1659,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Future<void> _selectDeliveryDate(String itemId) async {
     final customizations = _itemCustomizations[itemId] ?? {};
-    final currentDate = customizations['deliveryDate'] as DateTime?;
+    final currentDate = _parseDateTime(customizations['deliveryDate']);
     
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -1693,7 +1693,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Future<void> _selectDeliveryTime(String itemId) async {
     final customizations = _itemCustomizations[itemId] ?? {};
-    final currentTime = customizations['deliveryTime'] as TimeOfDay?;
+    final currentTime = _parseTimeOfDay(customizations['deliveryTime']);
     
     final TimeOfDay? picked = await showTimePicker(
       context: context,
@@ -1725,7 +1725,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Future<void> _showColorPicker(String itemId) async {
     final customizations = _itemCustomizations[itemId] ?? {};
-    final currentColor = customizations['selectedColor'] as Color? ?? Colors.pink;
+    final currentColor = _parseColor(customizations['selectedColor']) ?? Colors.pink;
     
     showDialog(
       context: context,
@@ -1735,7 +1735,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           builder: (context, setDialogState) {
             // Read current color from state - this will update when setDialogState is called
             final currentCustomizations = _itemCustomizations[itemId] ?? {};
-            final displayColor = currentCustomizations['selectedColor'] as Color? ?? currentColor;
+            final displayColor =
+                _parseColor(currentCustomizations['selectedColor']) ??
+                    currentColor;
             
             return AlertDialog(
               title: Text(l10n.chooseCakeColor),
@@ -2115,12 +2117,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Widget _buildReviewStep() {
     final l10n = AppLocalizations.of(context)!;
-    final selectedAddress = _addresses.isNotEmpty
-        ? _addresses.firstWhere(
-            (addr) => (addr.id ?? addr.type) == _selectedAddress,
-            orElse: () => _addresses.first,
-          )
-        : null;
+    final selectedAddress = _getSelectedAddress();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -2287,13 +2284,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   const SizedBox(height: 4),
                   
                   // Show delivery date and time
-                  if (customizations['deliveryDate'] != null) ...[
+                  if (_parseDateTime(customizations['deliveryDate']) != null) ...[
                     Row(
                       children: [
                         const Icon(Icons.calendar_today, size: 16, color: AppTheme.accentColor),
                         const SizedBox(width: 8),
                         Text(
-                          'Delivery: ${_formatDeliveryDate(customizations['deliveryDate'])}',
+                          'Delivery: ${_formatDeliveryDate(_parseDateTime(customizations['deliveryDate'])!)}',
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: AppTheme.textSecondary,
                               ),
@@ -2303,13 +2300,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     const SizedBox(height: 4),
                   ],
                   
-                  if (customizations['deliveryTime'] != null) ...[
+                  if (_parseTimeOfDay(customizations['deliveryTime']) != null) ...[
                     Row(
                       children: [
                         const Icon(Icons.access_time, size: 16, color: AppTheme.accentColor),
                         const SizedBox(width: 8),
                         Text(
-                          'Time: ${_formatDeliveryTime(customizations['deliveryTime'])}',
+                          'Time: ${_formatDeliveryTime(_parseTimeOfDay(customizations['deliveryTime'])!)}',
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: AppTheme.textSecondary,
                               ),
@@ -2320,14 +2317,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ],
                   
                   // Show selected color
-                  if (customizations['selectedColor'] != null) ...[
+                  if (_parseColor(customizations['selectedColor']) != null) ...[
                     Row(
                       children: [
                         Container(
                           width: 16,
                           height: 16,
                           decoration: BoxDecoration(
-                            color: customizations['selectedColor'] as Color,
+                            color: _parseColor(customizations['selectedColor']),
                             shape: BoxShape.circle,
                             border: Border.all(color: Colors.grey.shade300),
                           ),
@@ -2525,17 +2522,33 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         if (_selectedPayment.isEmpty) {
           canProceed = false;
           errorMessage = 'Please select a payment method';
-        } else if (_selectedPayment == 'momo' &&
-            _phoneController.text.trim().isEmpty) {
+        } else if (_isMomoPaymentSelected() &&
+            _getMomoPhoneNumber().isEmpty) {
           canProceed = false;
           errorMessage = 'Please enter your mobile money phone number';
         }
         // Card payment doesn't require validation here since details are collected securely later
         break;
-      case 2: // Review step
+      case 2: // Customize step
         if (_cart.items.isEmpty) {
           canProceed = false;
           errorMessage = 'Your cart is empty';
+        }
+        break;
+      case 3: // Review step
+        if (_cart.items.isEmpty) {
+          canProceed = false;
+          errorMessage = 'Your cart is empty';
+        } else if (_getSelectedAddress() == null) {
+          canProceed = false;
+          errorMessage = 'Please select a delivery address';
+        } else if (_selectedPayment.isEmpty) {
+          canProceed = false;
+          errorMessage = 'Please select a payment method';
+        } else if (_isMomoPaymentSelected() &&
+            _getMomoPhoneNumber().isEmpty) {
+          canProceed = false;
+          errorMessage = 'Please enter your mobile money phone number';
         }
         break;
     }
@@ -2669,12 +2682,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     try {
       // Get selected address
-      final selectedAddress = _addresses.firstWhere(
-        (addr) =>
-            (addr.id != null && addr.id == _selectedAddress) ||
-            addr.type == _selectedAddress,
-        orElse: () => _addresses.first,
-      );
+      final selectedAddress = _getSelectedAddress();
+      if (selectedAddress == null) {
+        throw Exception('Please select a delivery address');
+      }
+
+      if (_isMomoPaymentSelected() && _getMomoPhoneNumber().isEmpty) {
+        throw Exception('Please enter your mobile money phone number');
+      }
 
       // Determine the payment method from selection
       PaymentMethod paymentMethod;
@@ -2759,12 +2774,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
 // print('DEBUG: Payment initiated, orderId: ${paymentResponse.orderId}');
 
-        // Clear the cart
-        await CartService.clearCart();
-
         setState(() => _isPlacingOrder = false);
 
         // Navigate to payment waiting screen for other payment methods
+        // Cart is cleared only after payment succeeds (see PaymentWaitingScreen)
         if (mounted) {
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
@@ -3220,5 +3233,78 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         ),
       ),
     );
+  }
+
+  Address? _getSelectedAddress() {
+    if (_addresses.isEmpty ||
+        _selectedAddress.isEmpty ||
+        _selectedAddress == 'add_new') {
+      return null;
+    }
+    try {
+      return _addresses.firstWhere(
+        (addr) =>
+            (addr.id != null && addr.id == _selectedAddress) ||
+            addr.type == _selectedAddress,
+      );
+    } catch (_) {
+      return _addresses.first;
+    }
+  }
+
+  bool _isMomoPaymentSelected() {
+    if (_selectedPayment == 'momo') return true;
+    final savedMethod = _savedPaymentMethods
+        .where((method) => method.id == _selectedPayment)
+        .firstOrNull;
+    if (savedMethod == null) return false;
+    final type = savedMethod.type.toLowerCase();
+    return type == 'mobile_money' || type == 'momo';
+  }
+
+  String _getMomoPhoneNumber() {
+    if (_selectedPayment == 'momo') {
+      return _phoneController.text.trim();
+    }
+    final savedMethod = _savedPaymentMethods
+        .where((method) => method.id == _selectedPayment)
+        .firstOrNull;
+    return savedMethod?.phoneNumber?.trim() ?? '';
+  }
+
+  DateTime? _parseDateTime(dynamic value) {
+    if (value == null) return null;
+    if (value is DateTime) return value;
+    if (value is String) return DateTime.tryParse(value);
+    return null;
+  }
+
+  TimeOfDay? _parseTimeOfDay(dynamic value) {
+    if (value == null) return null;
+    if (value is TimeOfDay) return value;
+    if (value is Map) {
+      final hour = value['hour'];
+      final minute = value['minute'];
+      if (hour is int && minute is int) {
+        return TimeOfDay(hour: hour, minute: minute);
+      }
+    }
+    return null;
+  }
+
+  Color? _parseColor(dynamic value) {
+    if (value == null) return null;
+    if (value is Color) return value;
+    if (value is int) return Color(value);
+    if (value is String) {
+      final hex = value.replaceFirst('#', '');
+      if (hex.length == 6) {
+        return Color(int.parse('FF$hex', radix: 16));
+      }
+      if (hex.length == 8) {
+        return Color(int.parse(hex, radix: 16));
+      }
+    }
+    return null;
   }
 }

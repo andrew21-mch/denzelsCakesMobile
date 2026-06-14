@@ -9,7 +9,6 @@
     
     <!-- Phone permissions -->
     <uses-permission android:name="android.permission.CALL_PHONE" />
-    <uses-permission android:name="android.permission.CALL_PRIVILEGED" />
     
     <!-- Optional permissions for enhanced functionality -->
     <uses-permission android:name="android.permission.CAMERA" />

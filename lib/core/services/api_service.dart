@@ -7,6 +7,7 @@ import 'storage_service.dart';
 class ApiService {
   static late Dio _dio;
   static final Logger _logger = Logger();
+  static void Function()? onSessionExpired;
 
   static Future<void> init() async {
     _dio = Dio(BaseOptions(
@@ -223,6 +224,7 @@ class _AuthInterceptor extends Interceptor {
           // Refresh failed, clear tokens and redirect to login
           await StorageService.clearTokens();
           await StorageService.clearUserData();
+          ApiService.onSessionExpired?.call();
         }
       }
     }

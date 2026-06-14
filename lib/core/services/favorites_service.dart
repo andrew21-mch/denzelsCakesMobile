@@ -20,7 +20,14 @@ class FavoritesService {
         },
       );
 
-      final List<dynamic> favoritesJson = response.data['data'];
+      final data = response.data;
+      if (data is! Map || data['data'] == null) {
+        return await _getLocalFavorites();
+      }
+      final favoritesJson = data['data'];
+      if (favoritesJson is! List) {
+        return await _getLocalFavorites();
+      }
       return favoritesJson.cast<Map<String, dynamic>>();
     } catch (e) {
       // Fallback to local storage if backend fails
@@ -60,7 +67,11 @@ class FavoritesService {
   static Future<bool> toggleFavorite(String cakeId) async {
     try {
       final response = await ApiService.post('$_baseUrl/$cakeId/toggle');
-      final isFavorited = response.data['data']['isFavorited'] ?? false;
+      final data = response.data;
+      if (data is! Map || data['data'] is! Map) {
+        throw Exception('Invalid favorites response');
+      }
+      final isFavorited = data['data']['isFavorited'] ?? false;
 
       // Update local cache
       if (isFavorited) {
@@ -88,7 +99,11 @@ class FavoritesService {
   static Future<bool> isFavorited(String cakeId) async {
     try {
       final response = await ApiService.get('$_baseUrl/$cakeId/status');
-      return response.data['data']['isFavorited'] ?? false;
+      final data = response.data;
+      if (data is! Map || data['data'] is! Map) {
+        return false;
+      }
+      return data['data']['isFavorited'] ?? false;
     } catch (e) {
       // Fallback to local check
       final favoriteIds = await getFavoriteIds();

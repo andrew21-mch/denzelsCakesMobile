@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 // REMOVED - Image picker imports moved to checkout page
 // import 'package:image_picker/image_picker.dart';
 // import 'dart:io';
@@ -11,7 +10,7 @@ import '../../../../core/services/favorites_service.dart';
 import '../../../../core/services/cart_service.dart';
 import '../../../../core/models/cart_model.dart';
 
-class CakeDetailScreen extends ConsumerStatefulWidget {
+class CakeDetailScreen extends StatefulWidget {
   final String cakeId;
 
   const CakeDetailScreen({
@@ -20,10 +19,10 @@ class CakeDetailScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<CakeDetailScreen> createState() => _CakeDetailScreenState();
+  State<CakeDetailScreen> createState() => _CakeDetailScreenState();
 }
 
-class _CakeDetailScreenState extends ConsumerState<CakeDetailScreen> {
+class _CakeDetailScreenState extends State<CakeDetailScreen> {
   int _quantity = 1;
   CakeSize? _selectedSize;
   String? _selectedFlavor;

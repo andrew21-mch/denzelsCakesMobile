@@ -1178,6 +1178,12 @@ abstract class AppLocalizations {
   /// **'Featured Cakes'**
   String get featuredCakes;
 
+  /// No description provided for @allCakes.
+  ///
+  /// In en, this message translates to:
+  /// **'All Cakes'**
+  String get allCakes;
+
   /// Category-specific cake title
   ///
   /// In en, this message translates to:

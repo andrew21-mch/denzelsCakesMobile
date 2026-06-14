@@ -557,6 +557,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get featuredCakes => 'Gâteaux en vedette';
 
   @override
+  String get allCakes => 'Tous les gâteaux';
+
+  @override
   String cakesCategory(String category) {
     return '$category Gâteaux';
   }

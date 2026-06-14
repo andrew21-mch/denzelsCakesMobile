@@ -1,25 +1,23 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:denzels_cakes/main.dart';
+import 'package:denzels_cakes/core/services/storage_service.dart';
 
 void main() {
-  testWidgets('App launches without crashing', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const CakeShopApp());
+  TestWidgetsFlutterBinding.ensureInitialized();
 
-    // Verify that the app launches and shows some basic content
-    // (This is a basic smoke test to ensure the app doesn't crash on startup)
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+    await StorageService.init();
+  });
+
+  testWidgets('App launches without crashing', (WidgetTester tester) async {
+    await tester.pumpWidget(const CakeShopApp());
     await tester.pump();
-    
-    // Just check that the app contains some widget
+    await tester.pump(const Duration(milliseconds: 100));
+
     expect(find.byType(MaterialApp), findsOneWidget);
   });
 }

@@ -39,6 +39,8 @@ import 'features/admin/presentation/screens/add_cake_screen.dart';
 import 'features/admin/presentation/screens/manage_orders_screen.dart';
 import 'features/training/presentation/screens/training_screen.dart';
 
+final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -60,6 +62,13 @@ void main() async {
 
   // Load cart on startup
   await CartService.loadCart();
+
+  ApiService.onSessionExpired = () {
+    appNavigatorKey.currentState?.pushNamedAndRemoveUntil(
+      '/login',
+      (route) => false,
+    );
+  };
 
   runApp(const CakeShopApp());
 }
@@ -93,6 +102,7 @@ class _CakeShopAppState extends State<CakeShopApp> {
     final locale = await LocaleService.getLocale();
     // Ensure AppLocalizations delegate is loaded for the locale
     await AppLocalizations.delegate.load(locale);
+    if (!mounted) return;
     setState(() {
       _locale = locale;
       _isLocaleLoaded = true;
@@ -101,6 +111,7 @@ class _CakeShopAppState extends State<CakeShopApp> {
 
   void updateLocale(Locale newLocale) async {
     await LocaleService.setLocale(newLocale);
+    if (!mounted) return;
     setState(() {
       _locale = newLocale;
     });
@@ -129,6 +140,7 @@ class _CakeShopAppState extends State<CakeShopApp> {
     }
 
     return MaterialApp(
+      navigatorKey: appNavigatorKey,
       title: "Denzel's Cakes",
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,

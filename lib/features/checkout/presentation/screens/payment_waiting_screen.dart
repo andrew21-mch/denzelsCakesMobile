@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../../core/services/payment_service.dart';
+import '../../../../core/services/cart_service.dart';
 
 class PaymentWaitingScreen extends StatefulWidget {
   final String orderId;
@@ -53,6 +54,7 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
 
   @override
   void dispose() {
+    _isChecking = false;
     _pulseController.dispose();
     super.dispose();
   }
@@ -94,6 +96,12 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
   Future<void> _processMomoPayment() async {
     try {
       final phoneNumber = widget.paymentDetails?['phoneNumber'] ?? '';
+      if (phoneNumber.toString().trim().isEmpty) {
+        _handlePaymentFailure(
+          'Mobile money phone number is required. Please go back and enter your number.',
+        );
+        return;
+      }
 // print('DEBUG: Processing MOMO payment for phone: $phoneNumber');
 
       setState(() {
@@ -246,6 +254,7 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
     });
 
     _pulseController.stop();
+    CartService.clearCart();
     _navigateToSuccess();
   }
 

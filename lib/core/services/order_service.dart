@@ -53,7 +53,11 @@ class OrderService {
     };
 
     final response = await ApiService.post(_baseUrl, data: orderData);
-    return response.data['data'];
+    final data = response.data;
+    if (data is! Map || data['data'] == null) {
+      throw Exception('Invalid order response from server');
+    }
+    return data['data'] as Map<String, dynamic>;
   }
 
   /// Create a custom order (without cakeStyleId)
@@ -97,7 +101,11 @@ class OrderService {
     };
 
     final response = await ApiService.post(_baseUrl, data: orderData);
-    return response.data['data'];
+    final data = response.data;
+    if (data is! Map || data['data'] == null) {
+      throw Exception('Invalid order response from server');
+    }
+    return data['data'] as Map<String, dynamic>;
   }
 
   /// Get user's orders
@@ -113,15 +121,24 @@ class OrderService {
       },
     );
 
-    final List<dynamic> ordersJson = response.data['data'];
-    return ordersJson.cast<Map<String, dynamic>>();
+    final data = response.data;
+    if (data is! Map || data['data'] is! List) {
+      return [];
+    }
+    return (data['data'] as List).cast<Map<String, dynamic>>();
   }
 
   /// Get order by ID
   static Future<Map<String, dynamic>> getOrderById(String orderId) async {
     final response = await ApiService.get('$_baseUrl/$orderId');
-    return response.data['data'];
-  }  /// Cancel an order
+    final data = response.data;
+    if (data is! Map || data['data'] == null) {
+      throw Exception('Order not found');
+    }
+    return data['data'] as Map<String, dynamic>;
+  }
+
+  /// Cancel an order
   static Future<Map<String, dynamic>> cancelOrder(String orderId) async {
     try {
       final response = await ApiService.post('$_baseUrl/$orderId/cancel');

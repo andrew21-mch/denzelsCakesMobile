@@ -25,9 +25,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   // State management
   List<CakeStyle> _featuredCakes = [];
+  List<CakeStyle> _allCakes = [];
   List<CakeStyle> _filteredCakes = [];
   List<String> _categories = [];
   bool _isLoading = true;
+  bool _showingAllCakes = false;
   String? _errorMessage;
   bool _isSearching = false;
 
@@ -239,14 +241,59 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void _filterCakesByCategory(String? category) {
     setState(() {
       _selectedCategory = category;
+      final source = _showingAllCakes ? _allCakes : _featuredCakes;
       if (category == null) {
-        _filteredCakes = _featuredCakes;
+        _filteredCakes = source;
       } else {
-        _filteredCakes = _featuredCakes
+        _filteredCakes = source
             .where((cake) => cake.tags.any(
                 (tag) => tag.toLowerCase().contains(category.toLowerCase())))
             .toList();
       }
+    });
+  }
+
+  Future<void> _loadAllCakes() async {
+    HapticFeedback.lightImpact();
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+      _selectedCategory = null;
+      _isSearching = false;
+      _searchController.clear();
+    });
+
+    try {
+      final cakeResponse =
+          await CakeRepository.getCakes(limit: 50, isAvailable: true);
+      if (!mounted) return;
+      setState(() {
+        _allCakes = cakeResponse.data;
+        _filteredCakes = cakeResponse.data;
+        _showingAllCakes = true;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+      final l10n = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.failedToLoadCakes),
+          backgroundColor: AppTheme.errorColor,
+        ),
+      );
+    }
+  }
+
+  void _showFeaturedCakes() {
+    HapticFeedback.lightImpact();
+    setState(() {
+      _showingAllCakes = false;
+      _selectedCategory = null;
+      _filteredCakes = _featuredCakes;
     });
   }
 
@@ -294,6 +341,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     if (query.isEmpty) {
       setState(() {
         _isSearching = false;
+        _showingAllCakes = false;
         _filteredCakes = _featuredCakes;
         _selectedCategory = null;
         _selectedAgeGroup = null;
@@ -316,6 +364,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       setState(() {
         _filteredCakes = searchResults.data;
         _isSearching = false;
+        _showingAllCakes = false;
         _selectedCategory = null; // Clear category filter when searching
       });
     } catch (e) {
@@ -344,117 +393,111 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             child: CustomScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
-                // Modern App Bar
-                SliverAppBar(
-                  expandedHeight: 100, // Reduced from 120
-                  floating: true,
-                  pinned: false,
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                  flexibleSpace: FlexibleSpaceBar(
-                    background: Container(
-                      padding: const EdgeInsets.fromLTRB(
-                          20, 10, 20, 16), // Reduced top padding from 20 to 10
-                      child: Row(
-                        children: [
-                          // Logo
-                          Container(
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(15),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: AppTheme.shadowColor,
-                                  blurRadius: 10,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            padding: const EdgeInsets.all(4),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(11),
-                              child: Image.asset(
-                                'assets/images/logo2.jpeg',
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      gradient: AppTheme.primaryGradient,
-                                      borderRadius: BorderRadius.circular(11),
-                                    ),
-                                    child: const Icon(
-                                      Icons.cake,
-                                      size: 24,
-                                      color: Colors.white,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          // Welcome Text
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  l10n.welcomeToDenzels,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleSmall
-                                      ?.copyWith(
-                                        color: AppTheme.textSecondary,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 4),
-                                ShaderMask(
-                                  shaderCallback: (bounds) => AppTheme
-                                      .primaryGradient
-                                      .createShader(bounds),
-                                  child: Text(
-                                    l10n.deliciousCakesAwait,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          height: 1.2,
-                                        ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          // Action Buttons
-                          Row(
-                            children: [
-                              _buildCartButton(),
-                              const SizedBox(width: 8),
-                              _buildActionButton(
-                                Icons.edit_note,
-                                () => Navigator.of(context).pushNamed('/custom-order'),
-                                tooltip: l10n.placeCustomOrder,
-                              ),
-                              const SizedBox(width: 8),
-                              _buildActionButton(
-                                Icons.person_outlined,
-                                () =>
-                                    Navigator.of(context).pushNamed('/profile'),
+                // Header — solid background so content doesn't show through on scroll
+                SliverToBoxAdapter(
+                  child: Container(
+                    color: AppTheme.backgroundColor,
+                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 16),
+                    child: Row(
+                      children: [
+                        // Logo
+                        Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: AppTheme.shadowColor,
+                                blurRadius: 10,
+                                offset: Offset(0, 4),
                               ),
                             ],
                           ),
-                        ],
-                      ),
+                          padding: const EdgeInsets.all(4),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(11),
+                            child: Image.asset(
+                              'assets/images/logo2.jpeg',
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    gradient: AppTheme.primaryGradient,
+                                    borderRadius: BorderRadius.circular(11),
+                                  ),
+                                  child: const Icon(
+                                    Icons.cake,
+                                    size: 24,
+                                    color: Colors.white,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        // Welcome Text
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                l10n.welcomeToDenzels,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(
+                                      color: AppTheme.textSecondary,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              ShaderMask(
+                                shaderCallback: (bounds) => AppTheme
+                                    .primaryGradient
+                                    .createShader(bounds),
+                                child: Text(
+                                  l10n.deliciousCakesAwait,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        height: 1.2,
+                                      ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Action Buttons
+                        Row(
+                          children: [
+                            _buildCartButton(),
+                            const SizedBox(width: 8),
+                            _buildActionButton(
+                              Icons.edit_note,
+                              () => Navigator.of(context)
+                                  .pushNamed('/custom-order'),
+                              tooltip: l10n.placeCustomOrder,
+                            ),
+                            const SizedBox(width: 8),
+                            _buildActionButton(
+                              Icons.person_outlined,
+                              () =>
+                                  Navigator.of(context).pushNamed('/profile'),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -806,8 +849,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               Flexible(
                                 child: Text(
                                   _selectedCategory != null
-                                      ? l10n.cakesCategory(CategoryUtils.getLocalizedCategory(_selectedCategory!, l10n))
-                                      : l10n.featuredCakes,
+                                      ? l10n.cakesCategory(
+                                          CategoryUtils.getLocalizedCategory(
+                                              _selectedCategory!, l10n))
+                                      : _showingAllCakes
+                                          ? l10n.allCakes
+                                          : l10n.featuredCakes,
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleLarge
@@ -841,15 +888,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           child: GestureDetector(
                             onTap: () {
                               if (_selectedCategory != null) {
-                                _filterCakesByCategory(null); // Clear filter
+                                _filterCakesByCategory(null);
+                              } else if (_showingAllCakes) {
+                                _showFeaturedCakes();
                               } else {
-                                // TODO: Navigate to all cakes
+                                _loadAllCakes();
                               }
                             },
                             child: Text(
                               _selectedCategory != null
                                   ? l10n.showAll
-                                  : l10n.seeAll,
+                                  : _showingAllCakes
+                                      ? l10n.featuredCakes
+                                      : l10n.seeAll,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
@@ -865,9 +916,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
                 const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
-                // Cake Grid with improved design
+                // Cake list — one per row with rounded cards
                 SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   sliver: _isLoading
                       ? const SliverToBoxAdapter(
                           child: SizedBox(
@@ -945,7 +996,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                             horizontal: 16,
                                             vertical: 8,
                                           ),
-                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                          tapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
                                         ),
                                         child: Text(
                                           l10n.tryAgain,
@@ -962,18 +1014,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 ),
                               ),
                             )
-                          : SliverGrid(
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                childAspectRatio: 0.85,
-                                crossAxisSpacing: 16,
-                                mainAxisSpacing: 20,
-                              ),
+                          : SliverList(
                               delegate: SliverChildBuilderDelegate(
                                 (context, index) {
-                                  return _buildModernCakeCard(
-                                      context, _filteredCakes[index]);
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                      bottom: index < _filteredCakes.length - 1
+                                          ? 16
+                                          : 0,
+                                    ),
+                                    child: _buildModernCakeCard(
+                                      context,
+                                      _filteredCakes[index],
+                                    ),
+                                  );
                                 },
                                 childCount: _filteredCakes.length,
                               ),
@@ -1126,48 +1180,39 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             ),
           ],
         ),
+        clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Cake Image with gradient overlay
-            Expanded(
-              flex: 3,
+            SizedBox(
+              height: 200,
+              width: double.infinity,
               child: Stack(
+                fit: StackFit.expand,
                 children: [
                   Container(
-                    width: double.infinity,
                     decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
-                      ),
                       gradient: AppTheme.primaryGradient,
                     ),
-                    child: ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
-                      ),
-                      child: cake.images.isNotEmpty
-                          ? Image.network(
-                              cake.images.first,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  _buildPlaceholderImage(),
-                            )
-                          : _buildPlaceholderImage(),
-                    ),
+                    child: cake.images.isNotEmpty
+                        ? Image.network(
+                            cake.images.first,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            errorBuilder: (context, error, stackTrace) =>
+                                _buildPlaceholderImage(),
+                          )
+                        : _buildPlaceholderImage(),
                   ),
-                  // Favorite button
                   Positioned(
                     top: 12,
                     right: 12,
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 40,
+                      height: 40,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.9),
-                        borderRadius: BorderRadius.circular(18),
+                        color: Colors.white.withValues(alpha: 0.95),
+                        borderRadius: BorderRadius.circular(20),
                         boxShadow: const [
                           BoxShadow(
                             color: AppTheme.shadowColor,
@@ -1182,7 +1227,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               ? Icons.favorite
                               : Icons.favorite_border,
                           color: AppTheme.accentColor,
-                          size: 20,
+                          size: 22,
                         ),
                         onPressed: () {
                           HapticFeedback.lightImpact();
@@ -1191,13 +1236,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       ),
                     ),
                   ),
-                  // Price tag
                   Positioned(
                     top: 12,
                     left: 12,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         gradient: AppTheme.accentGradient,
                         borderRadius: BorderRadius.circular(12),
@@ -1213,93 +1259,146 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         '${cake.basePrice.toInt()} XAF',
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 12,
+                          fontSize: 13,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
-            // Cake Details
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            cake.title,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.textPrimary,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 3),
-                          Expanded(
-                            child: Text(
-                              cake.description,
-                              style: const TextStyle(
-                                fontSize: 11,
-                                color: AppTheme.textSecondary,
-                              ),
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    // Add to cart button
-                    Container(
-                      width: double.infinity,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        gradient: AppTheme.primaryGradient,
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: TextButton(
-                        onPressed: () {
-                          HapticFeedback.lightImpact();
-                          // Navigate to cake detail page to select size and flavor
-                          Navigator.of(context)
-                              .pushNamed(
-                            '/cake/${cake.id}',
-                          )
-                              .then((_) {
-                            // Refresh cart count when returning from detail page
-                            _refreshCartCount();
-                          });
-                        },
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
+                  if (cake.tags.isNotEmpty)
+                    Positioned(
+                      bottom: 12,
+                      left: 12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.92),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          l10n.addToCart,
+                          cake.tags.first,
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: AppTheme.textPrimary,
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    cake.title,
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textPrimary,
+                      height: 1.2,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    cake.description,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppTheme.textSecondary,
+                      height: 1.4,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      if (cake.prepTimeMinutes > 0)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppTheme.accentColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.schedule,
+                                size: 14,
+                                color: AppTheme.accentColor,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${cake.prepTimeMinutes} min',
+                                style: const TextStyle(
+                                  color: AppTheme.accentColor,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      const Spacer(),
+                      if (cake.flavors.isNotEmpty)
+                        Text(
+                          '${cake.flavors.length} flavors',
+                          style: const TextStyle(
+                            color: AppTheme.textSecondary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Container(
+                    width: double.infinity,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      gradient: AppTheme.primaryGradient,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: TextButton(
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        Navigator.of(context)
+                            .pushNamed('/cake/${cake.id}')
+                            .then((_) {
+                          if (mounted) {
+                            _refreshCartCount();
+                          }
+                        });
+                      },
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: Text(
+                        l10n.addToCart,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -1314,15 +1413,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       height: double.infinity,
       decoration: const BoxDecoration(
         gradient: AppTheme.primaryGradient,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
       ),
       child: const Icon(
         Icons.cake,
         color: Colors.white,
-        size: 40,
+        size: 48,
       ),
     );
   }
