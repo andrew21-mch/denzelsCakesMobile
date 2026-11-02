@@ -16,6 +16,48 @@ allprojects {
     }
 }
 
+// This repo sits on NTFS via fuseblk. Gradle cannot snapshot that volume, so
+// keep the Flutter build directory on the Linux home filesystem instead.
+// mergeDebugShaders still needs change tracking, so do not call doNotTrackState.
+def storeType = ""
+try {
+    storeType = java.nio.file.Files.getFileStore(rootDir.toPath()).type().toLowerCase()
+} catch (ignored) {}
+def unreliableFs = storeType.contains("fuse") || storeType.contains("ntfs") || storeType.contains("exfat")
+def projectBuild = file("../build")
+if (unreliableFs) {
+    def cacheBuild = new File(System.getProperty("user.home"), ".cache/denzels-cakes-build")
+    cacheBuild.mkdirs()
+    def link = projectBuild.toPath()
+    if (!java.nio.file.Files.isSymbolicLink(link)) {
+        if (projectBuild.exists()) {
+            projectBuild.listFiles()?.each { child ->
+                def target = new File(cacheBuild, child.name)
+                if (target.exists()) {
+                    target.isDirectory() ? target.deleteDir() : target.delete()
+                }
+                if (child.isDirectory()) {
+                    copy {
+                        from child
+                        into target
+                    }
+                    child.deleteDir()
+                } else {
+                    copy {
+                        from child
+                        into cacheBuild
+                    }
+                    child.delete()
+                }
+            }
+            projectBuild.deleteDir()
+        }
+        if (!projectBuild.exists()) {
+            java.nio.file.Files.createSymbolicLink(link, cacheBuild.toPath())
+        }
+    }
+}
+
 rootProject.buildDir = "../build"
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"

@@ -143,7 +143,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       shaderCallback: (bounds) =>
                           AppTheme.primaryGradient.createShader(bounds),
                       child: Text(
-                        'Join Denzel\'s Cakes',
+                        'Join Denzel\'sCakes',
                         style:
                             Theme.of(context).textTheme.headlineLarge?.copyWith(
                                   color: Colors.white,

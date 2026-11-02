@@ -28,6 +28,7 @@ class CakeStyle {
   final String id;
   final String title;
   final String description;
+  final String? descriptionFr;
   final List<String> images;
   final double basePrice;
   final List<CakeSize> sizes;
@@ -46,6 +47,7 @@ class CakeStyle {
     required this.id,
     required this.title,
     required this.description,
+    this.descriptionFr,
     required this.images,
     required this.basePrice,
     required this.sizes,
@@ -67,6 +69,7 @@ class CakeStyle {
         id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
         title: json['title']?.toString() ?? '',
         description: json['description']?.toString() ?? '',
+        descriptionFr: json['descriptionFr']?.toString(),
         images:
             (json['images'] as List?)?.map((e) => e.toString()).toList() ?? [],
         basePrice: (json['basePrice'] as num?)?.toDouble() ?? 0.0,
@@ -101,6 +104,7 @@ class CakeStyle {
         'id': id,
         'title': title,
         'description': description,
+        'descriptionFr': descriptionFr,
         'images': images,
         'basePrice': basePrice,
         'sizes': sizes.map((e) => e.toJson()).toList(),
@@ -115,6 +119,14 @@ class CakeStyle {
         'createdAt': createdAt?.toIso8601String(),
         'updatedAt': updatedAt?.toIso8601String(),
       };
+
+  /// English stays in [description]. French is used when the app language is
+  /// French and a French description was saved.
+  String descriptionFor(String languageCode) {
+    final french = descriptionFr?.trim() ?? '';
+    if (languageCode == 'fr' && french.isNotEmpty) return french;
+    return description;
+  }
 
   // Helper method to get price with size
   double getPriceWithSize(String sizeName) {

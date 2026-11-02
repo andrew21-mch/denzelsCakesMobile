@@ -107,8 +107,8 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text('Payment Methods'),
-        backgroundColor: Colors.white,
-        foregroundColor: AppTheme.primaryColor,
+        backgroundColor: AppTheme.surfaceColor,
+        foregroundColor: AppTheme.textPrimary,
         elevation: 0,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),

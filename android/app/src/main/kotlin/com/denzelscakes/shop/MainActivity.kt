@@ -1,4 +1,4 @@
-package com.denzelscakes.denzels_cakes
+package com.denzelscakes.shop
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -11,94 +11,106 @@ class RevenueChartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: AppTheme.surfaceColor,
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+    final scheme = Theme.of(context).colorScheme;
+    final values = chartData
+        .map((entry) => (entry['revenue'] as num?)?.toDouble() ?? 0)
+        .toList();
+    final total = values.fold<double>(0, (sum, value) => sum + value);
+    final average = values.isEmpty ? 0.0 : total / values.length;
+    final peak = values.fold<double>(0, (max, value) => value > max ? value : max);
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: scheme.outlineVariant),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Revenue Overview',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
+                Expanded(
+                  child: Text(
+                    'Revenue',
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.accentColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text(
-                    'Last 7 days',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.accentColor,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                Text(
+                  'Last 7 days',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-
-            // Chart placeholder (since we don't have a chart library)
-            Container(
-              height: 200,
-              decoration: BoxDecoration(
-                color: AppTheme.backgroundColor,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Colors.grey[300]!,
-                  width: 1,
-                ),
-              ),
-              child: chartData.isEmpty
-                  ? const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.bar_chart,
-                            size: 48,
-                            color: Colors.grey,
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'No revenue data available',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 14,
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 120,
+              child: peak <= 0
+                  ? Center(
+                      child: Text(
+                        'No revenue yet',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: scheme.onSurfaceVariant,
                             ),
-                          ),
-                        ],
                       ),
                     )
-                  : _buildSimpleChart(),
+                  : Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        for (var i = 0; i < values.length; i++)
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Expanded(
+                                    child: Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: FractionallySizedBox(
+                                        heightFactor:
+                                            (values[i] / peak).clamp(0.04, 1),
+                                        widthFactor: 1,
+                                        child: DecoratedBox(
+                                          decoration: BoxDecoration(
+                                            color: AppTheme.primaryColor,
+                                            borderRadius:
+                                                const BorderRadius.vertical(
+                                              top: Radius.circular(4),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    '${chartData[i]['date'] ?? ''}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall
+                                        ?.copyWith(
+                                          color: scheme.onSurfaceVariant,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
             ),
-
-            const SizedBox(height: 16),
-
-            // Summary stats
+            const SizedBox(height: 8),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildStat('Total', '₦0', Colors.blue),
-                _buildStat('Average', '₦0', Colors.green),
-                _buildStat('Growth', '+0%', Colors.orange),
+                Expanded(child: _summary(context, 'Total', total)),
+                Expanded(child: _summary(context, 'Daily average', average)),
               ],
             ),
           ],
@@ -107,47 +119,20 @@ class RevenueChartCard extends StatelessWidget {
     );
   }
 
-  Widget _buildSimpleChart() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: List.generate(7, (index) {
-          final height = (index + 1) * 20.0 + 40;
-          return Container(
-            width: 20,
-            height: height,
-            decoration: BoxDecoration(
-              color: AppTheme.accentColor.withValues(alpha: 0.7),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(4),
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-
-  Widget _buildStat(String label, String value, Color color) {
+  Widget _summary(BuildContext context, String label, double amount) {
+    final scheme = Theme.of(context).colorScheme;
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          value,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
+          '${amount.toStringAsFixed(0)} XAF',
+          style: Theme.of(context).textTheme.titleSmall,
         ),
-        const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
         ),
       ],
     );

@@ -149,7 +149,7 @@ class OrderService {
         throw Exception(response.data['message'] ?? 'Failed to cancel order');
       }
     } catch (e) {
-      throw Exception('Failed to cancel order: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 

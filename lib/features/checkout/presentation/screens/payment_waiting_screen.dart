@@ -8,6 +8,7 @@ class PaymentWaitingScreen extends StatefulWidget {
   final PaymentMethod paymentMethod;
   final double amount;
   final Map<String, dynamic>? paymentDetails;
+  final String? whatsappMessage;
 
   const PaymentWaitingScreen({
     super.key,
@@ -15,6 +16,7 @@ class PaymentWaitingScreen extends StatefulWidget {
     required this.paymentMethod,
     required this.amount,
     this.paymentDetails,
+    this.whatsappMessage,
   });
 
   @override
@@ -279,6 +281,7 @@ class _PaymentWaitingScreenState extends State<PaymentWaitingScreen>
             'orderId': widget.orderId,
             'amount': widget.amount,
             'paymentMethod': widget.paymentMethod.name,
+            'whatsappMessage': widget.whatsappMessage,
           },
         );
       }

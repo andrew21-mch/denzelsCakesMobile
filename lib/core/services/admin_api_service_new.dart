@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import '../constants/app_constants.dart';
 import 'api_service.dart';
+import 'storage_service.dart';
 
 class AdminApiService {
   // CAKE MANAGEMENT
@@ -9,17 +10,27 @@ class AdminApiService {
   /// Upload image to server and get URL
   static Future<String> uploadImage(File imageFile) async {
     try {
+      final token = await StorageService.getAccessToken();
+      if (token == null || token.isEmpty) {
+        throw ApiException('Sign in again, then save the cake.');
+      }
+
+      final filename = _imageFilename(imageFile.path);
       final formData = FormData.fromMap({
-        'file': await MultipartFile.fromFile(imageFile.path),
+        'file': await MultipartFile.fromFile(
+          imageFile.path,
+          filename: filename,
+        ),
+        'folder': 'cakes',
       });
 
+      // Leave Content-Type unset so the upload keeps its boundary.
+      // Setting multipart/form-data here was sending the photo with no token.
       final response = await ApiService.post(
         AppConstants.mediaUploadEndpoint,
         data: formData,
         options: Options(
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+          headers: {'Authorization': 'Bearer $token'},
         ),
       );
 
@@ -35,8 +46,16 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Image upload error: $e');
-      throw Exception('Failed to upload image: $e');
+      throw ApiException(ApiService.readableError(e));
     }
+  }
+
+  static String _imageFilename(String path) {
+    final name = path.split(Platform.pathSeparator).last;
+    final lower = name.toLowerCase();
+    const endings = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+    if (endings.any(lower.endsWith)) return name;
+    return '$name.jpg';
   }
 
   /// Create new cake style
@@ -61,7 +80,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Create cake error: $e');
-      throw Exception('Failed to create cake: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -83,7 +102,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Get cakes error: $e');
-      throw Exception('Failed to fetch cakes: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -102,7 +121,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Update cake availability error: $e');
-      throw Exception('Failed to update cake: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -118,7 +137,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Delete cake error: $e');
-      throw Exception('Failed to delete cake: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -142,7 +161,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Update cake error: $e');
-      throw Exception('Failed to update cake: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -179,7 +198,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Get orders error: $e');
-      throw Exception('Failed to fetch orders: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -202,7 +221,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Get order error: $e');
-      throw Exception('Failed to fetch order: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -236,7 +255,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Update order status error: $e');
-      throw Exception('Failed to update order: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -257,7 +276,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Cancel order error: $e');
-      throw Exception('Failed to cancel order: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -354,7 +373,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Get users error: $e');
-      throw Exception('Failed to fetch users: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -372,7 +391,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Update user role error: $e');
-      throw Exception('Failed to update user role: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -396,7 +415,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Get business info error: $e');
-      throw Exception('Failed to fetch business info: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -415,7 +434,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Update business info error: $e');
-      throw Exception('Failed to update business info: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -438,7 +457,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Get payment methods error: $e');
-      throw Exception('Failed to fetch payment methods: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -457,7 +476,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Update payment methods error: $e');
-      throw Exception('Failed to update payment methods: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -481,7 +500,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Get delivery settings error: $e');
-      throw Exception('Failed to fetch delivery settings: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -501,7 +520,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Update delivery settings error: $e');
-      throw Exception('Failed to update delivery settings: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -523,7 +542,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Get user roles error: $e');
-      throw Exception('Failed to fetch user roles: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -542,7 +561,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Update user roles error: $e');
-      throw Exception('Failed to update user roles: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -567,7 +586,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Get notification settings error: $e');
-      throw Exception('Failed to fetch notification settings: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -607,7 +626,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Get notification history error: $e');
-      throw Exception('Failed to fetch notification history: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -634,7 +653,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Update notification settings error: $e');
-      throw Exception('Failed to update notification settings: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -656,7 +675,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Send test notification error: $e');
-      throw Exception('Failed to send test notification: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -673,7 +692,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Delete notification error: $e');
-      throw Exception('Failed to delete notification: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -695,7 +714,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Get backup settings error: $e');
-      throw Exception('Failed to fetch backup settings: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -714,7 +733,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Update backup settings error: $e');
-      throw Exception('Failed to update backup settings: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -730,7 +749,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Trigger backup error: $e');
-      throw Exception('Failed to trigger backup: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -755,7 +774,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Export data error: $e');
-      throw Exception('Failed to export data: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -781,7 +800,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Generate report error: $e');
-      throw Exception('Failed to generate report: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -826,7 +845,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Get customers error: $e');
-      throw Exception('Failed to fetch customers: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -848,7 +867,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Get customer stats error: $e');
-      throw Exception('Failed to fetch customer stats: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -867,7 +886,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Update customer status error: $e');
-      throw Exception('Failed to update customer status: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -883,7 +902,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Delete customer error: $e');
-      throw Exception('Failed to delete customer: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 }

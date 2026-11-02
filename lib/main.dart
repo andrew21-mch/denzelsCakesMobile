@@ -129,7 +129,8 @@ class _CakeShopAppState extends State<CakeShopApp> {
 
     if (!_isLocaleLoaded) {
       return MaterialApp(
-        title: "Denzel's Cakes",
+        title: "Denzel'sCakes",
+        theme: AppTheme.lightTheme,
         locale: LocaleService.defaultLocale,
         localizationsDelegates: localizationsDelegates,
         supportedLocales: LocaleService.supportedLocales,
@@ -141,7 +142,7 @@ class _CakeShopAppState extends State<CakeShopApp> {
 
     return MaterialApp(
       navigatorKey: appNavigatorKey,
-      title: "Denzel's Cakes",
+      title: "Denzel'sCakes",
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       themeMode: ThemeMode.light,
@@ -230,6 +231,7 @@ class _CakeShopAppState extends State<CakeShopApp> {
                 orderId: args?['orderId'] as String? ?? '',
                 amount: (args?['amount'] as num?)?.toDouble() ?? 0,
                 paymentMethod: args?['paymentMethod'] as String? ?? '',
+                whatsappMessage: args?['whatsappMessage'] as String?,
               ),
               settings: settings,
             );

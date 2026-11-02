@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/models/training_model.dart';
+import '../../../../core/utils/shop_whatsapp.dart';
+import '../../../auth/data/auth_repository.dart';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
 
@@ -15,72 +17,38 @@ class _TrainingScreenState extends State<TrainingScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  // Sample training periods data - Same training in different quarters (3 per year)
-  final List<TrainingPeriod> _trainingPeriods = [
-    TrainingPeriod(
-      id: 'q1',
-      title: 'Cake Decoration Mastery',
-      months: 'January - March (Q1 Intake)',
-      description:
-          'Complete cake decoration training program covering all essential skills from basics to advanced techniques.',
-      topics: [
-        'Baking Fundamentals & Techniques',
-        'Cake Mixing & Preparation Methods',
-        'Frosting & Icing Mastery',
-        'Advanced Piping Techniques',
-        'Fondant Work & Sculpting',
-        'Creative Design & Decoration',
-        'Wedding & Special Event Cakes',
-        'Business Skills & Entrepreneurship',
-        'Food Safety & Professional Standards',
-        'Portfolio Development & Certification'
-      ],
-      isCurrentPeriod: _isCurrentPeriod('Jan-Mar'),
-      status: _getPeriodStatus('Jan-Mar'),
-    ),
-    TrainingPeriod(
-      id: 'q2',
-      title: 'Cake Decoration Mastery',
-      months: 'April - June (Q2 Intake)',
-      description:
-          'Complete cake decoration training program covering all essential skills from basics to advanced techniques.',
-      topics: [
-        'Baking Fundamentals & Techniques',
-        'Cake Mixing & Preparation Methods',
-        'Frosting & Icing Mastery',
-        'Advanced Piping Techniques',
-        'Fondant Work & Sculpting',
-        'Creative Design & Decoration',
-        'Wedding & Special Event Cakes',
-        'Business Skills & Entrepreneurship',
-        'Food Safety & Professional Standards',
-        'Portfolio Development & Certification'
-      ],
-      isCurrentPeriod: _isCurrentPeriod('Apr-Jun'),
-      status: _getPeriodStatus('Apr-Jun'),
-    ),
-    TrainingPeriod(
-      id: 'q3',
-      title: 'Cake Decoration Mastery',
-      months: 'July - September (Q3 Intake)',
-      description:
-          'Complete cake decoration training program covering all essential skills from basics to advanced techniques.',
-      topics: [
-        'Baking Fundamentals & Techniques',
-        'Cake Mixing & Preparation Methods',
-        'Frosting & Icing Mastery',
-        'Advanced Piping Techniques',
-        'Fondant Work & Sculpting',
-        'Creative Design & Decoration',
-        'Wedding & Special Event Cakes',
-        'Business Skills & Entrepreneurship',
-        'Food Safety & Professional Standards',
-        'Portfolio Development & Certification'
-      ],
-      isCurrentPeriod: _isCurrentPeriod('Jul-Sep'),
-      status: _getPeriodStatus('Jul-Sep'),
-    ),
-  ];
+  List<TrainingPeriod> _periods(AppLocalizations l10n) {
+    final topics = [
+      l10n.topicBakingFundamentals,
+      l10n.topicCakeMixing,
+      l10n.topicFrosting,
+      l10n.topicPiping,
+      l10n.topicFondant,
+      l10n.topicCreativeDesign,
+      l10n.topicWeddingCakes,
+      l10n.topicBusinessSkills,
+      l10n.topicFoodSafety,
+      l10n.topicPortfolio,
+    ];
+
+    TrainingPeriod period(String id, String months, String range) {
+      return TrainingPeriod(
+        id: id,
+        title: l10n.cakeDecorationMastery,
+        months: months,
+        description: l10n.cakeDecorationDescription,
+        topics: topics,
+        isCurrentPeriod: _isCurrentPeriod(range),
+        status: _getPeriodStatus(range),
+      );
+    }
+
+    return [
+      period('q1', l10n.intakeJanuaryMarch, 'Jan-Mar'),
+      period('q2', l10n.intakeAprilJune, 'Apr-Jun'),
+      period('q3', l10n.intakeJulySeptember, 'Jul-Sep'),
+    ];
+  }
 
   @override
   void initState() {
@@ -258,41 +226,23 @@ class _TrainingScreenState extends State<TrainingScreen>
                 ),
                 const SizedBox(height: 20),
 
-                // Action Button
-                Container(
-                  width: double.infinity,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    gradient: AppTheme.primaryGradient,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: TextButton(
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      _showPeriodDetails(context, period);
-                    },
-                    style: TextButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                    ),
-                    child: Text(
-                      period.isCurrentPeriod 
-                          ? AppLocalizations.of(context)!.viewProgress 
-                          : AppLocalizations.of(context)!.viewDetails,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                FilledButton(
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    _askAboutClass(period);
+                  },
+                  child: Text(AppLocalizations.of(context)!.whatsapp),
+                ),
+                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    _showPeriodDetails(context, period);
+                  },
+                  child: Text(
+                    period.isCurrentPeriod
+                        ? AppLocalizations.of(context)!.viewProgress
+                        : AppLocalizations.of(context)!.viewDetails,
                   ),
                 ),
               ],
@@ -301,6 +251,25 @@ class _TrainingScreenState extends State<TrainingScreen>
         ],
       ),
     );
+  }
+
+  Future<void> _askAboutClass(TrainingPeriod period) async {
+    final l10n = AppLocalizations.of(context)!;
+    final user = await AuthRepository.getCurrentUser();
+    final opened = await ShopWhatsApp.open(
+      ShopWhatsApp.introduce(
+        l10n,
+        user?.name,
+        l10n.whatsappJoinTraining(period.title, period.months),
+      ),
+    );
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.whatsappUnavailable(ShopWhatsApp.displayNumber)),
+        ),
+      );
+    }
   }
 
   void _showPeriodDetails(BuildContext context, TrainingPeriod period) {
@@ -381,6 +350,17 @@ class _TrainingScreenState extends State<TrainingScreen>
             ),
 
             const Divider(height: 1),
+
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+              child: SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () => _askAboutClass(period),
+                  child: Text(AppLocalizations.of(context)!.whatsapp),
+                ),
+              ),
+            ),
 
             // Content
             Expanded(
@@ -474,6 +454,7 @@ class _TrainingScreenState extends State<TrainingScreen>
 
   @override
   Widget build(BuildContext context) {
+    final periods = _periods(AppLocalizations.of(context)!);
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -544,19 +525,12 @@ class _TrainingScreenState extends State<TrainingScreen>
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        gradient: AppTheme.primaryGradient,
+                        color: Theme.of(context).colorScheme.primaryContainer,
                         borderRadius: BorderRadius.circular(12),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: AppTheme.shadowColor,
-                            blurRadius: 8,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
                       ),
-                      child: const Icon(
-                        Icons.school,
-                        color: Colors.white,
+                      child: Icon(
+                        Icons.school_outlined,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
                         size: 22,
                       ),
                     ),
@@ -568,9 +542,9 @@ class _TrainingScreenState extends State<TrainingScreen>
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  itemCount: _trainingPeriods.length,
+                  itemCount: periods.length,
                   itemBuilder: (context, index) {
-                    return _buildTrainingCard(_trainingPeriods[index], index);
+                    return _buildTrainingCard(periods[index], index);
                   },
                 ),
               ),

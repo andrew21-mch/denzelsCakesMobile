@@ -102,7 +102,7 @@ class FirebaseMessagingService {
 
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
       'denzels_cakes_notifications', // id
-      'Denzel\'s Cakes Notifications', // name
+      'Denzel\'sCakes Notifications', // name
       description: 'Notifications for orders, updates, and messages',
       importance: Importance.high,
       playSound: true,
@@ -214,7 +214,7 @@ class FirebaseMessagingService {
       const AndroidNotificationDetails androidDetails =
           AndroidNotificationDetails(
         'denzels_cakes_notifications',
-        'Denzel\'s Cakes Notifications',
+        'Denzel\'sCakes Notifications',
         channelDescription: 'Notifications for orders, updates, and messages',
         importance: Importance.high,
         priority: Priority.high,
@@ -239,7 +239,7 @@ class FirebaseMessagingService {
       // Show the notification
       await _localNotifications!.show(
         message.hashCode, // Use message hash as ID to avoid duplicates
-        notification.title ?? 'Denzel\'s Cakes',
+        notification.title ?? 'Denzel\'sCakes',
         notification.body ?? '',
         details,
         payload: data.toString(),

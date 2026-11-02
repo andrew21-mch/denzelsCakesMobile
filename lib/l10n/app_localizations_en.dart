@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appName => 'Denzel\'s Cakes';
+  String get appName => 'Denzel\'sCakes';
 
   @override
   String get welcome => 'Welcome';
@@ -27,25 +27,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get password => 'Password';
 
   @override
-  String get confirmPassword => 'Confirm Password';
+  String get confirmPassword => 'Confirm password';
 
   @override
-  String get fullName => 'Full Name';
+  String get fullName => 'Full name';
 
   @override
-  String get phoneNumber => 'Phone Number';
+  String get phoneNumber => 'Phone number';
 
   @override
   String get forgotPassword => 'Forgot Password?';
 
   @override
-  String get signIn => 'Sign In';
+  String get signIn => 'Sign in';
 
   @override
-  String get signUp => 'Sign Up';
+  String get signUp => 'Sign up';
 
   @override
-  String get createAccount => 'Create Account';
+  String get createAccount => 'Create account';
+
+  @override
+  String continueTo(String name) {
+    return 'to continue to $name';
+  }
 
   @override
   String get alreadyHaveAccount => 'Already have an account?';
@@ -319,14 +324,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeBackTo => 'Welcome Back to';
 
   @override
-  String get denzelsCakeShop => 'Denzel\'s Cake Shop';
+  String get denzelsCakeShop => 'Denzel\'sCakes';
 
   @override
   String get signInToOrder =>
       'Sign in to order your favorite cakes and explore our delicious collection';
 
   @override
-  String get emailOrPhone => 'Email or Phone';
+  String get emailOrPhone => 'Email or phone';
 
   @override
   String get enterEmailOrPhone => 'Enter email or phone number';
@@ -359,7 +364,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Create your account to order delicious cakes and explore our collection';
 
   @override
-  String get joinDenzelsCakes => 'Join Denzel\'s Cakes';
+  String get joinDenzelsCakes => 'Join Denzel\'sCakes';
 
   @override
   String get registrationSuccessful => 'Registration successful!';
@@ -368,7 +373,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get registrationFailed => 'Registration failed';
 
   @override
-  String get emailAddress => 'Email Address';
+  String get emailAddress => 'Email address';
 
   @override
   String get pleaseEnterYourName => 'Please enter your name';
@@ -542,7 +547,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allCategories => 'All Categories';
 
   @override
-  String get welcomeToDenzels => 'Welcome to Denzel\'s! 🎂';
+  String get welcomeToDenzels => 'Welcome to Denzel\'sCakes! 🎂';
 
   @override
   String get deliciousCakesAwait => 'Delicious cakes await!';
@@ -795,7 +800,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get preparingCakeExperience => 'Preparing your cake experience...';
 
   @override
-  String get aboutDenzelsCakes => 'About DenzelsCakes';
+  String get aboutDenzelsCakes => 'About Denzel\'sCakes';
 
   @override
   String get version => 'Version';
@@ -809,7 +814,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ourStoryText =>
-      'Founded in 2020, Denzel\'s Cakes began as a passion project to bring the finest, freshest cakes to the people of Cameroon. Our journey started in a small kitchen in Douala with a simple mission: to create memorable moments through exceptional cakes.\n\nToday, we\'re proud to serve customers across Cameroon with our handcrafted cakes, made with love and the finest local ingredients. Every cake tells a story, and we\'re honored to be part of your special moments.';
+      'Founded in 2020, Denzel\'sCakes began as a passion project to bring the finest, freshest cakes to the people of Cameroon. Our journey started in a small kitchen in Douala with a simple mission: to create memorable moments through exceptional cakes.\n\nToday, we\'re proud to serve customers across Cameroon with our handcrafted cakes, made with love and the finest local ingredients. Every cake tells a story, and we\'re honored to be part of your special moments.';
 
   @override
   String get whatWeOffer => 'What We Offer';
@@ -894,21 +899,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openSourceLicenses => 'Open Source Licenses';
 
   @override
-  String get copyright => '© 2020 DenzelsCakes Cameroon\nAll rights reserved';
+  String get copyright => '© 2020 Denzel\'sCakes Cameroon\nAll rights reserved';
 
   @override
   String get privacyPolicyTitle => 'Privacy Policy';
 
   @override
   String get privacyPolicyText =>
-      'At DenzelsCakes, we respect your privacy and are committed to protecting your personal information.\n\nInformation We Collect:\n• Contact information (name, email, phone)\n• Delivery addresses\n• Order history and preferences\n• Payment information (securely processed)\n\nHow We Use Your Information:\n• Process and fulfill your orders\n• Communicate about your orders\n• Improve our services\n• Send promotional offers (with consent)\n\nWe never sell your personal information to third parties.';
+      'At Denzel\'sCakes, we respect your privacy and are committed to protecting your personal information.\n\nInformation We Collect:\n• Contact information (name, email, phone)\n• Delivery addresses\n• Order history and preferences\n• Payment information (securely processed)\n\nHow We Use Your Information:\n• Process and fulfill your orders\n• Communicate about your orders\n• Improve our services\n• Send promotional offers (with consent)\n\nWe never sell your personal information to third parties.';
 
   @override
   String get termsOfServiceTitle => 'Terms of Service';
 
   @override
   String get termsOfServiceText =>
-      'Welcome to DenzelsCakes! By using our service, you agree to these terms.\n\nOrders:\n• All orders are subject to availability\n• Custom cakes require 24-48 hours notice\n• Prices are in FCFA and include applicable taxes\n\nDelivery:\n• Delivery times are estimates\n• Delivery fees apply based on location\n• We are not responsible for delays due to weather or traffic\n\nCancellations:\n• Orders can be cancelled within 2 hours of placement\n• Custom orders may have different cancellation policies\n\nQuality Guarantee:\n• We guarantee the freshness and quality of our cakes\n• Contact us within 24 hours for any quality issues';
+      'Welcome to Denzel\'sCakes! By using our service, you agree to these terms.\n\nOrders:\n• All orders are subject to availability\n• Custom cakes require 24-48 hours notice\n• Prices are in FCFA and include applicable taxes\n\nDelivery:\n• Delivery times are estimates\n• Delivery fees apply based on location\n• We are not responsible for delays due to weather or traffic\n\nCancellations:\n• Orders can be cancelled within 2 hours of placement\n• Custom orders may have different cancellation policies\n\nQuality Guarantee:\n• We guarantee the freshness and quality of our cakes\n• Contact us within 24 hours for any quality issues';
 
   @override
   String get myFavorites => 'My Favorites';
@@ -1552,4 +1557,105 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get submitOrder => 'Submit Order';
+
+  @override
+  String get whatsappHello => 'Hello,';
+
+  @override
+  String whatsappMyNameIs(String name) {
+    return 'My name is $name.';
+  }
+
+  @override
+  String whatsappIWouldLikeTo(String request) {
+    return 'I would like to $request';
+  }
+
+  @override
+  String whatsappJoinTraining(String title, String months) {
+    return 'join the cake decoration training: $title, $months.';
+  }
+
+  @override
+  String get whatsappOrderCustomCake => 'order a custom cake.';
+
+  @override
+  String get whatsappOrderTheseCakes => 'order these cakes.';
+
+  @override
+  String whatsappOrderRef(String id) {
+    return 'Order: $id';
+  }
+
+  @override
+  String whatsappUnavailable(String number) {
+    return 'WhatsApp is not available. Message us at $number';
+  }
+
+  @override
+  String get cakeDecorationDescription =>
+      'Complete cake decoration training program covering all essential skills from basics to advanced techniques.';
+
+  @override
+  String get intakeJanuaryMarch => 'January - March (Q1 Intake)';
+
+  @override
+  String get intakeAprilJune => 'April - June (Q2 Intake)';
+
+  @override
+  String get intakeJulySeptember => 'July - September (Q3 Intake)';
+
+  @override
+  String get topicBakingFundamentals => 'Baking Fundamentals & Techniques';
+
+  @override
+  String get topicCakeMixing => 'Cake Mixing & Preparation Methods';
+
+  @override
+  String get topicFrosting => 'Frosting & Icing Mastery';
+
+  @override
+  String get topicPiping => 'Advanced Piping Techniques';
+
+  @override
+  String get topicFondant => 'Fondant Work & Sculpting';
+
+  @override
+  String get topicCreativeDesign => 'Creative Design & Decoration';
+
+  @override
+  String get topicWeddingCakes => 'Wedding & Special Event Cakes';
+
+  @override
+  String get topicBusinessSkills => 'Business Skills & Entrepreneurship';
+
+  @override
+  String get topicFoodSafety => 'Food Safety & Professional Standards';
+
+  @override
+  String get topicPortfolio => 'Portfolio Development & Certification';
+
+  @override
+  String get optionCustom => 'Custom';
+
+  @override
+  String get optionOther => 'Other';
+
+  @override
+  String get flavorVanilla => 'Vanilla';
+
+  @override
+  String get flavorChocolate => 'Chocolate';
+
+  @override
+  String get flavorStrawberry => 'Strawberry';
+
+  @override
+  String get flavorRedVelvet => 'Red Velvet';
+
+  @override
+  String get flavorLemon => 'Lemon';
+
+  @override
+  String get flavorCarrot => 'Carrot';
 }

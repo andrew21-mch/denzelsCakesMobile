@@ -399,7 +399,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                         markerId: MarkerId('shop_location'),
                         position: _shopLocation,
                         infoWindow: InfoWindow(
-                          title: 'Denzel\'s Cakes',
+                          title: 'Denzel\'sCakes',
                           snippet: 'Makepe, Opposite Tradex Rhone Poulenc',
                         ),
                       ),
@@ -812,7 +812,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
   }
 
   void _sendEmail() async {
-    const subject = 'Inquiry from DenzelsCakes App';
+    const subject = "Inquiry from Denzel'sCakes App";
     await _sendEmailWithContent(subject, '');
   }
 

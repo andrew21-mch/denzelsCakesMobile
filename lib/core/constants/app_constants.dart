@@ -17,7 +17,8 @@ class AppConstants {
   static const String cartDataKey = 'cart_data';
 
   // App Configuration
-  static const String appName = "Denzel's Cakes";
+  static const String appName = "Denzel'sCakes";
+  static const String privacyPolicyUrl = 'https://denzelscakes.com/privacy.html';
   static const String appVersion = '1.0.0';
   static const Duration requestTimeout = Duration(seconds: 30);
   static const Duration cacheTimeout = Duration(hours: 1);

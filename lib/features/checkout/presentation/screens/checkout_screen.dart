@@ -10,10 +10,12 @@ import '../../../../core/services/payment_service.dart';
 import '../../../../core/services/payment_method_service.dart';
 import '../../../../core/services/country_service.dart';
 import '../../../../core/services/api_service.dart';
+import '../../../../core/utils/shop_whatsapp.dart';
 import '../../../../core/models/cart_model.dart';
 import '../../../../core/models/user_model.dart';
 import '../../../../core/models/payment_method_model.dart';
 import '../../../../core/models/country_model.dart';
+import '../../../auth/data/auth_repository.dart';
 import '../../../profile/presentation/screens/payment_methods_screen.dart';
 import '../../../profile/presentation/screens/add_address_with_map_screen.dart';
 import 'payment_waiting_screen.dart';
@@ -2745,6 +2747,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
 // print('DEBUG: Initiating payment with method: ${paymentMethod.name}');
 
+      final customer = await AuthRepository.getCurrentUser();
+
       // For cash payments, create order directly without payment processing
       if (paymentMethod == PaymentMethod.cash) {
         final orderResponse = await ApiService.post(
@@ -2755,6 +2759,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         if (orderResponse.statusCode == 201 && orderResponse.data['success'] == true) {
           final orderData = orderResponse.data['data'];
           final orderId = orderData['_id']?.toString() ?? '';
+          final whatsappMessage = _cakeOrderWhatsAppMessage(
+            itemsWithCustomizations,
+            name: customer?.name,
+            orderId: orderId,
+          );
 
           // Clear the cart
           await CartService.clearCart();
@@ -2763,6 +2772,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
           if (mounted) {
             _showOrderSuccessDialog(orderId);
+            final opened = await ShopWhatsApp.open(whatsappMessage);
+            if (!opened && mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    AppLocalizations.of(context)!
+                        .whatsappUnavailable(ShopWhatsApp.displayNumber),
+                  ),
+                ),
+              );
+            }
           }
         } else {
           throw Exception('Failed to create order');
@@ -2786,6 +2806,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 paymentMethod: paymentMethod,
                 amount: _cart.total,
                 paymentDetails: _getPaymentDetails(),
+                whatsappMessage: _cakeOrderWhatsAppMessage(
+                  itemsWithCustomizations,
+                  name: customer?.name,
+                  orderId: paymentResponse.orderId,
+                ),
               ),
             ),
           );
@@ -2798,7 +2823,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${l10n.failedToPlaceOrder}: $e'),
+            content: Text(ApiService.readableError(e)),
             backgroundColor: AppTheme.errorColor,
           ),
         );
@@ -3119,6 +3144,26 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         ),
       ),
     );
+  }
+
+  String _cakeOrderWhatsAppMessage(
+    List<CartItem> items, {
+    String? name,
+    String? orderId,
+  }) {
+    final lines = items
+        .map(
+          (item) =>
+              '- ${item.cakeTitle} (${item.selectedSize}, ${item.selectedFlavor}) x${item.quantity} — ${item.totalPrice.toStringAsFixed(0)} ${item.currency}',
+        )
+        .join('\n');
+    final total = items.fold<double>(0, (sum, item) => sum + item.totalPrice);
+    final currency = items.isEmpty ? 'XAF' : items.first.currency;
+    final l10n = AppLocalizations.of(context)!;
+    final idLine = orderId == null || orderId.isEmpty
+        ? ''
+        : '\n${l10n.whatsappOrderRef(orderId)}';
+    return '${ShopWhatsApp.introduce(l10n, name, l10n.whatsappOrderTheseCakes)}\n\n$lines\n${l10n.total}: ${total.toStringAsFixed(0)} $currency$idLine';
   }
 
   void _showOrderSuccessDialog(String orderId) {

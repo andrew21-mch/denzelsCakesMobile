@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/shop_whatsapp.dart';
 import '../../../../shared/theme/app_theme.dart';
 
 class PaymentSuccessScreen extends StatefulWidget {
   final String orderId;
   final double amount;
   final String paymentMethod;
+  final String? whatsappMessage;
 
   const PaymentSuccessScreen({
     super.key,
     required this.orderId,
     required this.amount,
     required this.paymentMethod,
+    this.whatsappMessage,
   });
 
   @override
@@ -48,6 +51,11 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
       curve: Curves.easeOutQuart,
     );
 
+    final message = widget.whatsappMessage;
+    if (message != null && message.isNotEmpty) {
+      ShopWhatsApp.open(message);
+    }
+
     // Start animations
     _checkController.forward();
     Future.delayed(const Duration(milliseconds: 400), () {
@@ -84,22 +92,28 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
             ),
           ),
           child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight - 40,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
                   // Confetti animation area
                   AnimatedBuilder(
                     animation: _confettiAnimation,
                     builder: (context, child) {
                       return SizedBox(
-                        height: 100,
+                        height: 48,
                         child: Stack(
                           children: List.generate(8, (index) {
                             return Positioned(
-                              left: 50.0 + (index * 30),
-                              top: 50 - (_confettiAnimation.value * 50),
+                              left: 16.0 + (index * 28),
+                              top: 16 - (_confettiAnimation.value * 16),
                               child: Transform.rotate(
                                 angle: _confettiAnimation.value *
                                     6.28 *
@@ -135,8 +149,8 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                       return Transform.scale(
                         scale: _checkAnimation.value,
                         child: Container(
-                          width: 120,
-                          height: 120,
+                          width: 96,
+                          height: 96,
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
@@ -156,7 +170,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                           ),
                           child: const Icon(
                             Icons.check_circle,
-                            size: 60,
+                            size: 48,
                             color: Colors.white,
                           ),
                         ),
@@ -164,7 +178,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                     },
                   ),
 
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
 
                   // Success title
                   const Text(
@@ -189,7 +203,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                     textAlign: TextAlign.center,
                   ),
 
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
 
                   // Order details card
                   Container(
@@ -222,7 +236,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                     ),
                   ),
 
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 16),
 
                   // Success message
                   Container(
@@ -256,7 +270,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                     ),
                   ),
 
-                  const SizedBox(height: 48),
+                  const SizedBox(height: 24),
 
                   // Action buttons
                   Column(
@@ -264,7 +278,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                       // Track order button
                       SizedBox(
                         width: double.infinity,
-                        height: 56,
+                        height: 48,
                         child: ElevatedButton(
                           onPressed: () {
                             Navigator.of(context).pushNamedAndRemoveUntil(
@@ -294,7 +308,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                       // Continue shopping button
                       SizedBox(
                         width: double.infinity,
-                        height: 56,
+                        height: 48,
                         child: OutlinedButton(
                           onPressed: _navigateToHome,
                           style: OutlinedButton.styleFrom(
@@ -315,8 +329,11 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                       ),
                     ],
                   ),
-                ],
-              ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ),

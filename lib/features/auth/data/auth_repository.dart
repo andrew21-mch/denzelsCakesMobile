@@ -31,7 +31,7 @@ class AuthRepository {
         throw Exception('Login failed');
       }
     } on DioException catch (e) {
-      throw Exception(e.error ?? 'Login failed');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -73,7 +73,7 @@ class AuthRepository {
         throw Exception('Registration failed');
       }
     } on DioException catch (e) {
-      throw Exception(e.error ?? 'Registration failed');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -93,7 +93,7 @@ class AuthRepository {
         throw Exception('Failed to get profile');
       }
     } on DioException catch (e) {
-      throw Exception(e.error ?? 'Failed to get profile');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -124,7 +124,7 @@ class AuthRepository {
         throw Exception('Failed to update profile');
       }
     } on DioException catch (e) {
-      throw Exception(e.error ?? 'Failed to update profile');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -146,26 +146,13 @@ class AuthRepository {
         throw Exception('Failed to change password');
       }
     } on DioException catch (e) {
-      throw Exception(e.error ?? 'Failed to change password');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
-  // Logout
+  // Logout. The API has no logout route; the session is the tokens on this device.
   static Future<void> logout() async {
-    try {
-      // Try to call logout endpoint (optional, since we're clearing local data anyway)
-      try {
-        await ApiService.post('/auth/logout');
-      } catch (e) {
-        // Ignore logout endpoint errors
-      }
-
-      // Clear all local data
-      await StorageService.logout();
-    } catch (e) {
-      // Even if API call fails, clear local data
-      await StorageService.logout();
-    }
+    await StorageService.logout();
   }
 
   // Check if user is logged in
@@ -214,7 +201,7 @@ class AuthRepository {
     } on DioException catch (e) {
       // Clear tokens on refresh failure
       await StorageService.clearTokens();
-      throw Exception(e.error ?? 'Token refresh failed');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 }

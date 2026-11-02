@@ -93,8 +93,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text('Notifications'),
-        backgroundColor: Colors.white,
-        foregroundColor: AppTheme.primaryColor,
+        backgroundColor: AppTheme.surfaceColor,
+        foregroundColor: AppTheme.textPrimary,
         elevation: 0,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),

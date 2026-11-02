@@ -101,7 +101,7 @@ class AboutScreen extends StatelessWidget {
 
           // App Name
           Text(
-            'DenzelsCakes',
+            "Denzel'sCakes",
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: AppTheme.textPrimary,
@@ -635,9 +635,9 @@ class AboutScreen extends StatelessWidget {
   void _showLicenses(BuildContext context) {
     showLicensePage(
       context: context,
-      applicationName: 'DenzelsCakes',
+      applicationName: "Denzel'sCakes",
       applicationVersion: '1.0.0',
-      applicationLegalese: '© 2020 DenzelsCakes Cameroon',
+      applicationLegalese: "© 2020 Denzel'sCakes Cameroon",
     );
   }
 }

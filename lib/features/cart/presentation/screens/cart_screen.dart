@@ -196,13 +196,13 @@ class _CartScreenState extends State<CartScreen> {
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                gradient: AppTheme.primaryGradient,
+                color: Theme.of(context).colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(60),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.shopping_cart_outlined,
                 size: 60,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
               ),
             ),
             const SizedBox(height: 32),

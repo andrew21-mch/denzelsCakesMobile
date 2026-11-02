@@ -7,6 +7,7 @@ import '../../../../shared/widgets/loading_overlay.dart';
 import '../../data/repositories/cake_repository.dart';
 import '../../data/models/cake_model.dart';
 import '../../../../core/services/favorites_service.dart';
+import '../../../../core/utils/cake_share.dart';
 import '../../../../core/services/cart_service.dart';
 import '../../../../core/models/cart_model.dart';
 
@@ -247,8 +248,8 @@ class _CakeDetailScreenState extends State<CakeDetailScreen> {
           backgroundColor: AppTheme.backgroundColor,
           appBar: AppBar(
             title: const Text('Loading...'),
-            backgroundColor: AppTheme.primaryColor,
-            foregroundColor: Colors.white,
+            backgroundColor: AppTheme.surfaceColor,
+            foregroundColor: AppTheme.textPrimary,
           ),
           body: const SizedBox(),
         ),
@@ -261,8 +262,8 @@ class _CakeDetailScreenState extends State<CakeDetailScreen> {
         backgroundColor: AppTheme.backgroundColor,
         appBar: AppBar(
           title: const Text('Error'),
-          backgroundColor: AppTheme.primaryColor,
-          foregroundColor: Colors.white,
+          backgroundColor: AppTheme.surfaceColor,
+          foregroundColor: AppTheme.textPrimary,
         ),
         body: Center(
           child: Column(
@@ -292,8 +293,8 @@ class _CakeDetailScreenState extends State<CakeDetailScreen> {
         backgroundColor: AppTheme.backgroundColor,
         appBar: AppBar(
           title: const Text('Cake Not Found'),
-          backgroundColor: AppTheme.primaryColor,
-          foregroundColor: Colors.white,
+          backgroundColor: AppTheme.surfaceColor,
+          foregroundColor: AppTheme.textPrimary,
         ),
         body: const Center(
           child: Text('Cake not found'),
@@ -311,12 +312,11 @@ class _CakeDetailScreenState extends State<CakeDetailScreen> {
           SliverAppBar(
             expandedHeight: 300,
             pinned: true,
-            backgroundColor: AppTheme.primaryColor,
-            foregroundColor: Colors.white,
-            iconTheme: const IconThemeData(color: Colors.white),
+            backgroundColor: AppTheme.surfaceColor,
+            foregroundColor: AppTheme.textPrimary,
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                color: AppTheme.primaryColor,
+                color: AppTheme.surfaceColor,
                 child: cake.images.isNotEmpty
                     ? Stack(
                         children: [
@@ -393,9 +393,13 @@ class _CakeDetailScreenState extends State<CakeDetailScreen> {
               IconButton(
                 icon: const Icon(Icons.share),
                 color: Colors.white,
-                onPressed: () {
-                  // TODO: Share cake
-                },
+                onPressed: () => CakeShare.show(
+                  context,
+                  title: cake.title,
+                  price: cake.basePrice,
+                  description: cake.description,
+                  id: cake.id,
+                ),
               ),
             ],
           ),
@@ -453,7 +457,9 @@ class _CakeDetailScreenState extends State<CakeDetailScreen> {
 
                     // Description
                     Text(
-                      cake.description,
+                      cake.descriptionFor(
+                        Localizations.localeOf(context).languageCode,
+                      ),
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             color: AppTheme.textSecondary,
                             height: 1.5,

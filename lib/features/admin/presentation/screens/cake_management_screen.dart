@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:denzels_cakes/shared/theme/app_theme.dart';
 import 'package:denzels_cakes/core/services/admin_api_service_new.dart';
 import 'package:denzels_cakes/features/admin/presentation/screens/add_cake_screen.dart';
+import 'package:denzels_cakes/core/utils/cake_share.dart';
 import 'package:denzels_cakes/features/admin/presentation/screens/edit_cake_screen.dart';
 
 class CakeManagementScreen extends StatefulWidget {
@@ -160,8 +161,6 @@ class _CakeManagementScreenState extends State<CakeManagementScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cake Management'),
-        backgroundColor: AppTheme.primaryColor,
-        foregroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -568,6 +567,11 @@ class _CakeManagementScreenState extends State<CakeManagementScreen> {
                         ],
                       ),
                     ),
+                    IconButton(
+                      tooltip: 'Share',
+                      icon: const Icon(Icons.share_outlined),
+                      onPressed: () => _shareCake(cake),
+                    ),
                     PopupMenuButton(
                       itemBuilder: (context) => [
                         const PopupMenuItem(
@@ -577,6 +581,16 @@ class _CakeManagementScreenState extends State<CakeManagementScreen> {
                               Icon(Icons.edit, size: 18),
                               SizedBox(width: 8),
                               Text('Edit'),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 'share',
+                          child: Row(
+                            children: [
+                              Icon(Icons.share_outlined, size: 18),
+                              SizedBox(width: 8),
+                              Text('Share'),
                             ],
                           ),
                         ),
@@ -615,13 +629,15 @@ class _CakeManagementScreenState extends State<CakeManagementScreen> {
                             final result = await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    EditCakeScreen(cakeId: cake['_id']),
+                                builder: (context) => EditCakeScreen(cake: cake),
                               ),
                             );
                             if (result == true) {
                               _loadCakes();
                             }
+                            break;
+                          case 'share':
+                            _shareCake(cake);
                             break;
                           case 'toggle_availability':
                             _toggleAvailability(cake['_id'], isAvailable);
@@ -671,6 +687,17 @@ class _CakeManagementScreenState extends State<CakeManagementScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void _shareCake(Map<String, dynamic> cake) {
+    final price = cake['basePrice'];
+    CakeShare.show(
+      context,
+      title: cake['title']?.toString() ?? 'Cake',
+      price: price is num ? price : 0,
+      description: cake['description']?.toString(),
+      id: cake['_id']?.toString() ?? cake['id']?.toString(),
     );
   }
 

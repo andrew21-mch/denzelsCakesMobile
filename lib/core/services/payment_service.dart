@@ -167,8 +167,7 @@ class PaymentService {
       throw Exception('Failed to create order');
     } on DioException catch (e) {
 // print('DEBUG: Error initiating payment: $e');
-      throw Exception(
-          e.response?.data['message'] ?? 'Payment initiation failed');
+      throw ApiException(ApiService.readableError(e));
     } catch (e) {
 // print('DEBUG: Error initiating payment: $e');
       throw Exception('Payment initiation failed');
@@ -212,7 +211,7 @@ class PaymentService {
           response.data['message'] ?? 'Failed to process MOMO payment');
     } on DioException catch (e) {
 // print('DEBUG: Error processing MOMO payment: $e');
-      throw Exception(e.response?.data['message'] ?? 'MOMO payment failed');
+      throw ApiException(ApiService.readableError(e));
     } catch (e) {
 // print('DEBUG: Error processing MOMO payment: $e');
       throw Exception('MOMO payment failed');
@@ -267,7 +266,7 @@ class PaymentService {
           response.data['message'] ?? 'Failed to process card payment');
     } on DioException catch (e) {
 // print('DEBUG: Error processing card payment: $e');
-      throw Exception(e.response?.data['message'] ?? 'Card payment failed');
+      throw ApiException(ApiService.readableError(e));
     } catch (e) {
 // print('DEBUG: Error processing card payment: $e');
       throw Exception('Card payment failed');
@@ -297,12 +296,9 @@ class PaymentService {
             'Invalid response: ${response.data['message'] ?? 'Unknown error'}');
       }
     } on DioException catch (e) {
-// print('DEBUG: DioException checking payment status: ${e.response?.statusCode} - ${e.response?.data}');
-      throw Exception(
-          'Network error: ${e.response?.data['message'] ?? e.message}');
+      throw ApiException(ApiService.readableError(e));
     } catch (e) {
-// print('DEBUG: Error checking payment status: $e');
-      throw Exception('Failed to check payment status: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 

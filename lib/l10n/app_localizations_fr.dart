@@ -9,7 +9,7 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
-  String get appName => 'Denzel\'s Cakes';
+  String get appName => 'Denzel\'sCakes';
 
   @override
   String get welcome => 'Bienvenue';
@@ -46,6 +46,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get createAccount => 'Créer un compte';
+
+  @override
+  String continueTo(String name) {
+    return 'Pour continuer vers $name';
+  }
 
   @override
   String get alreadyHaveAccount => 'Vous avez déjà un compte?';
@@ -320,7 +325,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get welcomeBackTo => 'Bon retour chez';
 
   @override
-  String get denzelsCakeShop => 'Denzel\'s Cake Shop';
+  String get denzelsCakeShop => 'Denzel\'sCakes';
 
   @override
   String get signInToOrder =>
@@ -360,7 +365,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Créez votre compte pour commander de délicieux gâteaux et découvrir notre collection';
 
   @override
-  String get joinDenzelsCakes => 'Rejoignez Denzel\'s Cakes';
+  String get joinDenzelsCakes => 'Rejoignez Denzel\'sCakes';
 
   @override
   String get registrationSuccessful => 'Inscription réussie!';
@@ -545,7 +550,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get allCategories => 'Toutes les catégories';
 
   @override
-  String get welcomeToDenzels => 'Bienvenue chez Denzel\'s! 🎂';
+  String get welcomeToDenzels => 'Bienvenue chez Denzel\'sCakes! 🎂';
 
   @override
   String get deliciousCakesAwait => 'De délicieux gâteaux vous attendent!';
@@ -800,7 +805,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Préparation de votre expérience de gâteau...';
 
   @override
-  String get aboutDenzelsCakes => 'À propos de DenzelsCakes';
+  String get aboutDenzelsCakes => 'À propos de Denzel\'sCakes';
 
   @override
   String get version => 'Version';
@@ -814,7 +819,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get ourStoryText =>
-      'Fondée en 2020, Denzel\'s Cakes a commencé comme un projet de passion pour apporter les meilleurs gâteaux les plus frais aux habitants du Cameroun. Notre voyage a commencé dans une petite cuisine à Douala avec une mission simple: créer des moments mémorables grâce à des gâteaux exceptionnels.\n\nAujourd\'hui, nous sommes fiers de servir des clients à travers le Cameroun avec nos gâteaux faits à la main, préparés avec amour et les meilleurs ingrédients locaux. Chaque gâteau raconte une histoire, et nous sommes honorés de faire partie de vos moments spéciaux.';
+      'Fondée en 2020, Denzel\'sCakes a commencé comme un projet de passion pour apporter les meilleurs gâteaux les plus frais aux habitants du Cameroun. Notre voyage a commencé dans une petite cuisine à Douala avec une mission simple: créer des moments mémorables grâce à des gâteaux exceptionnels.\n\nAujourd\'hui, nous sommes fiers de servir des clients à travers le Cameroun avec nos gâteaux faits à la main, préparés avec amour et les meilleurs ingrédients locaux. Chaque gâteau raconte une histoire, et nous sommes honorés de faire partie de vos moments spéciaux.';
 
   @override
   String get whatWeOffer => 'Ce Que Nous Offrons';
@@ -901,21 +906,22 @@ class AppLocalizationsFr extends AppLocalizations {
   String get openSourceLicenses => 'Licences Open Source';
 
   @override
-  String get copyright => '© 2020 DenzelsCakes Cameroun\nTous droits réservés';
+  String get copyright =>
+      '© 2020 Denzel\'sCakes Cameroun\nTous droits réservés';
 
   @override
   String get privacyPolicyTitle => 'Politique de Confidentialité';
 
   @override
   String get privacyPolicyText =>
-      'Chez DenzelsCakes, nous respectons votre vie privée et nous nous engageons à protéger vos informations personnelles.\n\nInformations que nous collectons:\n• Informations de contact (nom, e-mail, téléphone)\n• Adresses de livraison\n• Historique des commandes et préférences\n• Informations de paiement (traitées de manière sécurisée)\n\nComment nous utilisons vos informations:\n• Traiter et exécuter vos commandes\n• Communiquer concernant vos commandes\n• Améliorer nos services\n• Envoyer des offres promotionnelles (avec consentement)\n\nNous ne vendons jamais vos informations personnelles à des tiers.';
+      'Chez Denzel\'sCakes, nous respectons votre vie privée et nous nous engageons à protéger vos informations personnelles.\n\nInformations que nous collectons:\n• Informations de contact (nom, e-mail, téléphone)\n• Adresses de livraison\n• Historique des commandes et préférences\n• Informations de paiement (traitées de manière sécurisée)\n\nComment nous utilisons vos informations:\n• Traiter et exécuter vos commandes\n• Communiquer concernant vos commandes\n• Améliorer nos services\n• Envoyer des offres promotionnelles (avec consentement)\n\nNous ne vendons jamais vos informations personnelles à des tiers.';
 
   @override
   String get termsOfServiceTitle => 'Conditions d\'Utilisation';
 
   @override
   String get termsOfServiceText =>
-      'Bienvenue chez DenzelsCakes! En utilisant notre service, vous acceptez ces conditions.\n\nCommandes:\n• Toutes les commandes sont soumises à disponibilité\n• Les gâteaux personnalisés nécessitent un préavis de 24 à 48 heures\n• Les prix sont en FCFA et incluent les taxes applicables\n\nLivraison:\n• Les délais de livraison sont des estimations\n• Les frais de livraison s\'appliquent selon l\'emplacement\n• Nous ne sommes pas responsables des retards dus à la météo ou au trafic\n\nAnnulations:\n• Les commandes peuvent être annulées dans les 2 heures suivant la passation\n• Les commandes personnalisées peuvent avoir des politiques d\'annulation différentes\n\nGarantie Qualité:\n• Nous garantissons la fraîcheur et la qualité de nos gâteaux\n• Contactez-nous dans les 24 heures pour tout problème de qualité';
+      'Bienvenue chez Denzel\'sCakes! En utilisant notre service, vous acceptez ces conditions.\n\nCommandes:\n• Toutes les commandes sont soumises à disponibilité\n• Les gâteaux personnalisés nécessitent un préavis de 24 à 48 heures\n• Les prix sont en FCFA et incluent les taxes applicables\n\nLivraison:\n• Les délais de livraison sont des estimations\n• Les frais de livraison s\'appliquent selon l\'emplacement\n• Nous ne sommes pas responsables des retards dus à la météo ou au trafic\n\nAnnulations:\n• Les commandes peuvent être annulées dans les 2 heures suivant la passation\n• Les commandes personnalisées peuvent avoir des politiques d\'annulation différentes\n\nGarantie Qualité:\n• Nous garantissons la fraîcheur et la qualité de nos gâteaux\n• Contactez-nous dans les 24 heures pour tout problème de qualité';
 
   @override
   String get myFavorites => 'Mes Favoris';
@@ -1573,4 +1579,108 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get submitOrder => 'Soumettre la Commande';
+
+  @override
+  String get whatsappHello => 'Bonjour,';
+
+  @override
+  String whatsappMyNameIs(String name) {
+    return 'Je m\'appelle $name.';
+  }
+
+  @override
+  String whatsappIWouldLikeTo(String request) {
+    return 'Je voudrais $request';
+  }
+
+  @override
+  String whatsappJoinTraining(String title, String months) {
+    return 'rejoindre la formation en décoration de gâteaux : $title, $months.';
+  }
+
+  @override
+  String get whatsappOrderCustomCake => 'commander un gâteau personnalisé.';
+
+  @override
+  String get whatsappOrderTheseCakes => 'commander ces gâteaux.';
+
+  @override
+  String whatsappOrderRef(String id) {
+    return 'Commande : $id';
+  }
+
+  @override
+  String whatsappUnavailable(String number) {
+    return 'WhatsApp n\'est pas disponible. Écrivez-nous au $number';
+  }
+
+  @override
+  String get cakeDecorationDescription =>
+      'Programme complet de décoration de gâteaux, des bases jusqu\'aux techniques avancées.';
+
+  @override
+  String get intakeJanuaryMarch => 'Janvier - mars (session T1)';
+
+  @override
+  String get intakeAprilJune => 'Avril - juin (session T2)';
+
+  @override
+  String get intakeJulySeptember => 'Juillet - septembre (session T3)';
+
+  @override
+  String get topicBakingFundamentals => 'Bases et techniques de pâtisserie';
+
+  @override
+  String get topicCakeMixing =>
+      'Méthodes de mélange et de préparation des gâteaux';
+
+  @override
+  String get topicFrosting => 'Maîtrise du glaçage et de la crème';
+
+  @override
+  String get topicPiping => 'Techniques avancées de pochage';
+
+  @override
+  String get topicFondant => 'Travail du fondant et sculpture';
+
+  @override
+  String get topicCreativeDesign => 'Conception et décoration créatives';
+
+  @override
+  String get topicWeddingCakes => 'Gâteaux de mariage et d\'événements';
+
+  @override
+  String get topicBusinessSkills =>
+      'Compétences commerciales et entrepreneuriat';
+
+  @override
+  String get topicFoodSafety =>
+      'Hygiène alimentaire et normes professionnelles';
+
+  @override
+  String get topicPortfolio => 'Portfolio et certification';
+
+  @override
+  String get optionCustom => 'Personnalisé';
+
+  @override
+  String get optionOther => 'Autre';
+
+  @override
+  String get flavorVanilla => 'Vanille';
+
+  @override
+  String get flavorChocolate => 'Chocolat';
+
+  @override
+  String get flavorStrawberry => 'Fraise';
+
+  @override
+  String get flavorRedVelvet => 'Velours rouge';
+
+  @override
+  String get flavorLemon => 'Citron';
+
+  @override
+  String get flavorCarrot => 'Carotte';
 }

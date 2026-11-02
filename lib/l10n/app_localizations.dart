@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// The application name
   ///
   /// In en, this message translates to:
-  /// **'Denzel\'s Cakes'**
+  /// **'Denzel\'sCakes'**
   String get appName;
 
   /// No description provided for @welcome.
@@ -137,19 +137,19 @@ abstract class AppLocalizations {
   /// No description provided for @confirmPassword.
   ///
   /// In en, this message translates to:
-  /// **'Confirm Password'**
+  /// **'Confirm password'**
   String get confirmPassword;
 
   /// No description provided for @fullName.
   ///
   /// In en, this message translates to:
-  /// **'Full Name'**
+  /// **'Full name'**
   String get fullName;
 
   /// No description provided for @phoneNumber.
   ///
   /// In en, this message translates to:
-  /// **'Phone Number'**
+  /// **'Phone number'**
   String get phoneNumber;
 
   /// No description provided for @forgotPassword.
@@ -161,20 +161,26 @@ abstract class AppLocalizations {
   /// No description provided for @signIn.
   ///
   /// In en, this message translates to:
-  /// **'Sign In'**
+  /// **'Sign in'**
   String get signIn;
 
   /// No description provided for @signUp.
   ///
   /// In en, this message translates to:
-  /// **'Sign Up'**
+  /// **'Sign up'**
   String get signUp;
 
   /// No description provided for @createAccount.
   ///
   /// In en, this message translates to:
-  /// **'Create Account'**
+  /// **'Create account'**
   String get createAccount;
+
+  /// No description provided for @continueTo.
+  ///
+  /// In en, this message translates to:
+  /// **'to continue to {name}'**
+  String continueTo(String name);
 
   /// No description provided for @alreadyHaveAccount.
   ///
@@ -719,7 +725,7 @@ abstract class AppLocalizations {
   /// No description provided for @denzelsCakeShop.
   ///
   /// In en, this message translates to:
-  /// **'Denzel\'s Cake Shop'**
+  /// **'Denzel\'sCakes'**
   String get denzelsCakeShop;
 
   /// No description provided for @signInToOrder.
@@ -731,7 +737,7 @@ abstract class AppLocalizations {
   /// No description provided for @emailOrPhone.
   ///
   /// In en, this message translates to:
-  /// **'Email or Phone'**
+  /// **'Email or phone'**
   String get emailOrPhone;
 
   /// No description provided for @enterEmailOrPhone.
@@ -791,7 +797,7 @@ abstract class AppLocalizations {
   /// No description provided for @joinDenzelsCakes.
   ///
   /// In en, this message translates to:
-  /// **'Join Denzel\'s Cakes'**
+  /// **'Join Denzel\'sCakes'**
   String get joinDenzelsCakes;
 
   /// No description provided for @registrationSuccessful.
@@ -809,7 +815,7 @@ abstract class AppLocalizations {
   /// No description provided for @emailAddress.
   ///
   /// In en, this message translates to:
-  /// **'Email Address'**
+  /// **'Email address'**
   String get emailAddress;
 
   /// No description provided for @pleaseEnterYourName.
@@ -1157,7 +1163,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeToDenzels.
   ///
   /// In en, this message translates to:
-  /// **'Welcome to Denzel\'s! 🎂'**
+  /// **'Welcome to Denzel\'sCakes! 🎂'**
   String get welcomeToDenzels;
 
   /// No description provided for @deliciousCakesAwait.
@@ -1631,7 +1637,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutDenzelsCakes.
   ///
   /// In en, this message translates to:
-  /// **'About DenzelsCakes'**
+  /// **'About Denzel\'sCakes'**
   String get aboutDenzelsCakes;
 
   /// No description provided for @version.
@@ -1655,7 +1661,7 @@ abstract class AppLocalizations {
   /// No description provided for @ourStoryText.
   ///
   /// In en, this message translates to:
-  /// **'Founded in 2020, Denzel\'s Cakes began as a passion project to bring the finest, freshest cakes to the people of Cameroon. Our journey started in a small kitchen in Douala with a simple mission: to create memorable moments through exceptional cakes.\n\nToday, we\'re proud to serve customers across Cameroon with our handcrafted cakes, made with love and the finest local ingredients. Every cake tells a story, and we\'re honored to be part of your special moments.'**
+  /// **'Founded in 2020, Denzel\'sCakes began as a passion project to bring the finest, freshest cakes to the people of Cameroon. Our journey started in a small kitchen in Douala with a simple mission: to create memorable moments through exceptional cakes.\n\nToday, we\'re proud to serve customers across Cameroon with our handcrafted cakes, made with love and the finest local ingredients. Every cake tells a story, and we\'re honored to be part of your special moments.'**
   String get ourStoryText;
 
   /// No description provided for @whatWeOffer.
@@ -1817,7 +1823,7 @@ abstract class AppLocalizations {
   /// No description provided for @copyright.
   ///
   /// In en, this message translates to:
-  /// **'© 2020 DenzelsCakes Cameroon\nAll rights reserved'**
+  /// **'© 2020 Denzel\'sCakes Cameroon\nAll rights reserved'**
   String get copyright;
 
   /// No description provided for @privacyPolicyTitle.
@@ -1829,7 +1835,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacyPolicyText.
   ///
   /// In en, this message translates to:
-  /// **'At DenzelsCakes, we respect your privacy and are committed to protecting your personal information.\n\nInformation We Collect:\n• Contact information (name, email, phone)\n• Delivery addresses\n• Order history and preferences\n• Payment information (securely processed)\n\nHow We Use Your Information:\n• Process and fulfill your orders\n• Communicate about your orders\n• Improve our services\n• Send promotional offers (with consent)\n\nWe never sell your personal information to third parties.'**
+  /// **'At Denzel\'sCakes, we respect your privacy and are committed to protecting your personal information.\n\nInformation We Collect:\n• Contact information (name, email, phone)\n• Delivery addresses\n• Order history and preferences\n• Payment information (securely processed)\n\nHow We Use Your Information:\n• Process and fulfill your orders\n• Communicate about your orders\n• Improve our services\n• Send promotional offers (with consent)\n\nWe never sell your personal information to third parties.'**
   String get privacyPolicyText;
 
   /// No description provided for @termsOfServiceTitle.
@@ -1841,7 +1847,7 @@ abstract class AppLocalizations {
   /// No description provided for @termsOfServiceText.
   ///
   /// In en, this message translates to:
-  /// **'Welcome to DenzelsCakes! By using our service, you agree to these terms.\n\nOrders:\n• All orders are subject to availability\n• Custom cakes require 24-48 hours notice\n• Prices are in FCFA and include applicable taxes\n\nDelivery:\n• Delivery times are estimates\n• Delivery fees apply based on location\n• We are not responsible for delays due to weather or traffic\n\nCancellations:\n• Orders can be cancelled within 2 hours of placement\n• Custom orders may have different cancellation policies\n\nQuality Guarantee:\n• We guarantee the freshness and quality of our cakes\n• Contact us within 24 hours for any quality issues'**
+  /// **'Welcome to Denzel\'sCakes! By using our service, you agree to these terms.\n\nOrders:\n• All orders are subject to availability\n• Custom cakes require 24-48 hours notice\n• Prices are in FCFA and include applicable taxes\n\nDelivery:\n• Delivery times are estimates\n• Delivery fees apply based on location\n• We are not responsible for delays due to weather or traffic\n\nCancellations:\n• Orders can be cancelled within 2 hours of placement\n• Custom orders may have different cancellation policies\n\nQuality Guarantee:\n• We guarantee the freshness and quality of our cakes\n• Contact us within 24 hours for any quality issues'**
   String get termsOfServiceText;
 
   /// No description provided for @myFavorites.
@@ -3073,6 +3079,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Submit Order'**
   String get submitOrder;
+
+  /// No description provided for @whatsappHello.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello,'**
+  String get whatsappHello;
+
+  /// No description provided for @whatsappMyNameIs.
+  ///
+  /// In en, this message translates to:
+  /// **'My name is {name}.'**
+  String whatsappMyNameIs(String name);
+
+  /// No description provided for @whatsappIWouldLikeTo.
+  ///
+  /// In en, this message translates to:
+  /// **'I would like to {request}'**
+  String whatsappIWouldLikeTo(String request);
+
+  /// No description provided for @whatsappJoinTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'join the cake decoration training: {title}, {months}.'**
+  String whatsappJoinTraining(String title, String months);
+
+  /// No description provided for @whatsappOrderCustomCake.
+  ///
+  /// In en, this message translates to:
+  /// **'order a custom cake.'**
+  String get whatsappOrderCustomCake;
+
+  /// No description provided for @whatsappOrderTheseCakes.
+  ///
+  /// In en, this message translates to:
+  /// **'order these cakes.'**
+  String get whatsappOrderTheseCakes;
+
+  /// No description provided for @whatsappOrderRef.
+  ///
+  /// In en, this message translates to:
+  /// **'Order: {id}'**
+  String whatsappOrderRef(String id);
+
+  /// No description provided for @whatsappUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp is not available. Message us at {number}'**
+  String whatsappUnavailable(String number);
+
+  /// No description provided for @cakeDecorationDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete cake decoration training program covering all essential skills from basics to advanced techniques.'**
+  String get cakeDecorationDescription;
+
+  /// No description provided for @intakeJanuaryMarch.
+  ///
+  /// In en, this message translates to:
+  /// **'January - March (Q1 Intake)'**
+  String get intakeJanuaryMarch;
+
+  /// No description provided for @intakeAprilJune.
+  ///
+  /// In en, this message translates to:
+  /// **'April - June (Q2 Intake)'**
+  String get intakeAprilJune;
+
+  /// No description provided for @intakeJulySeptember.
+  ///
+  /// In en, this message translates to:
+  /// **'July - September (Q3 Intake)'**
+  String get intakeJulySeptember;
+
+  /// No description provided for @topicBakingFundamentals.
+  ///
+  /// In en, this message translates to:
+  /// **'Baking Fundamentals & Techniques'**
+  String get topicBakingFundamentals;
+
+  /// No description provided for @topicCakeMixing.
+  ///
+  /// In en, this message translates to:
+  /// **'Cake Mixing & Preparation Methods'**
+  String get topicCakeMixing;
+
+  /// No description provided for @topicFrosting.
+  ///
+  /// In en, this message translates to:
+  /// **'Frosting & Icing Mastery'**
+  String get topicFrosting;
+
+  /// No description provided for @topicPiping.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced Piping Techniques'**
+  String get topicPiping;
+
+  /// No description provided for @topicFondant.
+  ///
+  /// In en, this message translates to:
+  /// **'Fondant Work & Sculpting'**
+  String get topicFondant;
+
+  /// No description provided for @topicCreativeDesign.
+  ///
+  /// In en, this message translates to:
+  /// **'Creative Design & Decoration'**
+  String get topicCreativeDesign;
+
+  /// No description provided for @topicWeddingCakes.
+  ///
+  /// In en, this message translates to:
+  /// **'Wedding & Special Event Cakes'**
+  String get topicWeddingCakes;
+
+  /// No description provided for @topicBusinessSkills.
+  ///
+  /// In en, this message translates to:
+  /// **'Business Skills & Entrepreneurship'**
+  String get topicBusinessSkills;
+
+  /// No description provided for @topicFoodSafety.
+  ///
+  /// In en, this message translates to:
+  /// **'Food Safety & Professional Standards'**
+  String get topicFoodSafety;
+
+  /// No description provided for @topicPortfolio.
+  ///
+  /// In en, this message translates to:
+  /// **'Portfolio Development & Certification'**
+  String get topicPortfolio;
+
+  /// No description provided for @optionCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get optionCustom;
+
+  /// No description provided for @optionOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get optionOther;
+
+  /// No description provided for @flavorVanilla.
+  ///
+  /// In en, this message translates to:
+  /// **'Vanilla'**
+  String get flavorVanilla;
+
+  /// No description provided for @flavorChocolate.
+  ///
+  /// In en, this message translates to:
+  /// **'Chocolate'**
+  String get flavorChocolate;
+
+  /// No description provided for @flavorStrawberry.
+  ///
+  /// In en, this message translates to:
+  /// **'Strawberry'**
+  String get flavorStrawberry;
+
+  /// No description provided for @flavorRedVelvet.
+  ///
+  /// In en, this message translates to:
+  /// **'Red Velvet'**
+  String get flavorRedVelvet;
+
+  /// No description provided for @flavorLemon.
+  ///
+  /// In en, this message translates to:
+  /// **'Lemon'**
+  String get flavorLemon;
+
+  /// No description provided for @flavorCarrot.
+  ///
+  /// In en, this message translates to:
+  /// **'Carrot'**
+  String get flavorCarrot;
 }
 
 class _AppLocalizationsDelegate

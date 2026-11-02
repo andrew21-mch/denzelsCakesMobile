@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import '../constants/app_constants.dart';
 import 'api_service.dart';
+import 'storage_service.dart';
 
 class AdminApiService {
   // CAKE MANAGEMENT
@@ -9,8 +10,17 @@ class AdminApiService {
   /// Upload image to server and get URL
   static Future<String> uploadImage(File imageFile) async {
     try {
+      final token = await StorageService.getAccessToken();
+      if (token == null || token.isEmpty) {
+        throw ApiException('Sign in again, then save the cake.');
+      }
+
+      final filename = imageFile.path.split(Platform.pathSeparator).last;
       final formData = FormData.fromMap({
-        'file': await MultipartFile.fromFile(imageFile.path),
+        'file': await MultipartFile.fromFile(
+          imageFile.path,
+          filename: filename,
+        ),
         'folder': 'cakes',
       });
 
@@ -18,9 +28,7 @@ class AdminApiService {
         AppConstants.mediaUploadEndpoint,
         data: formData,
         options: Options(
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+          headers: {'Authorization': 'Bearer $token'},
         ),
       );
 
@@ -36,7 +44,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Image upload error: $e');
-      throw Exception('Failed to upload image: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -62,7 +70,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Create cake error: $e');
-      throw Exception('Failed to create cake: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -84,7 +92,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Get cakes error: $e');
-      throw Exception('Failed to fetch cakes: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -103,7 +111,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Update cake availability error: $e');
-      throw Exception('Failed to update cake: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -119,7 +127,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Delete cake error: $e');
-      throw Exception('Failed to delete cake: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -156,7 +164,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Get orders error: $e');
-      throw Exception('Failed to fetch orders: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -179,7 +187,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Get order error: $e');
-      throw Exception('Failed to fetch order: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -213,7 +221,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Update order status error: $e');
-      throw Exception('Failed to update order: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -234,7 +242,7 @@ class AdminApiService {
       }
     } catch (e) {
 // print('Cancel order error: $e');
-      throw Exception('Failed to cancel order: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -323,7 +331,7 @@ class AdminApiService {
       return [];
     } catch (e) {
 // print('Get users error: $e');
-      throw Exception('Failed to fetch users: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 
@@ -336,7 +344,7 @@ class AdminApiService {
       throw Exception('Backend endpoint not implemented');
     } catch (e) {
 // print('Update user role error: $e');
-      throw Exception('Failed to update user role: $e');
+      throw ApiException(ApiService.readableError(e));
     }
   }
 }

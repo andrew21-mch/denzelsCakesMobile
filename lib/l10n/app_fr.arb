@@ -1,6 +1,6 @@
 {
   "@@locale": "fr",
-  "appName": "Denzel's Cakes",
+  "appName": "Denzel'sCakes",
   "welcome": "Bienvenue",
   "login": "Connexion",
   "register": "S'inscrire",
@@ -13,6 +13,14 @@
   "signIn": "Se connecter",
   "signUp": "S'inscrire",
   "createAccount": "Créer un compte",
+  "continueTo": "Pour continuer vers {name}",
+  "@continueTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "alreadyHaveAccount": "Vous avez déjà un compte?",
   "dontHaveAccount": "Vous n'avez pas de compte?",
   "home": "Accueil",
@@ -103,7 +111,7 @@
   "emptyCart": "Votre panier est vide",
   "addItemsToCart": "Ajoutez des articles à votre panier pour commencer",
   "welcomeBackTo": "Bon retour chez",
-  "denzelsCakeShop": "Denzel's Cake Shop",
+  "denzelsCakeShop": "Denzel'sCakes",
   "signInToOrder": "Connectez-vous pour commander vos gâteaux préférés et découvrir notre délicieuse collection",
   "emailOrPhone": "E-mail ou téléphone",
   "enterEmailOrPhone": "Entrez l'e-mail ou le numéro de téléphone",
@@ -115,7 +123,7 @@
   "loginFailed": "Échec de la connexion",
   "welcomeTo": "Bienvenue sur",
   "createYourAccountToOrder": "Créez votre compte pour commander de délicieux gâteaux et découvrir notre collection",
-  "joinDenzelsCakes": "Rejoignez Denzel's Cakes",
+  "joinDenzelsCakes": "Rejoignez Denzel'sCakes",
   "registrationSuccessful": "Inscription réussie!",
   "registrationFailed": "Échec de l'inscription",
   "emailAddress": "Adresse e-mail",
@@ -176,7 +184,7 @@
   "priceRange": "Gamme de prix",
   "rating": "Note",
   "allCategories": "Toutes les catégories",
-  "welcomeToDenzels": "Bienvenue chez Denzel's! 🎂",
+  "welcomeToDenzels": "Bienvenue chez Denzel'sCakes! 🎂",
   "deliciousCakesAwait": "De délicieux gâteaux vous attendent!",
   "searchForCakes": "Rechercher de délicieux gâteaux...",
   "featuredCakes": "Gâteaux en vedette",
@@ -288,11 +296,11 @@
   "orderNotFound": "Commande introuvable",
   "splashTagline": "Fabriqué avec Amour, Livré Frais",
   "preparingCakeExperience": "Préparation de votre expérience de gâteau...",
-  "aboutDenzelsCakes": "À propos de DenzelsCakes",
+  "aboutDenzelsCakes": "À propos de Denzel'sCakes",
   "version": "Version",
   "aboutTagline": "De délicieux gâteaux livrés frais à votre porte au Cameroun",
   "ourStory": "Notre Histoire",
-  "ourStoryText": "Fondée en 2020, Denzel's Cakes a commencé comme un projet de passion pour apporter les meilleurs gâteaux les plus frais aux habitants du Cameroun. Notre voyage a commencé dans une petite cuisine à Douala avec une mission simple: créer des moments mémorables grâce à des gâteaux exceptionnels.\n\nAujourd'hui, nous sommes fiers de servir des clients à travers le Cameroun avec nos gâteaux faits à la main, préparés avec amour et les meilleurs ingrédients locaux. Chaque gâteau raconte une histoire, et nous sommes honorés de faire partie de vos moments spéciaux.",
+  "ourStoryText": "Fondée en 2020, Denzel'sCakes a commencé comme un projet de passion pour apporter les meilleurs gâteaux les plus frais aux habitants du Cameroun. Notre voyage a commencé dans une petite cuisine à Douala avec une mission simple: créer des moments mémorables grâce à des gâteaux exceptionnels.\n\nAujourd'hui, nous sommes fiers de servir des clients à travers le Cameroun avec nos gâteaux faits à la main, préparés avec amour et les meilleurs ingrédients locaux. Chaque gâteau raconte une histoire, et nous sommes honorés de faire partie de vos moments spéciaux.",
   "whatWeOffer": "Ce Que Nous Offrons",
   "freshCakesDaily": "Gâteaux Frais Quotidiens",
   "freshCakesDailyDesc": "Cuits frais tous les jours avec des ingrédients de qualité supérieure",
@@ -320,11 +328,11 @@
   "privacyPolicy": "Politique de Confidentialité",
   "termsOfService": "Conditions d'Utilisation",
   "openSourceLicenses": "Licences Open Source",
-  "copyright": "© 2020 DenzelsCakes Cameroun\nTous droits réservés",
+  "copyright": "© 2020 Denzel'sCakes Cameroun\nTous droits réservés",
   "privacyPolicyTitle": "Politique de Confidentialité",
-  "privacyPolicyText": "Chez DenzelsCakes, nous respectons votre vie privée et nous nous engageons à protéger vos informations personnelles.\n\nInformations que nous collectons:\n• Informations de contact (nom, e-mail, téléphone)\n• Adresses de livraison\n• Historique des commandes et préférences\n• Informations de paiement (traitées de manière sécurisée)\n\nComment nous utilisons vos informations:\n• Traiter et exécuter vos commandes\n• Communiquer concernant vos commandes\n• Améliorer nos services\n• Envoyer des offres promotionnelles (avec consentement)\n\nNous ne vendons jamais vos informations personnelles à des tiers.",
+  "privacyPolicyText": "Chez Denzel'sCakes, nous respectons votre vie privée et nous nous engageons à protéger vos informations personnelles.\n\nInformations que nous collectons:\n• Informations de contact (nom, e-mail, téléphone)\n• Adresses de livraison\n• Historique des commandes et préférences\n• Informations de paiement (traitées de manière sécurisée)\n\nComment nous utilisons vos informations:\n• Traiter et exécuter vos commandes\n• Communiquer concernant vos commandes\n• Améliorer nos services\n• Envoyer des offres promotionnelles (avec consentement)\n\nNous ne vendons jamais vos informations personnelles à des tiers.",
   "termsOfServiceTitle": "Conditions d'Utilisation",
-  "termsOfServiceText": "Bienvenue chez DenzelsCakes! En utilisant notre service, vous acceptez ces conditions.\n\nCommandes:\n• Toutes les commandes sont soumises à disponibilité\n• Les gâteaux personnalisés nécessitent un préavis de 24 à 48 heures\n• Les prix sont en FCFA et incluent les taxes applicables\n\nLivraison:\n• Les délais de livraison sont des estimations\n• Les frais de livraison s'appliquent selon l'emplacement\n• Nous ne sommes pas responsables des retards dus à la météo ou au trafic\n\nAnnulations:\n• Les commandes peuvent être annulées dans les 2 heures suivant la passation\n• Les commandes personnalisées peuvent avoir des politiques d'annulation différentes\n\nGarantie Qualité:\n• Nous garantissons la fraîcheur et la qualité de nos gâteaux\n• Contactez-nous dans les 24 heures pour tout problème de qualité",
+  "termsOfServiceText": "Bienvenue chez Denzel'sCakes! En utilisant notre service, vous acceptez ces conditions.\n\nCommandes:\n• Toutes les commandes sont soumises à disponibilité\n• Les gâteaux personnalisés nécessitent un préavis de 24 à 48 heures\n• Les prix sont en FCFA et incluent les taxes applicables\n\nLivraison:\n• Les délais de livraison sont des estimations\n• Les frais de livraison s'appliquent selon l'emplacement\n• Nous ne sommes pas responsables des retards dus à la météo ou au trafic\n\nAnnulations:\n• Les commandes peuvent être annulées dans les 2 heures suivant la passation\n• Les commandes personnalisées peuvent avoir des politiques d'annulation différentes\n\nGarantie Qualité:\n• Nous garantissons la fraîcheur et la qualité de nos gâteaux\n• Contactez-nous dans les 24 heures pour tout problème de qualité",
   "myFavorites": "Mes Favoris",
   "clearAll": "Tout Effacer",
   "loadingFavorites": "Chargement des favoris...",
@@ -594,6 +602,62 @@
   "cakeDetails": "Détails du Gâteau",
   "deliveryInformation": "Informations de Livraison",
   "additionalInformation": "Informations Supplémentaires",
-  "submitOrder": "Soumettre la Commande"
+  "submitOrder": "Soumettre la Commande",
+  "whatsappHello": "Bonjour,",
+  "whatsappMyNameIs": "Je m'appelle {name}.",
+  "@whatsappMyNameIs": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "whatsappIWouldLikeTo": "Je voudrais {request}",
+  "@whatsappIWouldLikeTo": {
+    "placeholders": {
+      "request": {"type": "String"}
+    }
+  },
+  "whatsappJoinTraining": "rejoindre la formation en décoration de gâteaux : {title}, {months}.",
+  "@whatsappJoinTraining": {
+    "placeholders": {
+      "title": {"type": "String"},
+      "months": {"type": "String"}
+    }
+  },
+  "whatsappOrderCustomCake": "commander un gâteau personnalisé.",
+  "whatsappOrderTheseCakes": "commander ces gâteaux.",
+  "whatsappOrderRef": "Commande : {id}",
+  "@whatsappOrderRef": {
+    "placeholders": {
+      "id": {"type": "String"}
+    }
+  },
+  "whatsappUnavailable": "WhatsApp n'est pas disponible. Écrivez-nous au {number}",
+  "@whatsappUnavailable": {
+    "placeholders": {
+      "number": {"type": "String"}
+    }
+  },
+  "cakeDecorationDescription": "Programme complet de décoration de gâteaux, des bases jusqu'aux techniques avancées.",
+  "intakeJanuaryMarch": "Janvier - mars (session T1)",
+  "intakeAprilJune": "Avril - juin (session T2)",
+  "intakeJulySeptember": "Juillet - septembre (session T3)",
+  "topicBakingFundamentals": "Bases et techniques de pâtisserie",
+  "topicCakeMixing": "Méthodes de mélange et de préparation des gâteaux",
+  "topicFrosting": "Maîtrise du glaçage et de la crème",
+  "topicPiping": "Techniques avancées de pochage",
+  "topicFondant": "Travail du fondant et sculpture",
+  "topicCreativeDesign": "Conception et décoration créatives",
+  "topicWeddingCakes": "Gâteaux de mariage et d'événements",
+  "topicBusinessSkills": "Compétences commerciales et entrepreneuriat",
+  "topicFoodSafety": "Hygiène alimentaire et normes professionnelles",
+  "topicPortfolio": "Portfolio et certification",
+  "optionCustom": "Personnalisé",
+  "optionOther": "Autre",
+  "flavorVanilla": "Vanille",
+  "flavorChocolate": "Chocolat",
+  "flavorStrawberry": "Fraise",
+  "flavorRedVelvet": "Velours rouge",
+  "flavorLemon": "Citron",
+  "flavorCarrot": "Carotte"
 }
 

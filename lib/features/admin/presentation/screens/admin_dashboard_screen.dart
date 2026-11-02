@@ -148,21 +148,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverAppBar(
-            expandedHeight: 80,
-            floating: false,
             pinned: true,
-            backgroundColor: AppTheme.primaryColor,
-            foregroundColor: Colors.white,
-            title: const Text(
-              'Admin Dashboard',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            backgroundColor: AppTheme.surfaceColor,
+            foregroundColor: AppTheme.textPrimary,
+            surfaceTintColor: Colors.transparent,
+            title: const Text('Admin Dashboard'),
             actions: [
               PopupMenuButton<String>(
-                icon: const Icon(Icons.person, color: Colors.white),
+                icon: const Icon(Icons.person_outline),
                 onSelected: (value) async {
                   if (value == 'profile') {
                     // Navigate to profile screen
@@ -200,17 +193,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
             ],
             bottom: TabBar(
               controller: _tabController,
-              indicatorColor: Colors.white,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white.withValues(alpha: 0.7),
-              labelStyle: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-              unselectedLabelStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
               tabs: const [
                 Tab(text: 'Overview'),
                 Tab(text: 'Orders'),
@@ -249,90 +233,50 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
       color: AppTheme.primaryColor,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Welcome Header
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                gradient: AppTheme.primaryGradient,
-                borderRadius: BorderRadius.circular(16),
+            Text(
+              'Welcome back',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            _statsRow(
+              StatsCard(
+                title: 'Orders',
+                value: _dashboardData['totalOrders'].toString(),
+                icon: Icons.shopping_bag_outlined,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Welcome back, Admin!',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: AppTheme.onPrimaryColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Here\'s what\'s happening with your business today.',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppTheme.onPrimaryColor.withValues(alpha: 0.9),
-                        ),
-                  ),
-                ],
+              StatsCard(
+                title: 'Revenue',
+                value:
+                    '${(_dashboardData['totalRevenue'] as double).toStringAsFixed(0)} XAF',
+                icon: Icons.payments_outlined,
+              ),
+            ),
+            const SizedBox(height: 8),
+            _statsRow(
+              StatsCard(
+                title: 'Customers',
+                value: _dashboardData['totalCustomers'].toString(),
+                icon: Icons.people_outline,
+              ),
+              StatsCard(
+                title: 'Pending',
+                value: _dashboardData['pendingOrders'].toString(),
+                icon: Icons.pending_actions_outlined,
               ),
             ),
 
-            // Stats Cards Grid
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              childAspectRatio:
-                  1.4, // Reduced to give more height to prevent overflow
-              children: [
-                StatsCard(
-                  title: 'Total Orders',
-                  value: _dashboardData['totalOrders'].toString(),
-                  icon: Icons.shopping_bag_outlined,
-                  color: AppTheme.primaryColor,
-                  trend: '+12%',
-                ),
-                StatsCard(
-                  title: 'Revenue',
-                  value:
-                      '${(_dashboardData['totalRevenue'] as double).toStringAsFixed(0)} XAF',
-                  icon: Icons.attach_money,
-                  color: AppTheme.successColor,
-                  trend: '+8.5%',
-                ),
-                StatsCard(
-                  title: 'Customers',
-                  value: _dashboardData['totalCustomers'].toString(),
-                  icon: Icons.people_outline,
-                  color: AppTheme.accentColor,
-                  trend: '+15%',
-                ),
-                StatsCard(
-                  title: 'Pending',
-                  value: _dashboardData['pendingOrders'].toString(),
-                  icon: Icons.pending_actions,
-                  color: AppTheme.warningColor,
-                  trend: '-5%',
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
 
             // Revenue Chart
             RevenueChartCard(
               chartData: _revenueData,
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
 
             // Quick Actions
             QuickActionsCard(
@@ -353,7 +297,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
               },
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
 
             // Recent Orders
             RecentOrdersCard(
@@ -363,6 +307,19 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _statsRow(Widget left, Widget right) {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(child: left),
+          const SizedBox(width: 8),
+          Expanded(child: right),
+        ],
       ),
     );
   }
@@ -386,20 +343,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Admin Settings',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: AppTheme.textPrimary,
-                  fontWeight: FontWeight.bold,
-                ),
+            'Settings',
+            style: Theme.of(context).textTheme.headlineSmall,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
           _buildSettingsSection(
             'Business Settings',
             [
               _buildSettingsItem(
                 'Business Information',
                 'Update store details and contact info',
-                Icons.business,
+                Icons.storefront_outlined,
                 () {
                   Navigator.push(
                     context,
@@ -412,7 +366,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
               _buildSettingsItem(
                 'Payment Methods',
                 'Configure payment options',
-                Icons.payment,
+                Icons.payments_outlined,
                 () {
                   Navigator.push(
                     context,
@@ -425,7 +379,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
               _buildSettingsItem(
                 'Delivery Settings',
                 'Manage delivery zones and fees',
-                Icons.local_shipping,
+                Icons.local_shipping_outlined,
                 () {
                   Navigator.push(
                     context,
@@ -437,14 +391,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
           _buildSettingsSection(
             'System Settings',
             [
               _buildSettingsItem(
                 'User Roles',
                 'Manage admin and staff permissions',
-                Icons.admin_panel_settings,
+                Icons.admin_panel_settings_outlined,
                 () {
                   Navigator.push(
                     context,
@@ -457,7 +411,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
               _buildSettingsItem(
                 'Notifications',
                 'Configure notification preferences',
-                Icons.notifications,
+                Icons.notifications_outlined,
                 () {
                   Navigator.push(
                     context,
@@ -470,7 +424,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
               _buildSettingsItem(
                 'Backup & Sync',
                 'Data backup and synchronization',
-                Icons.cloud_sync,
+                Icons.cloud_outlined,
                 () {
                   Navigator.push(
                     context,
@@ -482,14 +436,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
           _buildSettingsSection(
             'Reports & Analytics',
             [
               _buildSettingsItem(
                 'Export Data',
                 'Export orders and customer data',
-                Icons.download,
+                Icons.download_outlined,
                 () {
                   Navigator.push(
                     context,
@@ -502,7 +456,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
               _buildSettingsItem(
                 'Custom Reports',
                 'Create custom business reports',
-                Icons.assessment,
+                Icons.assessment_outlined,
                 () {
                   Navigator.push(
                     context,
@@ -520,30 +474,28 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
   }
 
   Widget _buildSettingsSection(String title, List<Widget> children) {
+    final scheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: AppTheme.textPrimary,
-                fontWeight: FontWeight.w600,
-              ),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          decoration: BoxDecoration(
-            color: AppTheme.surfaceColor,
+        Text(title, style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 8),
+        Material(
+          color: scheme.surfaceContainerLowest,
+          clipBehavior: Clip.antiAlias,
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            boxShadow: const [
-              BoxShadow(
-                color: AppTheme.shadowColor,
-                blurRadius: 8,
-                offset: Offset(0, 2),
-              ),
+            side: BorderSide(color: scheme.outlineVariant),
+          ),
+          child: Column(
+            children: [
+              for (var i = 0; i < children.length; i++) ...[
+                if (i > 0)
+                  Divider(height: 1, indent: 56, color: scheme.outlineVariant),
+                children[i],
+              ],
             ],
           ),
-          child: Column(children: children),
         ),
       ],
     );
@@ -556,36 +508,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
     VoidCallback onTap,
   ) {
     return ListTile(
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: AppTheme.primaryColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Icon(
-          icon,
-          color: AppTheme.primaryColor,
-          size: 20,
-        ),
-      ),
-      title: Text(
-        title,
-        style: const TextStyle(
-          color: AppTheme.textPrimary,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      subtitle: Text(
-        subtitle,
-        style: const TextStyle(
-          color: AppTheme.textSecondary,
-          fontSize: 13,
-        ),
-      ),
-      trailing: const Icon(
-        Icons.chevron_right,
-        color: AppTheme.textSecondary,
-      ),
+      leading: Icon(icon),
+      title: Text(title),
+      subtitle: Text(subtitle),
+      trailing: const Icon(Icons.chevron_right),
       onTap: onTap,
     );
   }

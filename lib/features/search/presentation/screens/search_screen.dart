@@ -652,8 +652,12 @@ class _SearchScreenState extends State<SearchScreen> {
                     Expanded(
                       // Wrap description in Expanded
                       child: Text(
-                        cake.description.isNotEmpty
-                            ? cake.description
+                        cake.descriptionFor(
+                                  Localizations.localeOf(context).languageCode,
+                                ).isNotEmpty
+                            ? cake.descriptionFor(
+                                Localizations.localeOf(context).languageCode,
+                              )
                             : 'Delicious cake',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: AppTheme.textTertiary,

@@ -13,32 +13,24 @@ class RecentOrdersCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.surfaceColor,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(
-            color: AppTheme.shadowColor,
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
+        color: scheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: scheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(16, 8, 8, 4),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   'Recent Orders',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: AppTheme.textPrimary,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
                 TextButton(
                   onPressed: onViewAllPressed,
@@ -87,6 +79,7 @@ class RecentOrdersCard extends StatelessWidget {
           else
             ListView.separated(
               shrinkWrap: true,
+              primary: false,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: orders.length > 5 ? 5 : orders.length,
               separatorBuilder: (context, index) => const Divider(

@@ -4,7 +4,76 @@ import 'package:logger/logger.dart';
 import '../constants/app_constants.dart';
 import 'storage_service.dart';
 
+/// Shown to the person using the app. [toString] is the sentence itself,
+/// so a snackbar can display it without a Dio or Exception prefix.
+class ApiException implements Exception {
+  ApiException(this.message);
+  final String message;
+
+  @override
+  String toString() => message;
+}
+
 class ApiService {
+  /// The sentence a person should read. Prefers the server's specific
+  /// validation text over "Validation failed" or a Dio stack trace.
+  static String readableError(Object error) {
+    if (error is DioException) {
+      final fromBody = readableBody(error.response?.data);
+      if (fromBody != null) return fromBody;
+      final message = error.message?.trim();
+      if (message != null && message.isNotEmpty) return _stripWrappers(message);
+    }
+    return _stripWrappers(error.toString());
+  }
+
+  static String? readableBody(dynamic data) {
+    if (data is! Map) return null;
+    final error = data['error'];
+    final message = data['message']?.toString().trim();
+
+    if (error is List && error.isNotEmpty) {
+      final lines = error.map((item) {
+        if (item is Map && item['msg'] != null) return item['msg'].toString();
+        return item.toString();
+      }).where((line) => line.trim().isNotEmpty);
+      final text = lines.join('\n');
+      if (text.isNotEmpty) return text;
+    }
+
+    if (error is String && error.trim().isNotEmpty && error.contains(' ')) {
+      return error.trim();
+    }
+
+    if (message != null &&
+        message.isNotEmpty &&
+        message.toLowerCase() != 'validation failed') {
+      return message;
+    }
+
+    return null;
+  }
+
+  static String _stripWrappers(String text) {
+    var value = text.trim();
+    const prefixes = [
+      'Exception: ',
+      'DioException [badResponse]: ',
+      'DioException [bad response]: ',
+    ];
+    var changed = true;
+    while (changed) {
+      changed = false;
+      for (final prefix in prefixes) {
+        if (value.startsWith(prefix)) {
+          value = value.substring(prefix.length).trim();
+          changed = true;
+        }
+      }
+    }
+    return value;
+  }
+
   static late Dio _dio;
   static final Logger _logger = Logger();
   static void Function()? onSessionExpired;
@@ -135,11 +204,6 @@ class ApiService {
       return await _dio.post<T>(
         path,
         data: formData,
-        options: Options(
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        ),
         onSendProgress: onSendProgress,
       );
     } catch (e) {
@@ -322,27 +386,21 @@ class _ErrorInterceptor extends Interceptor {
   }
 
   String _handleHttpError(int? statusCode, dynamic responseData) {
+    final detail = ApiService.readableBody(responseData);
     switch (statusCode) {
       case 400:
-        if (responseData is Map && responseData['message'] != null) {
-          return responseData['message'];
-        }
-        return 'Bad request. Please check your input.';
+      case 422:
+        return detail ?? 'Please check your input.';
       case 401:
-        return 'Authentication failed. Please log in again.';
+        return detail ?? 'Authentication failed. Please log in again.';
       case 403:
         return 'Access denied. You don\'t have permission to perform this action.';
       case 404:
         return 'The requested resource was not found.';
-      case 422:
-        if (responseData is Map && responseData['message'] != null) {
-          return responseData['message'];
-        }
-        return 'Validation failed. Please check your input.';
       case 429:
         return 'Too many requests. Please try again later.';
       case 500:
-        return 'Server error. Please try again later.';
+        return detail ?? 'Server error. Please try again later.';
       case 502:
       case 503:
       case 504:

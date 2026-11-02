@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appName": "Denzel's Cakes",
+  "appName": "Denzel'sCakes",
   "@appName": {
     "description": "The application name"
   },
@@ -9,13 +9,21 @@
   "register": "Register",
   "email": "Email",
   "password": "Password",
-  "confirmPassword": "Confirm Password",
-  "fullName": "Full Name",
-  "phoneNumber": "Phone Number",
+  "confirmPassword": "Confirm password",
+  "fullName": "Full name",
+  "phoneNumber": "Phone number",
   "forgotPassword": "Forgot Password?",
-  "signIn": "Sign In",
-  "signUp": "Sign Up",
-  "createAccount": "Create Account",
+  "signIn": "Sign in",
+  "signUp": "Sign up",
+  "createAccount": "Create account",
+  "continueTo": "to continue to {name}",
+  "@continueTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "alreadyHaveAccount": "Already have an account?",
   "dontHaveAccount": "Don't have an account?",
   "home": "Home",
@@ -109,9 +117,9 @@
   "emptyCart": "Your cart is empty",
   "addItemsToCart": "Add items to your cart to get started",
   "welcomeBackTo": "Welcome Back to",
-  "denzelsCakeShop": "Denzel's Cake Shop",
+  "denzelsCakeShop": "Denzel'sCakes",
   "signInToOrder": "Sign in to order your favorite cakes and explore our delicious collection",
-  "emailOrPhone": "Email or Phone",
+  "emailOrPhone": "Email or phone",
   "enterEmailOrPhone": "Enter email or phone number",
   "pleaseEnterEmailOrPhone": "Please enter your email or phone number",
   "pleaseEnterValidEmailOrPhone": "Please enter a valid email or phone number",
@@ -121,10 +129,10 @@
   "loginFailed": "Login failed",
   "welcomeTo": "Welcome to",
   "createYourAccountToOrder": "Create your account to order delicious cakes and explore our collection",
-  "joinDenzelsCakes": "Join Denzel's Cakes",
+  "joinDenzelsCakes": "Join Denzel'sCakes",
   "registrationSuccessful": "Registration successful!",
   "registrationFailed": "Registration failed",
-  "emailAddress": "Email Address",
+  "emailAddress": "Email address",
   "pleaseEnterYourName": "Please enter your name",
   "pleaseEnterYourEmail": "Please enter your email",
   "pleaseEnterValidEmail": "Please enter a valid email",
@@ -182,7 +190,7 @@
   "priceRange": "Price Range",
   "rating": "Rating",
   "allCategories": "All Categories",
-  "welcomeToDenzels": "Welcome to Denzel's! 🎂",
+  "welcomeToDenzels": "Welcome to Denzel'sCakes! 🎂",
   "deliciousCakesAwait": "Delicious cakes await!",
   "searchForCakes": "Search for delicious cakes...",
   "featuredCakes": "Featured Cakes",
@@ -297,11 +305,11 @@
   "orderNotFound": "Order not found",
   "splashTagline": "Handcrafted with Love, Delivered Fresh",
   "preparingCakeExperience": "Preparing your cake experience...",
-  "aboutDenzelsCakes": "About DenzelsCakes",
+  "aboutDenzelsCakes": "About Denzel'sCakes",
   "version": "Version",
   "aboutTagline": "Delicious cakes delivered fresh to your doorstep in Cameroon",
   "ourStory": "Our Story",
-  "ourStoryText": "Founded in 2020, Denzel's Cakes began as a passion project to bring the finest, freshest cakes to the people of Cameroon. Our journey started in a small kitchen in Douala with a simple mission: to create memorable moments through exceptional cakes.\n\nToday, we're proud to serve customers across Cameroon with our handcrafted cakes, made with love and the finest local ingredients. Every cake tells a story, and we're honored to be part of your special moments.",
+  "ourStoryText": "Founded in 2020, Denzel'sCakes began as a passion project to bring the finest, freshest cakes to the people of Cameroon. Our journey started in a small kitchen in Douala with a simple mission: to create memorable moments through exceptional cakes.\n\nToday, we're proud to serve customers across Cameroon with our handcrafted cakes, made with love and the finest local ingredients. Every cake tells a story, and we're honored to be part of your special moments.",
   "whatWeOffer": "What We Offer",
   "freshCakesDaily": "Fresh Cakes Daily",
   "freshCakesDailyDesc": "Baked fresh every day with premium ingredients",
@@ -329,11 +337,11 @@
   "privacyPolicy": "Privacy Policy",
   "termsOfService": "Terms of Service",
   "openSourceLicenses": "Open Source Licenses",
-  "copyright": "© 2020 DenzelsCakes Cameroon\nAll rights reserved",
+  "copyright": "© 2020 Denzel'sCakes Cameroon\nAll rights reserved",
   "privacyPolicyTitle": "Privacy Policy",
-  "privacyPolicyText": "At DenzelsCakes, we respect your privacy and are committed to protecting your personal information.\n\nInformation We Collect:\n• Contact information (name, email, phone)\n• Delivery addresses\n• Order history and preferences\n• Payment information (securely processed)\n\nHow We Use Your Information:\n• Process and fulfill your orders\n• Communicate about your orders\n• Improve our services\n• Send promotional offers (with consent)\n\nWe never sell your personal information to third parties.",
+  "privacyPolicyText": "At Denzel'sCakes, we respect your privacy and are committed to protecting your personal information.\n\nInformation We Collect:\n• Contact information (name, email, phone)\n• Delivery addresses\n• Order history and preferences\n• Payment information (securely processed)\n\nHow We Use Your Information:\n• Process and fulfill your orders\n• Communicate about your orders\n• Improve our services\n• Send promotional offers (with consent)\n\nWe never sell your personal information to third parties.",
   "termsOfServiceTitle": "Terms of Service",
-  "termsOfServiceText": "Welcome to DenzelsCakes! By using our service, you agree to these terms.\n\nOrders:\n• All orders are subject to availability\n• Custom cakes require 24-48 hours notice\n• Prices are in FCFA and include applicable taxes\n\nDelivery:\n• Delivery times are estimates\n• Delivery fees apply based on location\n• We are not responsible for delays due to weather or traffic\n\nCancellations:\n• Orders can be cancelled within 2 hours of placement\n• Custom orders may have different cancellation policies\n\nQuality Guarantee:\n• We guarantee the freshness and quality of our cakes\n• Contact us within 24 hours for any quality issues",
+  "termsOfServiceText": "Welcome to Denzel'sCakes! By using our service, you agree to these terms.\n\nOrders:\n• All orders are subject to availability\n• Custom cakes require 24-48 hours notice\n• Prices are in FCFA and include applicable taxes\n\nDelivery:\n• Delivery times are estimates\n• Delivery fees apply based on location\n• We are not responsible for delays due to weather or traffic\n\nCancellations:\n• Orders can be cancelled within 2 hours of placement\n• Custom orders may have different cancellation policies\n\nQuality Guarantee:\n• We guarantee the freshness and quality of our cakes\n• Contact us within 24 hours for any quality issues",
   "myFavorites": "My Favorites",
   "clearAll": "Clear All",
   "loadingFavorites": "Loading favorites...",
@@ -603,6 +611,62 @@
   "cakeDetails": "Cake Details",
   "deliveryInformation": "Delivery Information",
   "additionalInformation": "Additional Information",
-  "submitOrder": "Submit Order"
+  "submitOrder": "Submit Order",
+  "whatsappHello": "Hello,",
+  "whatsappMyNameIs": "My name is {name}.",
+  "@whatsappMyNameIs": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "whatsappIWouldLikeTo": "I would like to {request}",
+  "@whatsappIWouldLikeTo": {
+    "placeholders": {
+      "request": {"type": "String"}
+    }
+  },
+  "whatsappJoinTraining": "join the cake decoration training: {title}, {months}.",
+  "@whatsappJoinTraining": {
+    "placeholders": {
+      "title": {"type": "String"},
+      "months": {"type": "String"}
+    }
+  },
+  "whatsappOrderCustomCake": "order a custom cake.",
+  "whatsappOrderTheseCakes": "order these cakes.",
+  "whatsappOrderRef": "Order: {id}",
+  "@whatsappOrderRef": {
+    "placeholders": {
+      "id": {"type": "String"}
+    }
+  },
+  "whatsappUnavailable": "WhatsApp is not available. Message us at {number}",
+  "@whatsappUnavailable": {
+    "placeholders": {
+      "number": {"type": "String"}
+    }
+  },
+  "cakeDecorationDescription": "Complete cake decoration training program covering all essential skills from basics to advanced techniques.",
+  "intakeJanuaryMarch": "January - March (Q1 Intake)",
+  "intakeAprilJune": "April - June (Q2 Intake)",
+  "intakeJulySeptember": "July - September (Q3 Intake)",
+  "topicBakingFundamentals": "Baking Fundamentals & Techniques",
+  "topicCakeMixing": "Cake Mixing & Preparation Methods",
+  "topicFrosting": "Frosting & Icing Mastery",
+  "topicPiping": "Advanced Piping Techniques",
+  "topicFondant": "Fondant Work & Sculpting",
+  "topicCreativeDesign": "Creative Design & Decoration",
+  "topicWeddingCakes": "Wedding & Special Event Cakes",
+  "topicBusinessSkills": "Business Skills & Entrepreneurship",
+  "topicFoodSafety": "Food Safety & Professional Standards",
+  "topicPortfolio": "Portfolio Development & Certification",
+  "optionCustom": "Custom",
+  "optionOther": "Other",
+  "flavorVanilla": "Vanilla",
+  "flavorChocolate": "Chocolate",
+  "flavorStrawberry": "Strawberry",
+  "flavorRedVelvet": "Red Velvet",
+  "flavorLemon": "Lemon",
+  "flavorCarrot": "Carrot"
 }
 

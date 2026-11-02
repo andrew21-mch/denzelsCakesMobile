@@ -8,6 +8,8 @@ import 'dart:io';
 import '../../../../shared/theme/app_theme.dart';
 import '../../../../shared/widgets/loading_overlay.dart';
 import '../../../../core/services/order_service.dart';
+import '../../../../core/services/api_service.dart';
+import '../../../../core/utils/shop_whatsapp.dart';
 import '../../../../core/services/address_service.dart';
 import '../../../../core/services/admin_api_service.dart';
 import '../../../../features/auth/data/auth_repository.dart';
@@ -52,37 +54,37 @@ class _CustomOrderScreenState extends State<CustomOrderScreen> {
   List<File> _selectedImages = [];
   bool _isUploadingImages = false;
 
-  final List<String> _cakeTypes = [
-    'Birthday',
-    'Wedding',
-    'Anniversary',
-    'Baby Shower',
-    'Custom',
-    'Other',
-  ];
+  List<String> _cakeTypes(AppLocalizations l10n) => [
+        l10n.categoryBirthday,
+        l10n.categoryWedding,
+        l10n.categoryAnniversary,
+        l10n.categoryBabyShower,
+        l10n.optionCustom,
+        l10n.optionOther,
+      ];
 
-  final List<String> _sizes = [
-    'Small (1-5 people)',
-    'Medium (6-15 people)',
-    'Large (16-30 people)',
-    'Extra Large (30+ people)',
-  ];
+  List<String> _sizes(AppLocalizations l10n) => [
+        l10n.smallCake,
+        l10n.mediumCake,
+        l10n.largeCake,
+        l10n.extraLargeCake,
+      ];
 
-  final List<String> _flavors = [
-    'Vanilla',
-    'Chocolate',
-    'Strawberry',
-    'Red Velvet',
-    'Lemon',
-    'Carrot',
-    'Custom',
-  ];
+  List<String> _flavors(AppLocalizations l10n) => [
+        l10n.flavorVanilla,
+        l10n.flavorChocolate,
+        l10n.flavorStrawberry,
+        l10n.flavorRedVelvet,
+        l10n.flavorLemon,
+        l10n.flavorCarrot,
+        l10n.optionCustom,
+      ];
 
-  final List<String> _deliveryTimes = [
-    'Morning (8 AM - 12 PM)',
-    'Afternoon (12 PM - 5 PM)',
-    'Evening (5 PM - 8 PM)',
-  ];
+  List<String> _deliveryTimes(AppLocalizations l10n) => [
+        l10n.morning,
+        l10n.afternoon,
+        l10n.evening,
+      ];
 
   @override
   void initState() {
@@ -365,6 +367,51 @@ class _CustomOrderScreenState extends State<CustomOrderScreen> {
     return uploadedUrls;
   }
 
+  String _customOrderWhatsAppMessage(AppLocalizations l10n, String? name) {
+    String audience = l10n.notSpecified;
+    final parts = <String>[];
+    if (_targetAgeGroup == 'adults') parts.add(l10n.adults);
+    if (_targetAgeGroup == 'kids') parts.add(l10n.kids);
+    switch (_targetGender) {
+      case 'male':
+        parts.add(l10n.male);
+      case 'female':
+        parts.add(l10n.female);
+      case 'boy':
+        parts.add(l10n.boy);
+      case 'girl':
+        parts.add(l10n.girl);
+    }
+    if (parts.isNotEmpty) audience = parts.join(', ');
+
+    final deliveryLabel =
+        _deliveryType == 'pickup' ? l10n.pickup : l10n.delivery;
+    final lines = <String>[
+      ShopWhatsApp.introduce(l10n, name, l10n.whatsappOrderCustomCake),
+      '',
+      '${l10n.cakeType}: ${_cakeTypeController.text}',
+      '${l10n.cakeSize}: ${_sizeController.text}',
+      '${l10n.cakeFlavor}: ${_flavorController.text}',
+      '${l10n.ageGroupAndGender}: $audience',
+      '${l10n.eventDate}: ${_eventDateController.text}',
+      '${l10n.deliveryType}: $deliveryLabel',
+      '${l10n.deliveryAddress}: ${_addressController.text}',
+    ];
+    if (_deliveryTimeController.text.isNotEmpty) {
+      lines.add('${l10n.preferredDeliveryTime}: ${_deliveryTimeController.text}');
+    }
+    if (_budgetController.text.isNotEmpty) {
+      lines.add('${l10n.estimatedBudget}: ${_budgetController.text}');
+    }
+    if (_descriptionController.text.isNotEmpty) {
+      lines.add('${l10n.cakeDescription}: ${_descriptionController.text}');
+    }
+    if (_notesController.text.isNotEmpty) {
+      lines.add('${l10n.additionalNotes}: ${_notesController.text}');
+    }
+    return lines.join('\n');
+  }
+
   Future<void> _submitOrder() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -485,12 +532,24 @@ class _CustomOrderScreenState extends State<CustomOrderScreen> {
             ],
           ),
         );
+        final opened = await ShopWhatsApp.open(
+          _customOrderWhatsAppMessage(l10n, user?.name),
+        );
+        if (!opened && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                l10n.whatsappUnavailable(ShopWhatsApp.displayNumber),
+              ),
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${l10n.failedToPlaceOrder}: $e'),
+            content: Text(ApiService.readableError(e)),
             backgroundColor: AppTheme.errorColor,
           ),
         );
@@ -550,7 +609,7 @@ class _CustomOrderScreenState extends State<CustomOrderScreen> {
                   controller: _cakeTypeController,
                   label: l10n.cakeType,
                   hint: l10n.selectCakeType,
-                  items: _cakeTypes,
+                  items: _cakeTypes(l10n),
                   validator: (value) =>
                       value == null || value.isEmpty ? l10n.pleaseSelectCategory : null,
                 ),
@@ -561,7 +620,7 @@ class _CustomOrderScreenState extends State<CustomOrderScreen> {
                   controller: _sizeController,
                   label: l10n.cakeSize,
                   hint: l10n.selectCakeSize,
-                  items: _sizes,
+                  items: _sizes(l10n),
                   validator: (value) =>
                       value == null || value.isEmpty ? 'Please select size' : null,
                 ),
@@ -572,7 +631,7 @@ class _CustomOrderScreenState extends State<CustomOrderScreen> {
                   controller: _flavorController,
                   label: l10n.cakeFlavor,
                   hint: l10n.selectFlavor,
-                  items: _flavors,
+                  items: _flavors(l10n),
                   validator: (value) =>
                       value == null || value.isEmpty ? 'Please select flavor' : null,
                 ),
@@ -685,7 +744,7 @@ class _CustomOrderScreenState extends State<CustomOrderScreen> {
                   controller: _deliveryTimeController,
                   label: l10n.preferredDeliveryTime,
                   hint: l10n.selectDeliveryTime,
-                  items: _deliveryTimes,
+                  items: _deliveryTimes(l10n),
                   required: false,
                 ),
                 const SizedBox(height: 24),
@@ -896,103 +955,82 @@ class _CustomOrderScreenState extends State<CustomOrderScreen> {
 
   Widget _buildAgeGroupGenderSection() {
     final l10n = AppLocalizations.of(context)!;
+    final textTheme = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
+
+    void selectAge(String? age) {
+      setState(() {
+        _targetAgeGroup = age;
+        final adults = _targetGender == 'male' || _targetGender == 'female';
+        final kids = _targetGender == 'boy' || _targetGender == 'girl';
+        if (age == 'adults' && kids) _targetGender = null;
+        if (age == 'kids' && adults) _targetGender = null;
+        if (age == null) _targetGender = null;
+      });
+    }
+
+    void selectGender(String? gender) {
+      setState(() {
+        _targetGender = gender;
+        if (gender == 'male' || gender == 'female') {
+          _targetAgeGroup = 'adults';
+        } else if (gender == 'boy' || gender == 'girl') {
+          _targetAgeGroup = 'kids';
+        }
+      });
+    }
+
+    Widget chip(String label, bool selected, VoidCallback onTap) {
+      return FilterChip(
+        label: Text(label),
+        selected: selected,
+        showCheckmark: false,
+        onSelected: (_) => onTap(),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           l10n.ageGroupAndGenderOptional,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: textTheme.labelLarge,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
         Text(
           l10n.specifyAgeGroupAndGender,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppTheme.textSecondary,
-              ),
+          style: textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
         ),
         const SizedBox(height: 12),
-        
-        // Age Group
-        DropdownButtonFormField<String>(
-          value: _targetAgeGroup,
-          decoration: InputDecoration(
-            labelText: l10n.ageGroup,
-            hintText: l10n.selectAgeGroup,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            filled: true,
-            fillColor: AppTheme.backgroundColor,
-            prefixIcon: const Icon(Icons.group, color: AppTheme.accentColor),
-          ),
-          items: [
-            DropdownMenuItem(value: null, child: Text(l10n.notSpecified)),
-            DropdownMenuItem(value: 'adults', child: Text(l10n.adults)),
-            DropdownMenuItem(value: 'kids', child: Text(l10n.kids)),
+        Text(l10n.ageGroup, style: textTheme.labelLarge),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            chip(l10n.notSpecified, _targetAgeGroup == null, () => selectAge(null)),
+            chip(l10n.adults, _targetAgeGroup == 'adults', () => selectAge('adults')),
+            chip(l10n.kids, _targetAgeGroup == 'kids', () => selectAge('kids')),
           ],
-          onChanged: (value) {
-            setState(() {
-              _targetAgeGroup = value;
-              // Reset gender when age group changes to ensure compatibility
-              _targetGender = null;
-            });
-          },
         ),
-        
-        // Gender (only show if age group is selected)
-        if (_targetAgeGroup != null) ...[
-          const SizedBox(height: 16),
-          Builder(
-            builder: (context) {
-              // Validate gender value against current age group
-              // If the current gender value is not valid for the current age group, use null
-              String? validGender = _targetGender;
-              if (_targetAgeGroup == 'adults') {
-                // For adults, only 'male' and 'female' are valid
-                if (_targetGender != null && _targetGender != 'male' && _targetGender != 'female') {
-                  validGender = null;
-                }
-              } else {
-                // For kids, only 'boy' and 'girl' are valid
-                if (_targetGender != null && _targetGender != 'boy' && _targetGender != 'girl') {
-                  validGender = null;
-                }
-              }
-              
-              return DropdownButtonFormField<String>(
-                value: validGender,
-            decoration: InputDecoration(
-              labelText: l10n.gender,
-              hintText: l10n.selectGender,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  filled: true,
-                  fillColor: AppTheme.backgroundColor,
-                  prefixIcon: const Icon(Icons.person, color: AppTheme.accentColor),
-                ),
-            items: _targetAgeGroup == 'adults'
-                ? [
-                    DropdownMenuItem(value: null, child: Text(l10n.notSpecified)),
-                    DropdownMenuItem(value: 'male', child: Text(l10n.male)),
-                    DropdownMenuItem(value: 'female', child: Text(l10n.female)),
-                  ]
-                : [
-                    DropdownMenuItem(value: null, child: Text(l10n.notSpecified)),
-                    DropdownMenuItem(value: 'boy', child: Text(l10n.boy)),
-                    DropdownMenuItem(value: 'girl', child: Text(l10n.girl)),
-                  ],
-                onChanged: (value) {
-                  setState(() {
-                    _targetGender = value;
-                  });
-                },
-              );
-            },
-          ),
-        ],
+        const SizedBox(height: 16),
+        Text(l10n.gender, style: textTheme.labelLarge),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            chip(l10n.notSpecified, _targetGender == null, () => selectGender(null)),
+            if (_targetAgeGroup != 'kids') ...[
+              chip(l10n.male, _targetGender == 'male', () => selectGender('male')),
+              chip(l10n.female, _targetGender == 'female', () => selectGender('female')),
+            ],
+            if (_targetAgeGroup != 'adults') ...[
+              chip(l10n.boy, _targetGender == 'boy', () => selectGender('boy')),
+              chip(l10n.girl, _targetGender == 'girl', () => selectGender('girl')),
+            ],
+          ],
+        ),
       ],
     );
   }
